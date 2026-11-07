@@ -24,8 +24,9 @@ export async function buildRunChanges(
   for (const event of events) {
     const command = ComputerCommandSchema.safeParse(event.payload);
     if (!command.success) continue;
-    const { kind, status, command: path, bytes, change } = command.data;
-    if (kind !== "write_file" || status !== "done" || !path) continue;
+    const { kind, status, exitCode, command: path, bytes, change } = command.data;
+    // A failed write is recorded as done with a non-zero exit code.
+    if (kind !== "write_file" || status !== "done" || exitCode !== 0 || !path) continue;
     files.set(path, {
       path,
       ...(change ? { change } : {}),

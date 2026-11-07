@@ -1,6 +1,7 @@
 export const ZH_MESSAGES: Record<string, string> = {
+  "New file": "新文件",
+  "Changed file": "已更改文件",
   "Files written": "写入的文件",
-  "Modified": "已修改",
   "No matches": "没有匹配项",
   "Always ask": "始终询问",
   "Search tools": "搜索工具",

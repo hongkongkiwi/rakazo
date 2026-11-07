@@ -1488,6 +1488,10 @@ msgstr "비밀번호 변경"
 msgid "Change server"
 msgstr "서버 변경"
 
+#: src/components/ChangesCard.tsx
+msgid "Changed file"
+msgstr "변경된 파일"
+
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Changing…"
 msgstr "변경 중…"
@@ -2780,7 +2784,6 @@ msgid "Create your Rakazo"
 msgstr "Rakazo 계정 만들기"
 
 #: src/components/AskCard.tsx
-#: src/components/ChangesCard.tsx
 msgid "Created"
 msgstr "생성됨"
 
@@ -4520,10 +4523,6 @@ msgstr "서버에서 찾은 모델"
 msgid "Models list OK. {modelCount, plural, one {# model} other {# models}} available. Chat was not tested."
 msgstr "모델 목록이 정상입니다. {modelCount, plural, one {모델 #개} other {모델 #개}}를 사용할 수 있습니다. 채팅은 테스트하지 않았습니다."
 
-#: src/components/ChangesCard.tsx
-msgid "Modified"
-msgstr "수정됨"
-
 #: src/lib/cron.ts
 msgid "Monday"
 msgstr "월요일"
@@ -4701,6 +4700,10 @@ msgstr "새 컴퓨터 실행 환경"
 #: src/components/VaultSettings.tsx
 msgid "New contact"
 msgstr "새 연락처"
+
+#: src/components/ChangesCard.tsx
+msgid "New file"
+msgstr "새 파일"
 
 #: src/pages/GroupPanel.tsx
 msgid "New group"

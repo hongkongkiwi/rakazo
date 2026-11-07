@@ -1488,6 +1488,10 @@ msgstr "पासवर्ड बदलें"
 msgid "Change server"
 msgstr "सर्वर बदलें"
 
+#: src/components/ChangesCard.tsx
+msgid "Changed file"
+msgstr "बदली गई फ़ाइल"
+
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Changing…"
 msgstr "बदला जा रहा है…"
@@ -2780,7 +2784,6 @@ msgid "Create your Rakazo"
 msgstr "अपना Rakazo बनाएं"
 
 #: src/components/AskCard.tsx
-#: src/components/ChangesCard.tsx
 msgid "Created"
 msgstr "बनाया गया"
 
@@ -4520,10 +4523,6 @@ msgstr "सर्वर से मॉडल"
 msgid "Models list OK. {modelCount, plural, one {# model} other {# models}} available. Chat was not tested."
 msgstr "मॉडल सूची ठीक है। {modelCount, plural, one {# मॉडल} other {# मॉडल}} उपलब्ध है। चैट का परीक्षण नहीं हुआ।"
 
-#: src/components/ChangesCard.tsx
-msgid "Modified"
-msgstr "संशोधित"
-
 #: src/lib/cron.ts
 msgid "Monday"
 msgstr "सोमवार"
@@ -4701,6 +4700,10 @@ msgstr "नए कंप्यूटर इस पर चलते हैं"
 #: src/components/VaultSettings.tsx
 msgid "New contact"
 msgstr "नया संपर्क"
+
+#: src/components/ChangesCard.tsx
+msgid "New file"
+msgstr "नई फ़ाइल"
 
 #: src/pages/GroupPanel.tsx
 msgid "New group"

@@ -25,25 +25,30 @@ export function ChangesCard({ block }: { block: ChangesBlock }) {
       <Text style={{ color: tokens.mutedForeground, ...typeScale.caption }}>
         {t("Files written")}
       </Text>
-      {block.files.map((file) => {
+      {block.files.slice(0, 8).map((file) => {
         const status =
           file.change === "created"
-            ? t("Created")
+            ? t("New file")
             : file.change === "modified"
-              ? t("Modified")
+              ? t("Changed file")
               : null;
+        const detail = [status, file.bytes === undefined ? null : formatFileSize(file.bytes)]
+          .filter(Boolean)
+          .join(" · ");
         return (
           <View key={file.path} style={{ flexDirection: "row", alignItems: "baseline", gap: 6 }}>
             <Text style={{ flexShrink: 1, color: tokens.foreground, ...typeScale.secondary }}>
               {file.path}
             </Text>
-            <Text style={{ color: tokens.mutedForeground, ...typeScale.caption }}>
-              {status ? `${status} · ` : ""}
-              {file.bytes === undefined ? "" : formatFileSize(file.bytes)}
-            </Text>
+            <Text style={{ color: tokens.mutedForeground, ...typeScale.caption }}>{detail}</Text>
           </View>
         );
       })}
+      {block.files.length > 8 ? (
+        <Text style={{ color: tokens.mutedForeground, ...typeScale.caption }}>
+          +{block.files.length - 8}
+        </Text>
+      ) : null}
     </View>
   );
 }

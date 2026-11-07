@@ -1,6 +1,7 @@
 export const RU_MESSAGES: Record<string, string> = {
+  "New file": "Новый файл",
+  "Changed file": "Изменённый файл",
   "Files written": "Записанные файлы",
-  "Modified": "Изменено",
   "No matches": "Нет совпадений",
   "Always ask": "Всегда спрашивать",
   "Search tools": "Поиск инструментов",

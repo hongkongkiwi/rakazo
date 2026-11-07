@@ -1489,6 +1489,10 @@ msgstr "修改密碼"
 msgid "Change server"
 msgstr "更換伺服器"
 
+#: src/components/ChangesCard.tsx
+msgid "Changed file"
+msgstr "已變更檔案"
+
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Changing…"
 msgstr "正在修改…"
@@ -2781,7 +2785,6 @@ msgid "Create your Rakazo"
 msgstr "建立你的 Rakazo"
 
 #: src/components/AskCard.tsx
-#: src/components/ChangesCard.tsx
 msgid "Created"
 msgstr "已建立"
 
@@ -4521,10 +4524,6 @@ msgstr "來自伺服器的模型"
 msgid "Models list OK. {modelCount, plural, one {# model} other {# models}} available. Chat was not tested."
 msgstr "模型清單正常。{modelCount, plural, one {# 個模型} other {# 個模型}}可用。未測試聊天。"
 
-#: src/components/ChangesCard.tsx
-msgid "Modified"
-msgstr "已修改"
-
 #: src/lib/cron.ts
 msgid "Monday"
 msgstr "週一"
@@ -4702,6 +4701,10 @@ msgstr "新電腦執行於"
 #: src/components/VaultSettings.tsx
 msgid "New contact"
 msgstr "新增聯絡人"
+
+#: src/components/ChangesCard.tsx
+msgid "New file"
+msgstr "新檔案"
 
 #: src/pages/GroupPanel.tsx
 msgid "New group"

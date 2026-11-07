@@ -1,3 +1,4 @@
+import path from "node:path";
 import type { MessageBlock } from "@rakazo/contracts";
 import { ATTACHMENT_MAX_BYTES } from "@rakazo/contracts";
 import {
@@ -106,13 +107,22 @@ export const fileTools: ToolHandlers = {
     ctx.computer.checkpoint.markDirty();
     const computer = await ctx.computer.get("tool", name);
     const target = resolveBotWorkspacePath(ctx.computer.mode, bot.id, filePath);
-    // A cheap one-byte read tells a new file from a rewrite without loading the old content.
+    // List the parent rather than reading the file: a read cap is not an existence probe.
     let change: "created" | "modified" = "created";
     try {
-      await deps.sandbox.readFile(computer, target, context, { maxBytes: 1 });
-      change = "modified";
+      const parent = path.posix.dirname(target);
+      const name = path.posix.basename(target);
+      const entries = await deps.sandbox.listFiles(computer, parent, context);
+      if (
+        entries.some(
+          (entry) =>
+            entry.kind === "file" &&
+            (entry.path === target || path.posix.basename(entry.path) === name),
+        )
+      )
+        change = "modified";
     } catch {
-      // A missing file is the normal new-file case; the write reports any real failure.
+      // A missing parent is the normal new-file case; the write reports any real failure.
     }
     try {
       await deps.sandbox.writeFile(computer, { path: target, content }, context);

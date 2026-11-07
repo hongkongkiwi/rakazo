@@ -22,9 +22,9 @@ describe("ChangesCard", () => {
     const html = renderToStaticMarkup(<ChangesCard block={block} />);
     expect(html).toContain("Files written");
     expect(html).toContain("notes/a.md");
-    expect(html).toContain("Created");
+    expect(html).toContain("New file");
     expect(html).toContain("notes/b.md");
-    expect(html).toContain("Modified");
+    expect(html).toContain("Changed file");
     expect(html).toContain("2 KB");
   });
 });

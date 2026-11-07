@@ -1488,6 +1488,10 @@ msgstr "Parolayı değiştir"
 msgid "Change server"
 msgstr "Sunucuyu değiştir"
 
+#: src/components/ChangesCard.tsx
+msgid "Changed file"
+msgstr "Değiştirilen dosya"
+
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Changing…"
 msgstr "Değiştiriliyor…"
@@ -2780,7 +2784,6 @@ msgid "Create your Rakazo"
 msgstr "Rakazo hesabını oluştur"
 
 #: src/components/AskCard.tsx
-#: src/components/ChangesCard.tsx
 msgid "Created"
 msgstr "Oluşturuldu"
 
@@ -4520,10 +4523,6 @@ msgstr "Sunucudan gelen modeller"
 msgid "Models list OK. {modelCount, plural, one {# model} other {# models}} available. Chat was not tested."
 msgstr "Model listesi tamam. {modelCount, plural, one {# model} other {# model}} kullanılabilir. Sohbet test edilmedi."
 
-#: src/components/ChangesCard.tsx
-msgid "Modified"
-msgstr "Değiştirildi"
-
 #: src/lib/cron.ts
 msgid "Monday"
 msgstr "Pazartesi"
@@ -4701,6 +4700,10 @@ msgstr "Yeni bilgisayarlar şununla çalışır"
 #: src/components/VaultSettings.tsx
 msgid "New contact"
 msgstr "Yeni kişi"
+
+#: src/components/ChangesCard.tsx
+msgid "New file"
+msgstr "Yeni dosya"
 
 #: src/pages/GroupPanel.tsx
 msgid "New group"

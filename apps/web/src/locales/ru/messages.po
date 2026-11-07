@@ -1488,6 +1488,10 @@ msgstr "Изменить пароль"
 msgid "Change server"
 msgstr "Сменить сервер"
 
+#: src/components/ChangesCard.tsx
+msgid "Changed file"
+msgstr "Изменённый файл"
+
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Changing…"
 msgstr "Изменение…"
@@ -2780,7 +2784,6 @@ msgid "Create your Rakazo"
 msgstr "Создайте свой Rakazo"
 
 #: src/components/AskCard.tsx
-#: src/components/ChangesCard.tsx
 msgid "Created"
 msgstr "Создано"
 
@@ -4520,10 +4523,6 @@ msgstr "Модели с сервера"
 msgid "Models list OK. {modelCount, plural, one {# model} other {# models}} available. Chat was not tested."
 msgstr "Список моделей в порядке. {modelCount, plural, one {Доступна # модель} few {Доступны # модели} many {Доступно # моделей} other {Доступно # модели}}. Чат не проверялся."
 
-#: src/components/ChangesCard.tsx
-msgid "Modified"
-msgstr "Изменено"
-
 #: src/lib/cron.ts
 msgid "Monday"
 msgstr "понедельник"
@@ -4701,6 +4700,10 @@ msgstr "Новые компьютеры работают на"
 #: src/components/VaultSettings.tsx
 msgid "New contact"
 msgstr "Новый контакт"
+
+#: src/components/ChangesCard.tsx
+msgid "New file"
+msgstr "Новый файл"
 
 #: src/pages/GroupPanel.tsx
 msgid "New group"

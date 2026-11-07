@@ -19,11 +19,16 @@ export function ChangesCard({ block }: { block: ChangesBlock }) {
             </span>
             <span className="shrink-0 text-body-sm text-muted-foreground">
               {file.change === "created" ? (
-                <Trans>Created</Trans>
+                <Trans>New file</Trans>
               ) : file.change === "modified" ? (
-                <Trans>Modified</Trans>
+                <Trans>Changed file</Trans>
               ) : null}
-              {file.bytes === undefined ? null : ` · ${formatFileSize(file.bytes)}`}
+              {file.bytes === undefined ? null : (
+                <>
+                  {file.change === undefined ? "" : " · "}
+                  {formatFileSize(file.bytes)}
+                </>
+              )}
             </span>
           </li>
         ))}

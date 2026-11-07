@@ -1488,6 +1488,10 @@ msgstr "Wachtwoord wijzigen"
 msgid "Change server"
 msgstr "Server wijzigen"
 
+#: src/components/ChangesCard.tsx
+msgid "Changed file"
+msgstr "Gewijzigd bestand"
+
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Changing…"
 msgstr "Bezig met wijzigen…"
@@ -2780,7 +2784,6 @@ msgid "Create your Rakazo"
 msgstr "Maak je Rakazo"
 
 #: src/components/AskCard.tsx
-#: src/components/ChangesCard.tsx
 msgid "Created"
 msgstr "Aangemaakt"
 
@@ -4520,10 +4523,6 @@ msgstr "Modellen van de server"
 msgid "Models list OK. {modelCount, plural, one {# model} other {# models}} available. Chat was not tested."
 msgstr "Modellenlijst is in orde. {modelCount, plural, one {# model} other {# modellen}} beschikbaar. Chat is niet getest."
 
-#: src/components/ChangesCard.tsx
-msgid "Modified"
-msgstr "Gewijzigd"
-
 #: src/lib/cron.ts
 msgid "Monday"
 msgstr "maandag"
@@ -4701,6 +4700,10 @@ msgstr "Nieuwe computers draaien op"
 #: src/components/VaultSettings.tsx
 msgid "New contact"
 msgstr "Nieuw contact"
+
+#: src/components/ChangesCard.tsx
+msgid "New file"
+msgstr "Nieuw bestand"
 
 #: src/pages/GroupPanel.tsx
 msgid "New group"

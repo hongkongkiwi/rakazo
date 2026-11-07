@@ -1488,6 +1488,10 @@ msgstr "שינוי סיסמה"
 msgid "Change server"
 msgstr "החלפת שרת"
 
+#: src/components/ChangesCard.tsx
+msgid "Changed file"
+msgstr "קובץ ששונה"
+
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Changing…"
 msgstr "משנה…"
@@ -2780,7 +2784,6 @@ msgid "Create your Rakazo"
 msgstr "יצירת Rakazo משלך"
 
 #: src/components/AskCard.tsx
-#: src/components/ChangesCard.tsx
 msgid "Created"
 msgstr "נוצר"
 
@@ -4520,10 +4523,6 @@ msgstr "מודלים מהשרת"
 msgid "Models list OK. {modelCount, plural, one {# model} other {# models}} available. Chat was not tested."
 msgstr "רשימת המודלים תקינה. {modelCount, plural, one {מודל אחד זמין} other {# מודלים זמינים}}. הצ׳אט לא נבדק."
 
-#: src/components/ChangesCard.tsx
-msgid "Modified"
-msgstr "שונה"
-
 #: src/lib/cron.ts
 msgid "Monday"
 msgstr "יום שני"
@@ -4701,6 +4700,10 @@ msgstr "מחשבים חדשים רצים על"
 #: src/components/VaultSettings.tsx
 msgid "New contact"
 msgstr "איש קשר חדש"
+
+#: src/components/ChangesCard.tsx
+msgid "New file"
+msgstr "קובץ חדש"
 
 #: src/pages/GroupPanel.tsx
 msgid "New group"
