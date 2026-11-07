@@ -49,14 +49,16 @@ export function AnnotateImageModal({
   const start = useRef<Point | null>(null);
   const draftRef = useRef<Draft | null>(null);
 
+  // A picked image normally has a preview file; a shared one may only carry bytes.
+  const previewUri =
+    attachment.previewUri ?? `data:${attachment.mimeType};base64,${attachment.contentBase64}`;
   useEffect(() => {
-    if (!attachment.previewUri) return;
     Image.getSize(
-      attachment.previewUri,
+      previewUri,
       (width, height) => setSize({ width, height }),
       () => setError(t("This image could not be read")),
     );
-  }, [attachment.previewUri, t]);
+  }, [previewUri, t]);
 
   const display = useMemo(() => {
     if (!size) return null;
@@ -180,7 +182,7 @@ export function AnnotateImageModal({
           <Text style={{ color: tokens.mutedForeground, fontSize: 15 }}>
             {t("Drag over the image to point at what matters.")}
           </Text>
-          {display && attachment.previewUri ? (
+          {display ? (
             <View
               {...responder.panHandlers}
               style={{
@@ -192,7 +194,7 @@ export function AnnotateImageModal({
               }}
             >
               <Image
-                source={{ uri: attachment.previewUri }}
+                source={{ uri: previewUri }}
                 style={{ width: display.width, height: display.height }}
                 resizeMode="stretch"
               />
