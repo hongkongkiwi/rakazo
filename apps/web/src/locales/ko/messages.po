@@ -7082,6 +7082,10 @@ msgstr "모든 스페이스에서 이 연결이 제거됩니다."
 msgid "This reset link is invalid or expired"
 msgstr "이 재설정 링크는 유효하지 않거나 만료되었습니다"
 
+#: src/pages/routine-editor/model-settings.tsx
+msgid "This routine uses a model that is not connected. It will fail until you reconnect it."
+msgstr "이 자동 실행은 연결되지 않은 모델을 사용합니다. 다시 연결할 때까지 실패합니다."
+
 #: src/pages/shell/message-cards.tsx
 msgid "This server cannot be assigned without a bot."
 msgstr "연결할 Bot이 없어 이 서버를 배정할 수 없습니다."
@@ -7449,6 +7453,10 @@ msgstr "비밀번호는 보호된 입력을 사용하세요."
 #: src/components/ModelCredits.tsx
 msgid "Use Rakazo credits"
 msgstr "Rakazo 크레딧 사용"
+
+#: src/pages/routine-editor/model-settings.tsx
+msgid "Use the bot's model"
+msgstr "봇 모델 사용"
 
 #: src/pages/memory-providers/HonchoSettingsForm.tsx
 msgid "Use up to 512 letters, digits, _ or -."

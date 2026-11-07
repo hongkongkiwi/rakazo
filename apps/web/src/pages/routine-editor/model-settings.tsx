@@ -17,6 +17,7 @@ import {
   thinkingLevelLabel,
 } from "../../lib/model-catalog";
 import type { RoutineDraftState } from "../../lib/routine-draft";
+import { shouldWarnRoutineModelMissing } from "../../lib/routine-model";
 import { rpc } from "../../lib/rpc";
 
 /** The advanced popover that picks a model and thinking level for this routine. */
@@ -32,15 +33,20 @@ export function RoutineModelSettings({
   const { t } = useLingui();
   const [credentials, setCredentials] = useState<ModelCredential[]>([]);
   const [catalog, setCatalog] = useState<ModelCatalogEntry[]>([]);
+  const [modelData, setModelData] = useState<"loading" | "ready" | "failed">("loading");
   useEffect(() => {
     void Promise.all([rpc.models.credentials(), rpc.models.list()])
       .then(([nextCredentials, nextCatalog]) => {
         setCredentials(nextCredentials);
         setCatalog(nextCatalog);
+        setModelData("ready");
       })
-      .catch(() => undefined);
+      .catch(() => setModelData("failed"));
   }, []);
   const modelOptions = connectedModelOptions(credentials, catalog);
+  const modelMissing = shouldWarnRoutineModelMissing(modelData, draft.modelKey, modelOptions);
+  const showPinnedOption =
+    Boolean(draft.modelKey) && !modelOptions.some((option) => option.key === draft.modelKey);
   const selectedModel = draft.modelKey ? parseModelOptionKey(draft.modelKey) : null;
   const selectedEntry = selectedModel
     ? catalog.find(
@@ -92,7 +98,7 @@ export function RoutineModelSettings({
             }
           >
             <NativeSelectOption value="">{t`Bot's model`}</NativeSelectOption>
-            {draft.modelKey && !modelOptions.some((option) => option.key === draft.modelKey) ? (
+            {showPinnedOption ? (
               <NativeSelectOption value={draft.modelKey}>
                 {selectedModel?.modelId ?? draft.modelKey}
               </NativeSelectOption>
@@ -104,6 +110,24 @@ export function RoutineModelSettings({
             ))}
           </NativeSelect>
         </label>
+
+        {modelMissing ? (
+          <div className="mt-3 rounded-[14px] border border-warning/40 bg-warning/10 px-3 py-2 text-body-sm text-warning">
+            <p>
+              <Trans>
+                This routine uses a model that is not connected. It will fail until you reconnect
+                it.
+              </Trans>
+            </p>
+            <button
+              type="button"
+              className="mt-1 underline underline-offset-2"
+              onClick={() => onChange({ ...draft, modelKey: "", thinkingLevel: "" })}
+            >
+              <Trans>Use the bot's model</Trans>
+            </button>
+          </div>
+        ) : null}
 
         {thinkingOptions.length ? (
           <label

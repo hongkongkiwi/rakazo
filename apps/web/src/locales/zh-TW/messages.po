@@ -7083,6 +7083,10 @@ msgstr "這將從每個空間移除該連線。"
 msgid "This reset link is invalid or expired"
 msgstr "此重設連結無效或已過期"
 
+#: src/pages/routine-editor/model-settings.tsx
+msgid "This routine uses a model that is not connected. It will fail until you reconnect it."
+msgstr "此例行任務使用的模型未連線。重新連線前將無法執行。"
+
 #: src/pages/shell/message-cards.tsx
 msgid "This server cannot be assigned without a bot."
 msgstr "沒有機器人就無法分配此伺服器。"
@@ -7450,6 +7454,10 @@ msgstr "輸入密碼時，請使用受保護的輸入。"
 #: src/components/ModelCredits.tsx
 msgid "Use Rakazo credits"
 msgstr "使用 Rakazo 額度"
+
+#: src/pages/routine-editor/model-settings.tsx
+msgid "Use the bot's model"
+msgstr "使用機器人的模型"
 
 #: src/pages/memory-providers/HonchoSettingsForm.tsx
 msgid "Use up to 512 letters, digits, _ or -."

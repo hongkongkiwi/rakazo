@@ -7082,6 +7082,10 @@ msgstr "Bu, bağlantıyı her alandan kaldırır."
 msgid "This reset link is invalid or expired"
 msgstr "Bu sıfırlama bağlantısı geçersiz veya süresi dolmuş"
 
+#: src/pages/routine-editor/model-settings.tsx
+msgid "This routine uses a model that is not connected. It will fail until you reconnect it."
+msgstr "Bu rutin bağlı olmayan bir model kullanıyor. Yeniden bağlayana kadar başarısız olacak."
+
 #: src/pages/shell/message-cards.tsx
 msgid "This server cannot be assigned without a bot."
 msgstr "Bu sunucu bir bot olmadan atanamaz."
@@ -7449,6 +7453,10 @@ msgstr "Parolalar için Korumalı giriş'i kullan."
 #: src/components/ModelCredits.tsx
 msgid "Use Rakazo credits"
 msgstr "Rakazo kredilerini kullan"
+
+#: src/pages/routine-editor/model-settings.tsx
+msgid "Use the bot's model"
+msgstr "Botun modelini kullan"
 
 #: src/pages/memory-providers/HonchoSettingsForm.tsx
 msgid "Use up to 512 letters, digits, _ or -."
