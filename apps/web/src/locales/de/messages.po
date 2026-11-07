@@ -7084,7 +7084,7 @@ msgstr "Dieser Link zum Zurücksetzen ist ungültig oder abgelaufen"
 
 #: src/pages/routine-editor/model-settings.tsx
 msgid "This routine uses a model that is not connected. It will fail until you reconnect it."
-msgstr "Diese Routine verwendet ein Modell, das nicht verbunden ist. Sie schlägt fehl, bis Sie es erneut verbinden."
+msgstr "Diese Routine verwendet ein Modell, das nicht verbunden ist. Sie schlägt fehl, bis du es erneut verbindest."
 
 #: src/pages/shell/message-cards.tsx
 msgid "This server cannot be assigned without a bot."

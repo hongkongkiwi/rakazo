@@ -7085,7 +7085,7 @@ msgstr "此重設連結無效或已過期"
 
 #: src/pages/routine-editor/model-settings.tsx
 msgid "This routine uses a model that is not connected. It will fail until you reconnect it."
-msgstr "此例行任務使用的模型未連接。重新連接之前，它將失敗。"
+msgstr "此例行任務使用的模型未連線。重新連線前將無法執行。"
 
 #: src/pages/shell/message-cards.tsx
 msgid "This server cannot be assigned without a bot."

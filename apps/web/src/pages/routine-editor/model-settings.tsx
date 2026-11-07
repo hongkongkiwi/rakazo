@@ -17,7 +17,7 @@ import {
   thinkingLevelLabel,
 } from "../../lib/model-catalog";
 import type { RoutineDraftState } from "../../lib/routine-draft";
-import { isRoutineModelMissing } from "../../lib/routine-model";
+import { shouldWarnRoutineModelMissing } from "../../lib/routine-model";
 import { rpc } from "../../lib/rpc";
 
 /** The advanced popover that picks a model and thinking level for this routine. */
@@ -33,16 +33,20 @@ export function RoutineModelSettings({
   const { t } = useLingui();
   const [credentials, setCredentials] = useState<ModelCredential[]>([]);
   const [catalog, setCatalog] = useState<ModelCatalogEntry[]>([]);
+  const [modelData, setModelData] = useState<"loading" | "ready" | "failed">("loading");
   useEffect(() => {
     void Promise.all([rpc.models.credentials(), rpc.models.list()])
       .then(([nextCredentials, nextCatalog]) => {
         setCredentials(nextCredentials);
         setCatalog(nextCatalog);
+        setModelData("ready");
       })
-      .catch(() => undefined);
+      .catch(() => setModelData("failed"));
   }, []);
   const modelOptions = connectedModelOptions(credentials, catalog);
-  const modelMissing = isRoutineModelMissing(draft.modelKey, modelOptions);
+  const modelMissing = shouldWarnRoutineModelMissing(modelData, draft.modelKey, modelOptions);
+  const showPinnedOption =
+    Boolean(draft.modelKey) && !modelOptions.some((option) => option.key === draft.modelKey);
   const selectedModel = draft.modelKey ? parseModelOptionKey(draft.modelKey) : null;
   const selectedEntry = selectedModel
     ? catalog.find(
@@ -94,7 +98,7 @@ export function RoutineModelSettings({
             }
           >
             <NativeSelectOption value="">{t`Bot's model`}</NativeSelectOption>
-            {modelMissing ? (
+            {showPinnedOption ? (
               <NativeSelectOption value={draft.modelKey}>
                 {selectedModel?.modelId ?? draft.modelKey}
               </NativeSelectOption>

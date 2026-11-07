@@ -7084,7 +7084,7 @@ msgstr "Deze herstellingslink is ongeldig of verlopen"
 
 #: src/pages/routine-editor/model-settings.tsx
 msgid "This routine uses a model that is not connected. It will fail until you reconnect it."
-msgstr "Deze routine gebruikt een model dat niet is verbonden. Deze mislukt tot je het opnieuw verbindt."
+msgstr "Deze routine gebruikt een model dat niet is verbonden. De uitvoering mislukt totdat je het opnieuw koppelt."
 
 #: src/pages/shell/message-cards.tsx
 msgid "This server cannot be assigned without a bot."
