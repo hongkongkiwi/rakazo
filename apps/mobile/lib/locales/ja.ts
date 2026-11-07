@@ -1,5 +1,5 @@
 export const JA_MESSAGES: Record<string, string> = {
-  "Continued on a different model": "別のモデルで続行",
+  "Continued on a different model": "別のモデルで続行されました",
   "No matches": "一致するものはありません",
   "Always ask": "常に確認",
   "Search tools": "ツールを検索",

@@ -85,6 +85,15 @@ describe("speakable", () => {
       ]),
     ).toContain("Ship it?");
   });
+
+  it("does not read a model-switch notice aloud", () => {
+    expect(
+      speechFromBlocks([
+        { kind: "meta", text: "Continued on a different model", code: "model_switch" },
+        { kind: "text", text: "The report is ready." },
+      ]),
+    ).toBe("The report is ready.");
+  });
 });
 
 describe("toUtterances", () => {

@@ -235,6 +235,7 @@ export function narrateTool(toolName: string): string | null {
 export function speechFromBlocks(blocks: MessageBlock[]): string {
   return blocks
     .map((block) => {
+      if (block.kind === "meta" && block.code === "model_switch") return "";
       if (block.kind === "text" || block.kind === "progress" || block.kind === "meta")
         return block.text;
       if (block.kind === "ask") return block.text;

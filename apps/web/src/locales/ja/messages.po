@@ -2052,7 +2052,7 @@ msgstr "{0}で続行"
 
 #: src/pages/shell/message-view.tsx
 msgid "Continued on a different model"
-msgstr "別のモデルで続行"
+msgstr "別のモデルで続行されました"
 
 #: src/pages/MessagingSettingsPanel.tsx
 msgid "Conversations"

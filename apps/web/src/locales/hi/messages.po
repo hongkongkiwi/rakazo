@@ -2052,7 +2052,7 @@ msgstr "{0} के साथ जारी रखें"
 
 #: src/pages/shell/message-view.tsx
 msgid "Continued on a different model"
-msgstr "किसी दूसरे मॉडल पर जारी"
+msgstr "किसी दूसरे मॉडल पर जारी रखा गया"
 
 #: src/pages/MessagingSettingsPanel.tsx
 msgid "Conversations"
