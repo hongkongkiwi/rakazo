@@ -237,7 +237,7 @@ test("takeover, routine, plugins, and export are reachable", async ({ page }, te
   await expect(page.getByTestId("connection-detail")).toHaveCount(0);
   await expect(linearRow.getByRole("button", { name: "Add", exact: true })).toBeVisible();
 
-  // Custom sources live behind one menu: GitHub, then MCP → OpenAPI → GraphQL → Executor → Treg.
+  // Custom sources live behind one menu: GitHub, then MCP → OpenAPI → GraphQL → the source presets.
   await page.getByRole("button", { name: "Add custom", exact: true }).click();
   const addItems = page.getByRole("menuitem");
   await expect(addItems).toHaveText([
@@ -247,6 +247,14 @@ test("takeover, routine, plugins, and export are reachable", async ({ page }, te
     "GraphQL",
     "Executor",
     "Treg",
+    "Linear",
+    "GitHub",
+    "Context7",
+    "Perplexity",
+    "DeepWiki",
+    "Quackr",
+    "DigitalOcean",
+    "Instabox",
     "Browse MCP servers",
     "Search by domain",
     "Manage MCP servers",

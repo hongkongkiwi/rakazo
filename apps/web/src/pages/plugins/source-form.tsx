@@ -41,7 +41,7 @@ export function useSourceForm() {
     setSourceName(preset?.name ?? "");
     setSourceUrl(preset?.url ?? "");
     setCredential("");
-    setAuthType(preset ? "bearer" : "none");
+    setAuthType(preset ? (preset.auth === "none" ? "none" : "bearer") : "none");
     setAuthName("x-api-key");
   }
 
@@ -117,6 +117,10 @@ export function SourceFormView({
   } = form;
   if (!sourceKind) return null;
   const custom = !sourcePreset;
+  // Preset replies from before the auth field carry none; they behaved as bearer sources.
+  const needsCredential = sourcePreset
+    ? (sourcePreset.auth ?? "bearer") !== "none"
+    : authType !== "none";
   // OAuth saves the server before the browser sign-in, so it is not a check of typed credentials.
   const oauth = authType === "oauth";
   const submitLabel = installing ? (
@@ -222,7 +226,7 @@ export function SourceFormView({
             />
           </Field>
         ) : null}
-        {(!custom || authType !== "none") && authType !== "oauth" ? (
+        {needsCredential && !oauth ? (
           <Field>
             <FieldLabel htmlFor="source-credential">
               {sourcePreset ? <Trans>Bearer token</Trans> : <Trans>Credential</Trans>}

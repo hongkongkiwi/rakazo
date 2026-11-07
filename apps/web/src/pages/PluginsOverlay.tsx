@@ -297,11 +297,14 @@ export function PluginsOverlay({
         authType === "header"
           ? { type: "header" as const, name: authName.trim() }
           : { type: authType === "bearer" ? ("bearer" as const) : ("none" as const) };
+      const needsCredential = sourcePreset
+        ? (sourcePreset.auth ?? "bearer") !== "none"
+        : authType !== "none";
       await rpc.capabilities.install({
         kind: sourceKind,
         name,
         source: sourceUrl.trim(),
-        credential: credential.trim() || undefined,
+        credential: needsCredential ? credential.trim() || undefined : undefined,
         config: sourcePreset
           ? { preset: sourcePreset.id }
           : sourceKind === "api"
@@ -416,7 +419,7 @@ export function PluginsOverlay({
             ) : null}
             {browsing || view === "manage" ? (
               <AddMenu
-                presets={sourcePresets}
+                presets={sourcePresets.filter((preset) => preset.auth !== "oauth")}
                 onGithub={() => openAddView("github")}
                 onSource={beginSource}
                 onBrowseMcp={() => {

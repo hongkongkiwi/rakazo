@@ -69,21 +69,45 @@ const McpAuthSchema = z
 
 /** MCP services offered as one-step sources. A preset with a URL always connects there. */
 export const MCP_SOURCE_PRESETS: McpSourcePreset[] = [
-  { id: "executor", name: "Executor", urlPlaceholder: "https://executor.example/mcp" },
-  { id: "treg", name: "Treg", url: "https://treg.to/mcp/" },
+  {
+    id: "executor",
+    name: "Executor",
+    urlPlaceholder: "https://executor.example/mcp",
+    auth: "bearer",
+  },
+  { id: "treg", name: "Treg", url: "https://treg.to/mcp/", auth: "bearer" },
+  { id: "linear", name: "Linear", url: "https://mcp.linear.app/mcp", auth: "bearer" },
+  { id: "github", name: "GitHub", url: "https://api.githubcopilot.com/mcp/", auth: "bearer" },
+  { id: "context7", name: "Context7", url: "https://mcp.context7.com/mcp", auth: "bearer" },
+  { id: "perplexity", name: "Perplexity", url: "https://api.perplexity.ai/mcp", auth: "bearer" },
+  { id: "deepwiki", name: "DeepWiki", url: "https://mcp.deepwiki.com/mcp", auth: "none" },
+  { id: "quackr", name: "Quackr", url: "https://mcp.quackr.io/", auth: "bearer" },
+  {
+    id: "digitalocean",
+    name: "DigitalOcean",
+    url: "https://mcp.digitalocean.com/mcp",
+    auth: "bearer",
+  },
+  { id: "instabox", name: "Instabox", url: "https://api.instabox.sh/mcp", auth: "bearer" },
 ];
 
-/** Applies a preset named in an MCP install: its fixed URL and bearer auth, so clients send
- * only the id. Stored configs keep only fixed-URL preset ids; the rest store as custom. */
+/** Applies a preset named in an MCP install: its fixed URL and auth, so clients send only
+ * the id. Stored configs keep only fixed-URL preset ids; the rest store as custom. */
 export function applyMcpSourcePreset(
   source: string,
   config: Record<string, unknown>,
 ): { source: string; config: Record<string, unknown> } {
   const preset = MCP_SOURCE_PRESETS.find((entry) => entry.id === config.preset);
   if (!preset) return { source, config: { ...config, preset: "custom" } };
+  // Replies from before the auth field carry none; those presets behaved as bearer sources.
+  const auth = preset.auth ?? "bearer";
+  // A generic install cannot run an OAuth flow, so refusing beats a silent bearer token.
+  if (auth === "oauth") {
+    throw new Error(`${preset.name} needs OAuth sign-in, which this install does not support`);
+  }
   return {
     source: preset.url ?? source,
-    config: { ...config, preset: preset.url ? preset.id : "custom", auth: { type: "bearer" } },
+    config: { preset: preset.url ? preset.id : "custom", auth: { type: auth } },
   };
 }
 
@@ -430,6 +454,10 @@ export async function verifyMcpInstall(input: {
 }): Promise<{ config: Record<string, unknown>; toolCount: number }> {
   assertNoSensitiveQuery(input.source);
   const config = McpConfigSchema.parse(input.config);
+  // A no-auth preset must not store a client-sent credential, hostile or not.
+  if (config.auth.type === "none" && input.credential) {
+    throw new Error("This connector does not accept a credential");
+  }
   requireCredential(config.auth, input.credential);
   const tools = await listRemoteMcpTools({
     ...input.remote,
