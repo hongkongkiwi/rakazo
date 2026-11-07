@@ -41,6 +41,7 @@ export interface SandboxProviderOptions {
   instaboxApiKey?: string;
   instaboxApiUrl?: string;
   instaboxTemplate?: string;
+  instaboxMaxRunMinutes?: number;
   kubernetesNamespace?: string;
   kubernetesRuntimeClassName?: string;
   kubernetesComputerImage?: string;
@@ -150,6 +151,7 @@ export async function createSandboxProvider(
         apiKey: opts.instaboxApiKey,
         apiUrl: opts.instaboxApiUrl,
         template: opts.instaboxTemplate,
+        maxRunMinutes: opts.instaboxMaxRunMinutes,
       });
     }
     case "railway":

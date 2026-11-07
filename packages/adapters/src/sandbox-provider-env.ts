@@ -77,6 +77,7 @@ export function sandboxProviderOptionsFromEnv(
   | "instaboxApiKey"
   | "instaboxApiUrl"
   | "instaboxTemplate"
+  | "instaboxMaxRunMinutes"
   | "kubernetesNamespace"
   | "kubernetesRuntimeClassName"
   | "kubernetesComputerImage"
@@ -129,6 +130,10 @@ export function sandboxProviderOptionsFromEnv(
     instaboxApiKey: optional(source.INSTABOX_API_KEY),
     instaboxApiUrl: optional(source.INSTABOX_API_URL),
     instaboxTemplate: optional(source.INSTABOX_TEMPLATE),
+    instaboxMaxRunMinutes: positiveInteger(
+      source.INSTABOX_MAX_RUN_MINUTES,
+      "INSTABOX_MAX_RUN_MINUTES",
+    ),
     kubernetesNamespace: optional(source.KUBERNETES_SANDBOX_NAMESPACE),
     kubernetesRuntimeClassName: optional(source.KUBERNETES_SANDBOX_RUNTIME_CLASS_NAME),
     kubernetesComputerImage: optional(source.KUBERNETES_SANDBOX_COMPUTER_IMAGE),

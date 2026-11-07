@@ -62,11 +62,17 @@ class FakeMachine implements InstaboxMachine {
 class FakeInstabox implements InstaboxClient {
   readonly machines = new Map<string, FakeMachine>();
   readonly created: Array<Parameters<InstaboxClient["create"]>[0]> = [];
+  readonly caps = new Map<string, number>();
+  failCap = false;
   async create(options: Parameters<InstaboxClient["create"]>[0]) {
     this.created.push(options);
     const machine = new FakeMachine(`m_${this.machines.size + 1}`);
     this.machines.set(machine.sandboxId, machine);
     return machine;
+  }
+  async setMaxRun(id: string, minutes: number) {
+    if (this.failCap) throw new Error("cap rejected");
+    this.caps.set(id, minutes);
   }
   async connect(id: string) {
     const machine = this.machines.get(id);
@@ -113,6 +119,19 @@ describe("instabox computers", () => {
         metadata: { botId: "bot", rakazo: "computer" },
       }),
     ]);
+    // The provider-side runtime cap is what stops a machine when Rakazo itself is stuck.
+    expect(box.caps.get("m_1")).toBe(240);
+  });
+
+  it("refuses to leave a machine that could not be capped running", async () => {
+    const box = new FakeInstabox();
+    box.failCap = true;
+    const provider = new InstaboxSandboxProvider({ apiKey: "k" }, box);
+
+    await expect(provider.provision({ botId: "bot", homePath: "/unused" }, ctx)).rejects.toThrow(
+      "cap rejected",
+    );
+    expect(box.machines.size).toBe(0);
   });
 
   it("reconnects a saved reference instead of creating another machine", async () => {

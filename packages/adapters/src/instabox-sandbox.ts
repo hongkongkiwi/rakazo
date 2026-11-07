@@ -31,6 +31,8 @@ const HOME = "/data/home";
 const WORKSPACE = `${HOME}/rakazo-home`;
 const DEFAULT_TEMPLATE = "agent-browser";
 const MAX_FILE_BYTES = 10 * 1024 * 1024;
+/** Server-side cap on one running period; the provider pauses the machine when it is reached. */
+const DEFAULT_MAX_RUN_MINUTES = 240;
 
 interface CommandResult {
   stdout: string;
@@ -63,6 +65,8 @@ export interface InstaboxClient {
   pause(id: string): Promise<void>;
   kill(id: string): Promise<boolean>;
   keepAlive(id: string, idleMs: number): Promise<void>;
+  /** Caps one running period on the provider's side, independent of Rakazo's idle checks. */
+  setMaxRun(id: string, minutes: number): Promise<void>;
 }
 
 export interface InstaboxMachine {
@@ -137,6 +141,24 @@ export function nativeInstaboxClient(apiKey: string, apiUrl?: string): InstaboxC
       const machine = await Sandbox.connect(id, { ...(await connection()), resume: false });
       await machine.setAutoSuspend(idleMs);
     },
+    async setMaxRun(id, minutes) {
+      // The SDK has no runtime-cap call, so this uses the documented machine PATCH route.
+      const response = await fetch(
+        `${apiUrl ?? "https://api.instabox.sh"}/v1/machines/${encodeURIComponent(id)}`,
+        {
+          method: "PATCH",
+          headers: {
+            "X-API-Key": apiKey,
+            "content-type": "application/json",
+            "Idempotency-Key": `rakazo-max-run-${randomUUID()}`,
+          },
+          body: JSON.stringify({ maxRunMinutes: minutes }),
+        },
+      );
+      if (!response.ok) {
+        throw new Error(`could not cap the Instabox computer's runtime (HTTP ${response.status})`);
+      }
+    },
   };
 }
 
@@ -144,6 +166,7 @@ export interface InstaboxSandboxOptions {
   apiKey: string;
   apiUrl?: string;
   template?: string;
+  maxRunMinutes?: number;
 }
 
 /** Instabox owns the VM; Rakazo runs commands and files there and has no graphical screen yet. */
@@ -154,10 +177,12 @@ export class InstaboxSandboxProvider implements SandboxProvider {
 
   private readonly client: InstaboxClient;
   private readonly template: string;
+  private readonly maxRunMinutes: number;
 
   constructor(options: InstaboxSandboxOptions, client?: InstaboxClient) {
     this.client = client ?? nativeInstaboxClient(options.apiKey, options.apiUrl);
     this.template = options.template?.trim() || DEFAULT_TEMPLATE;
+    this.maxRunMinutes = options.maxRunMinutes ?? DEFAULT_MAX_RUN_MINUTES;
   }
 
   describe() {
@@ -204,6 +229,13 @@ export class InstaboxSandboxProvider implements SandboxProvider {
     if (context.signal.aborted) {
       await this.client.kill(machine.sandboxId).catch(() => undefined);
       context.signal.throwIfAborted();
+    }
+    // A machine without the provider-side cap could outlive any Rakazo bug, so fail closed.
+    try {
+      await this.client.setMaxRun(machine.sandboxId, this.maxRunMinutes);
+    } catch (error) {
+      await this.client.kill(machine.sandboxId).catch(() => undefined);
+      throw error;
     }
     return this.ref(machine.sandboxId, request.botId, true);
   }
