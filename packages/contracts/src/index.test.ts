@@ -4,6 +4,8 @@ import {
   CreateGroupInput,
   CreateRoutineInput,
   canReactToThreadMessage,
+  ImageAnnotationMarkSchema,
+  isAnnotatableImageMimeType,
   McpServerConfigInput,
   MessageBlock,
   MODEL_ROUTING_ID_MESSAGE,
@@ -222,6 +224,27 @@ describe("contracts", () => {
       { label: "Save", count: 1 },
     ];
     expect(MessageBlock.parse({ kind: "steps", steps })).toEqual({ kind: "steps", steps });
+  });
+
+  it("validates image annotation marks and annotatable types", () => {
+    expect(
+      ImageAnnotationMarkSchema.safeParse({
+        x: 0.1,
+        y: 0.2,
+        width: 0.3,
+        height: 0.4,
+        label: "Total is wrong",
+      }).success,
+    ).toBe(true);
+    expect(
+      ImageAnnotationMarkSchema.safeParse({ x: 1.2, y: 0, width: 0.5, height: 0.5 }).success,
+    ).toBe(false);
+    expect(ImageAnnotationMarkSchema.safeParse({ x: 0, y: 0, width: 0, height: 0.5 }).success).toBe(
+      false,
+    );
+    expect(isAnnotatableImageMimeType("image/png")).toBe(true);
+    expect(isAnnotatableImageMimeType("image/webp")).toBe(true);
+    expect(isAnnotatableImageMimeType("image/gif")).toBe(false);
   });
 
   it("limits reactions to persisted non-channel messages", () => {

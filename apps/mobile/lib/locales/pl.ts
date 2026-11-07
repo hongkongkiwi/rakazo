@@ -1,4 +1,13 @@
 export const PL_MESSAGES: Record<string, string> = {
+  "Annotate image": "Dodaj adnotację do obrazu",
+  "Drag over the image to point at what matters.":
+    "Przeciągnij po obrazie, aby wskazać, co jest ważne.",
+  "This image could not be read": "Nie udało się odczytać tego obrazu",
+  "What is wrong here?": "Co jest tutaj nie tak?",
+  "Remove box {index}": "Usuń pole {index}",
+  "Could not annotate this image": "Nie udało się dodać adnotacji do obrazu",
+  "Annotate {name}": "Dodaj adnotację do {name}",
+  "Edit annotation on {name}": "Edytuj adnotację na {name}",
   "No matches": "Brak wyników",
   "Always ask": "Zawsze pytaj",
   "Search tools": "Szukaj narzędzi",

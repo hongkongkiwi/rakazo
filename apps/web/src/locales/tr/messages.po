@@ -941,6 +941,18 @@ msgstr "İçe aktarılan bir API anahtarı kullanılamadı. İşaretini kaldır�
 msgid "An integration tool"
 msgstr "Bir entegrasyon aracı"
 
+#: src/pages/shell/composer-parts.tsx
+msgid "Annotate"
+msgstr "Not ekle"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "Annotate image"
+msgstr "Görsele not ekle"
+
+#: src/pages/shell/composer-parts.tsx
+msgid "Annotated"
+msgstr "Not eklendi"
+
 #: src/lib/activity-list-filters.ts
 msgid "Another agent"
 msgstr "Başka bir Agent"
@@ -1399,6 +1411,7 @@ msgstr "Sunucuya ulaşılamıyor."
 msgid "Can't read images"
 msgstr "Görselleri okuyamaz"
 
+#: src/components/AnnotateImageDialog.tsx
 #: src/components/AskCard.tsx
 #: src/components/ConfirmDialog.tsx
 #: src/components/integrations/plugin-marketplace.tsx
@@ -2121,6 +2134,10 @@ msgstr "MCP sunucusu eklenemedi"
 #: src/components/integrations/plugin-marketplace.tsx
 msgid "Could not add skills"
 msgstr "Beceriler eklenemedi"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "Could not annotate this image"
+msgstr "Bu görsele not eklenemedi"
 
 #: src/pages/PluginSubmissionsPanel.tsx
 msgid "Could not approve plugin"
@@ -3190,6 +3207,10 @@ msgstr "İndiriliyor…"
 #: src/components/teach/SkillDraftCard.tsx
 msgid "Draft skill"
 msgstr "Taslak beceri"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "Drag over the image to point at what matters."
+msgstr "Önemli olanı işaretlemek için görselin üzerinde sürükleyin."
 
 #: src/pages/shell/avatar-studio-popover.tsx
 msgid "Drag, drop, or paste an image"
@@ -4935,6 +4956,11 @@ msgstr "Rakazo tarafından kullanılmıyor"
 msgid "Not working"
 msgstr "Çalışmıyor"
 
+#. placeholder {0}: index + 1
+#: src/components/AnnotateImageDialog.tsx
+msgid "Note for box {0}"
+msgstr "Kutu {0} notu"
+
 #: src/pages/KnowledgeSection.tsx
 msgid "Nothing remembered yet"
 msgstr "Henüz hatırlanan bir şey yok"
@@ -5685,6 +5711,11 @@ msgstr "{secretName} kaldırılsın mı? Botlar artık bunu kullanamayacak."
 msgid "Remove {site}"
 msgstr "Kaldır: {site}"
 
+#. placeholder {0}: index + 1
+#: src/components/AnnotateImageDialog.tsx
+msgid "Remove box {0}"
+msgstr "Kutu {0} kaldır"
+
 #: src/pages/routine-editor/trigger-cards.tsx
 msgid "Remove change trigger"
 msgstr "Değişiklik tetikleyicisini kaldır"
@@ -6079,6 +6110,7 @@ msgstr "Çalışma alanın kaydediliyor"
 msgid "Saving..."
 msgstr "Kaydediliyor..."
 
+#: src/components/AnnotateImageDialog.tsx
 #: src/components/SecretAskCard.tsx
 #: src/components/teach/SkillDraftCard.tsx
 #: src/components/vault/VaultItemEditor.tsx
@@ -7414,6 +7446,10 @@ msgstr "2 ile 64 karakter kullanın"
 msgid "Use a found model"
 msgstr "Bulunan bir modeli kullan"
 
+#: src/components/AnnotateImageDialog.tsx
+msgid "Use annotated image"
+msgstr "Not eklenmiş görseli kullan"
+
 #: src/lib/model-connection-preflight.ts
 msgid "Use Connect to verify the key."
 msgstr "Anahtarı doğrulamak için Bağlan'ı kullan."
@@ -7613,6 +7649,10 @@ msgstr "Rakazo'nun en çok neye yardım etmesini istiyorsun?"
 #: src/pages/shell/message-cards.tsx
 msgid "What do you want me on first?"
 msgstr "İlk olarak neyle ilgilenmemi istiyorsun?"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "What is wrong here?"
+msgstr "Burada ne yanlış?"
 
 #: src/components/teach/TeachComputerOverlay.tsx
 msgid "What result will you demonstrate?"

@@ -17,6 +17,8 @@ import {
   ARTIFACT_DESCRIPTION_MAX_LENGTH,
   ARTIFACT_NAME_MAX_LENGTH,
   ATTACHMENT_COUNT_CEILING,
+  IMAGE_ANNOTATION_MAX_MARKS,
+  ImageAnnotationMarkSchema,
 } from "./attachments.js";
 import { AuditEventListInputSchema, AuditEventPageSchema } from "./audit-events.js";
 import {
@@ -1382,6 +1384,40 @@ export const appContract = {
             clientNonce: z.string().min(1).max(200).optional(),
           }),
         ),
+      )
+      .output(ArtifactSchema),
+    annotate: oc
+      .input(
+        threadTarget
+          .and(
+            z.object({
+              /** An artifact already in this chat, or bytes for an image not yet sent. */
+              sourceArtifactId: Id.optional(),
+              contentBase64: z.string().min(1).optional(),
+              name: z.string().min(1).max(ARTIFACT_NAME_MAX_LENGTH).optional(),
+              mimeType: z.string().min(1).optional(),
+              marks: z.array(ImageAnnotationMarkSchema).min(1).max(IMAGE_ANNOTATION_MAX_MARKS),
+              /** Reusing it returns the image the first call made. */
+              clientNonce: z.string().min(1).max(200),
+            }),
+          )
+          .superRefine((input, ctx) => {
+            const hasBytes = Boolean(input.contentBase64);
+            if (Boolean(input.sourceArtifactId) === hasBytes) {
+              ctx.addIssue({
+                code: "custom",
+                message: "Provide either sourceArtifactId or image bytes",
+                path: ["sourceArtifactId"],
+              });
+            }
+            if (hasBytes && (!input.name || !input.mimeType)) {
+              ctx.addIssue({
+                code: "custom",
+                message: "name and mimeType are required with image bytes",
+                path: ["name"],
+              });
+            }
+          }),
       )
       .output(ArtifactSchema),
     get: oc.input(threadTarget.and(z.object({ artifactId: Id }))).output(ArtifactWithContentSchema),

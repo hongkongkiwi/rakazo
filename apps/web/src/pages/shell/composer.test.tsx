@@ -84,6 +84,7 @@ function renderComposer(
     fileInputRef: createRef(),
     onAttachmentPick: () => true,
     onRemoveAttachment: () => {},
+    onAnnotateAttachment: () => {},
     onSend,
     onStop: async () => {},
     draftKey: "bot:bot-1",

@@ -321,6 +321,27 @@ export function useComposerActions({
     revokePendingAttachmentPreviews([attachment]);
     setPendingAttachments((current) => current.filter((item) => item.id !== attachment.id));
   }, []);
+  const annotateAttachment = useCallback(
+    (
+      attachment: PendingAttachment,
+      saved: { artifactId: string; previewUrl: string; mimeType: string },
+    ) => {
+      if (attachment.previewUrl?.startsWith("blob:")) URL.revokeObjectURL(attachment.previewUrl);
+      setPendingAttachments((current) =>
+        current.map((item) =>
+          item.id === attachment.id
+            ? {
+                ...item,
+                artifactId: saved.artifactId,
+                annotated: true,
+                previewUrl: saved.previewUrl,
+              }
+            : item,
+        ),
+      );
+    },
+    [],
+  );
   /** A deleted chat's files can never be sent: drop them and release their previews. */
   const discardThreadAttachments = useCallback((threadKey: string) => {
     setPendingAttachments((current) => {
@@ -419,8 +440,10 @@ export function useComposerActions({
           uploadedSendArtifacts.current.get(clientNonce) ?? new WeakMap<File, string>();
         uploadedSendArtifacts.current.set(clientNonce, uploaded);
         for (const pending of attachments) {
-          const existing = uploaded.get(pending.file);
+          // An annotated image is already stored; uploads stay deferred for the rest.
+          const existing = pending.artifactId ?? uploaded.get(pending.file);
           if (existing) {
+            uploaded.set(pending.file, existing);
             artifactIds.push(existing);
             continue;
           }
@@ -613,6 +636,7 @@ export function useComposerActions({
     fileInputRef,
     onAttachmentPick,
     removeAttachment,
+    annotateAttachment,
     discardThreadAttachments,
     replyTarget: activeReplyTarget,
     replyQuote: activeReplyQuote,

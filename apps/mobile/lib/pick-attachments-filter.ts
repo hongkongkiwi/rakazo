@@ -8,6 +8,9 @@ export type PickedAttachment = {
   mimeType: AttachmentMimeType;
   contentBase64: string;
   previewUri?: string;
+  /** Set once an annotated copy is stored; the send reuses it instead of uploading. */
+  artifactId?: string;
+  annotated?: boolean;
 };
 
 export type PickSkip = { name: string; reason: string };

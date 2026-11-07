@@ -80,7 +80,8 @@ export async function deliverSend(
   }
   const artifactIds: string[] = [];
   for (const [index, pending] of attachments.entries()) {
-    let id = attempt.artifactIds.get(pending.id);
+    // An annotated image is already stored; uploads stay deferred for the rest.
+    let id = pending.artifactId ?? attempt.artifactIds.get(pending.id);
     if (!id) {
       const artifact = await request(
         "artifacts/create",

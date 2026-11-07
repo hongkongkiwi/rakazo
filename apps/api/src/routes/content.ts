@@ -7,6 +7,7 @@ import { AttachmentValidationError } from "@rakazo/core";
 import { IsolationError, LISTED_ARTIFACT, parseComputerMode } from "@rakazo/db";
 import {
   ArtifactListCursorError,
+  annotateOwnedArtifact,
   createOwnedArtifact,
   deleteArtifactFamily,
   getOwnedArtifact,
@@ -71,6 +72,24 @@ export function contentRoutes(ctx: RouterContext) {
         if (!botId) throw new IsolationError();
         try {
           return await createOwnedArtifact(
+            { ...deps, maxUploadSizeBytes: attachmentMaxBytes(deps.env) },
+            context.actor,
+            { ...input, botId },
+          );
+        } catch (error) {
+          if (error instanceof AttachmentValidationError) {
+            throw new ORPCError("BAD_REQUEST", { message: error.message });
+          }
+          throw error;
+        }
+      }),
+      annotate: authed.artifacts.annotate.handler(async ({ context, input }) => {
+        const botId = input.botId
+          ? (await repos.getBot(context.actor, input.botId)).id
+          : (await groupRepos.getGroupTarget(context.actor, input.groupId!)).members[0]?.bot.id;
+        if (!botId) throw new IsolationError();
+        try {
+          return await annotateOwnedArtifact(
             { ...deps, maxUploadSizeBytes: attachmentMaxBytes(deps.env) },
             context.actor,
             { ...input, botId },

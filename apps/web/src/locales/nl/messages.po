@@ -941,6 +941,18 @@ msgstr "Een geïmporteerde API-sleutel kon niet worden gebruikt. Vink hem uit en
 msgid "An integration tool"
 msgstr "Een integratietool"
 
+#: src/pages/shell/composer-parts.tsx
+msgid "Annotate"
+msgstr "Markeren"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "Annotate image"
+msgstr "Afbeelding markeren"
+
+#: src/pages/shell/composer-parts.tsx
+msgid "Annotated"
+msgstr "Gemarkeerd"
+
 #: src/lib/activity-list-filters.ts
 msgid "Another agent"
 msgstr "Een andere agent"
@@ -1399,6 +1411,7 @@ msgstr "De server is niet bereikbaar."
 msgid "Can't read images"
 msgstr "Kan afbeeldingen niet lezen"
 
+#: src/components/AnnotateImageDialog.tsx
 #: src/components/AskCard.tsx
 #: src/components/ConfirmDialog.tsx
 #: src/components/integrations/plugin-marketplace.tsx
@@ -2121,6 +2134,10 @@ msgstr "MCP-server toevoegen mislukt"
 #: src/components/integrations/plugin-marketplace.tsx
 msgid "Could not add skills"
 msgstr "Skills toevoegen mislukt"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "Could not annotate this image"
+msgstr "Deze afbeelding kon niet worden gemarkeerd"
 
 #: src/pages/PluginSubmissionsPanel.tsx
 msgid "Could not approve plugin"
@@ -3190,6 +3207,10 @@ msgstr "Bezig met downloaden…"
 #: src/components/teach/SkillDraftCard.tsx
 msgid "Draft skill"
 msgstr "Concept-skill"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "Drag over the image to point at what matters."
+msgstr "Sleep over de afbeelding om aan te wijzen wat belangrijk is."
 
 #: src/pages/shell/avatar-studio-popover.tsx
 msgid "Drag, drop, or paste an image"
@@ -4935,6 +4956,11 @@ msgstr "Niet gebruikt door Rakazo"
 msgid "Not working"
 msgstr "Werkt niet"
 
+#. placeholder {0}: index + 1
+#: src/components/AnnotateImageDialog.tsx
+msgid "Note for box {0}"
+msgstr "Notitie bij vak {0}"
+
 #: src/pages/KnowledgeSection.tsx
 msgid "Nothing remembered yet"
 msgstr "Nog niets onthouden"
@@ -5685,6 +5711,11 @@ msgstr "{secretName} verwijderen? Bots kunnen het dan niet meer gebruiken."
 msgid "Remove {site}"
 msgstr "{site} verwijderen"
 
+#. placeholder {0}: index + 1
+#: src/components/AnnotateImageDialog.tsx
+msgid "Remove box {0}"
+msgstr "Vak {0} verwijderen"
+
 #: src/pages/routine-editor/trigger-cards.tsx
 msgid "Remove change trigger"
 msgstr "Wijzigingstrigger verwijderen"
@@ -6079,6 +6110,7 @@ msgstr "Je werkruimte opslaan"
 msgid "Saving..."
 msgstr "Bezig met opslaan..."
 
+#: src/components/AnnotateImageDialog.tsx
 #: src/components/SecretAskCard.tsx
 #: src/components/teach/SkillDraftCard.tsx
 #: src/components/vault/VaultItemEditor.tsx
@@ -7414,6 +7446,10 @@ msgstr "Gebruik 2 tot 64 tekens"
 msgid "Use a found model"
 msgstr "Een gevonden model gebruiken"
 
+#: src/components/AnnotateImageDialog.tsx
+msgid "Use annotated image"
+msgstr "Gemarkeerde afbeelding gebruiken"
+
 #: src/lib/model-connection-preflight.ts
 msgid "Use Connect to verify the key."
 msgstr "Gebruik Verbinden om de sleutel te verifiëren."
@@ -7613,6 +7649,10 @@ msgstr "Waarmee wil je het liefst hulp van Rakazo?"
 #: src/pages/shell/message-cards.tsx
 msgid "What do you want me on first?"
 msgstr "Waarmee wil je dat ik begin?"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "What is wrong here?"
+msgstr "Wat klopt hier niet?"
 
 #: src/components/teach/TeachComputerOverlay.tsx
 msgid "What result will you demonstrate?"

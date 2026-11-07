@@ -941,6 +941,18 @@ msgstr "无法使用导入的 API 密钥。取消勾选后重试。"
 msgid "An integration tool"
 msgstr "集成工具"
 
+#: src/pages/shell/composer-parts.tsx
+msgid "Annotate"
+msgstr "标注"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "Annotate image"
+msgstr "标注图片"
+
+#: src/pages/shell/composer-parts.tsx
+msgid "Annotated"
+msgstr "已标注"
+
 #: src/lib/activity-list-filters.ts
 msgid "Another agent"
 msgstr "其他 Agent"
@@ -1399,6 +1411,7 @@ msgstr "无法连接服务器。"
 msgid "Can't read images"
 msgstr "无法读取图像"
 
+#: src/components/AnnotateImageDialog.tsx
 #: src/components/AskCard.tsx
 #: src/components/ConfirmDialog.tsx
 #: src/components/integrations/plugin-marketplace.tsx
@@ -2121,6 +2134,10 @@ msgstr "无法添加 MCP 服务器"
 #: src/components/integrations/plugin-marketplace.tsx
 msgid "Could not add skills"
 msgstr "无法添加技能"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "Could not annotate this image"
+msgstr "无法标注此图片"
 
 #: src/pages/PluginSubmissionsPanel.tsx
 msgid "Could not approve plugin"
@@ -3190,6 +3207,10 @@ msgstr "正在下载…"
 #: src/components/teach/SkillDraftCard.tsx
 msgid "Draft skill"
 msgstr "技能草稿"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "Drag over the image to point at what matters."
+msgstr "在图片上拖动，标出重点。"
 
 #: src/pages/shell/avatar-studio-popover.tsx
 msgid "Drag, drop, or paste an image"
@@ -4935,6 +4956,11 @@ msgstr "Rakazo 不使用"
 msgid "Not working"
 msgstr "无法正常工作"
 
+#. placeholder {0}: index + 1
+#: src/components/AnnotateImageDialog.tsx
+msgid "Note for box {0}"
+msgstr "框 {0} 的备注"
+
 #: src/pages/KnowledgeSection.tsx
 msgid "Nothing remembered yet"
 msgstr "暂无记忆"
@@ -5685,6 +5711,11 @@ msgstr "要移除 {secretName} 吗？机器人将无法再使用它。"
 msgid "Remove {site}"
 msgstr "移除 {site}"
 
+#. placeholder {0}: index + 1
+#: src/components/AnnotateImageDialog.tsx
+msgid "Remove box {0}"
+msgstr "删除框 {0}"
+
 #: src/pages/routine-editor/trigger-cards.tsx
 msgid "Remove change trigger"
 msgstr "移除变化触发器"
@@ -6079,6 +6110,7 @@ msgstr "正在保存工作区"
 msgid "Saving..."
 msgstr "正在保存…"
 
+#: src/components/AnnotateImageDialog.tsx
 #: src/components/SecretAskCard.tsx
 #: src/components/teach/SkillDraftCard.tsx
 #: src/components/vault/VaultItemEditor.tsx
@@ -7414,6 +7446,10 @@ msgstr "请使用 2 到 64 个字符"
 msgid "Use a found model"
 msgstr "使用找到的模型"
 
+#: src/components/AnnotateImageDialog.tsx
+msgid "Use annotated image"
+msgstr "使用已标注图片"
+
 #: src/lib/model-connection-preflight.ts
 msgid "Use Connect to verify the key."
 msgstr "请使用“连接”验证密钥。"
@@ -7613,6 +7649,10 @@ msgstr "你最希望 Rakazo 帮你做什么？"
 #: src/pages/shell/message-cards.tsx
 msgid "What do you want me on first?"
 msgstr "你想让我先做什么？"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "What is wrong here?"
+msgstr "这里哪里不对？"
 
 #: src/components/teach/TeachComputerOverlay.tsx
 msgid "What result will you demonstrate?"

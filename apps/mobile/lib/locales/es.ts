@@ -1,4 +1,13 @@
 export const ES_MESSAGES: Record<string, string> = {
+  "Annotate image": "Anotar imagen",
+  "Drag over the image to point at what matters.":
+    "Arrastra sobre la imagen para señalar lo que importa.",
+  "This image could not be read": "No se pudo leer esta imagen",
+  "What is wrong here?": "¿Qué está mal aquí?",
+  "Remove box {index}": "Quitar recuadro {index}",
+  "Could not annotate this image": "No se pudo anotar esta imagen",
+  "Annotate {name}": "Anotar {name}",
+  "Edit annotation on {name}": "Editar anotación de {name}",
   "No matches": "Sin resultados",
   "Always ask": "Preguntar siempre",
   "Search tools": "Buscar herramientas",

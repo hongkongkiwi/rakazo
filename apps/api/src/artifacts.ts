@@ -1,12 +1,14 @@
 import { createHash } from "node:crypto";
 import type { ArtifactStore, MessagingInboundAttachment } from "@rakazo/adapter-kit";
 import { createAdapterContext } from "@rakazo/adapter-kit";
-import type { Actor } from "@rakazo/contracts";
+import { AnnotateImageError, annotateImage } from "@rakazo/adapters";
+import type { Actor, ImageAnnotationMark } from "@rakazo/contracts";
 import {
   ARTIFACT_NAME_MAX_LENGTH,
   ATTACHMENT_MAX_BYTES,
   attachmentMaxCount,
   attachmentSizeLabel,
+  isAnnotatableImageMimeType,
   isAttachmentAudioMimeType,
   MCP_APP_MIME_TYPE,
 } from "@rakazo/contracts";
@@ -48,6 +50,93 @@ export async function createOwnedArtifact(
   validateAttachmentMimeType(mimeType);
   const bytes = decodeAttachmentBase64(input.contentBase64, deps.maxUploadSizeBytes);
   return storeOwnedArtifact(deps, actor, { ...input, mimeType, bytes });
+}
+
+/**
+ * Mark an image and store the result as a new artifact. An image not sent yet
+ * arrives as bytes; a re-annotated one names the artifact it came from.
+ */
+export async function annotateOwnedArtifact(
+  deps: {
+    prisma: PrismaClient;
+    artifacts: ArtifactStore;
+    maxUploadSizeBytes?: number;
+  },
+  actor: Actor,
+  input: {
+    botId: string;
+    groupId?: string;
+    sourceArtifactId?: string;
+    contentBase64?: string;
+    name?: string;
+    mimeType?: string;
+    marks: readonly ImageAnnotationMark[];
+    clientNonce: string;
+  },
+) {
+  const clientNonce = `${input.clientNonce}:annotated`;
+  const replayed = await findReplayedArtifact(deps.prisma, actor, {
+    botId: input.botId,
+    groupId: input.groupId,
+    clientNonce,
+  });
+  if (replayed) return createdArtifact(replayed);
+
+  let bytes: Uint8Array;
+  let mimeType: string;
+  let sourceName: string;
+  if (input.sourceArtifactId) {
+    const source = input.groupId
+      ? await getSpaceArtifact(deps, actor, {
+          artifactId: input.sourceArtifactId,
+          groupId: input.groupId,
+          contextBotId: input.botId,
+        })
+      : await getOwnedArtifact(deps, actor, {
+          artifactId: input.sourceArtifactId,
+          botId: input.botId,
+        });
+    bytes = Buffer.from(source.contentBase64, "base64");
+    mimeType = source.mimeType;
+    sourceName = source.name;
+  } else {
+    if (!input.contentBase64 || !input.name || !input.mimeType)
+      throw new AttachmentValidationError("An image name and type are required");
+    // The client sends the type of the bytes it is annotating; the name is display only.
+    mimeType = input.mimeType;
+    validateAttachmentMimeType(mimeType);
+    bytes = decodeAttachmentBase64(input.contentBase64, deps.maxUploadSizeBytes);
+    sourceName = input.name;
+  }
+  if (!isAnnotatableImageMimeType(mimeType))
+    throw new AttachmentValidationError("Only PNG, JPEG, and WebP images can be annotated");
+
+  let annotated: Awaited<ReturnType<typeof annotateImage>>;
+  try {
+    annotated = await annotateImage({
+      bytes,
+      marks: input.marks,
+      maxBytes: deps.maxUploadSizeBytes ?? ATTACHMENT_MAX_BYTES,
+    });
+  } catch (error) {
+    if (error instanceof AnnotateImageError) throw new AttachmentValidationError(error.message);
+    throw error;
+  }
+  return storeOwnedArtifact(deps, actor, {
+    botId: input.botId,
+    groupId: input.groupId,
+    name: annotatedName(sourceName, annotated.mimeType),
+    mimeType: annotated.mimeType,
+    bytes: annotated.bytes,
+    clientNonce,
+  });
+}
+
+function annotatedName(sourceName: string, mimeType: string): string {
+  const extension = mimeType === "image/jpeg" ? ".jpg" : ".png";
+  const base = sourceName.replace(/\.[^.]+$/, "").trim() || "image";
+  const suffix = " (annotated)";
+  return `${base.slice(0, ARTIFACT_NAME_MAX_LENGTH - suffix.length - extension.length)}${suffix}${extension}`;
 }
 
 /** A stored inbound attachment plus its downloaded content when it was fresh. */

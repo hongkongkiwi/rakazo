@@ -941,6 +941,18 @@ msgstr "इंपोर्ट की गई एक API कुंजी इस्
 msgid "An integration tool"
 msgstr "एक इंटीग्रेशन टूल"
 
+#: src/pages/shell/composer-parts.tsx
+msgid "Annotate"
+msgstr "एनोटेट करें"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "Annotate image"
+msgstr "छवि पर एनोटेट करें"
+
+#: src/pages/shell/composer-parts.tsx
+msgid "Annotated"
+msgstr "एनोटेट किया गया"
+
 #: src/lib/activity-list-filters.ts
 msgid "Another agent"
 msgstr "दूसरा एजेंट"
@@ -1399,6 +1411,7 @@ msgstr "सर्वर तक नहीं पहुंचा जा सका�
 msgid "Can't read images"
 msgstr "तस्वीरें नहीं पढ़ सकता"
 
+#: src/components/AnnotateImageDialog.tsx
 #: src/components/AskCard.tsx
 #: src/components/ConfirmDialog.tsx
 #: src/components/integrations/plugin-marketplace.tsx
@@ -2121,6 +2134,10 @@ msgstr "MCP सर्वर जोड़ा नहीं जा सका"
 #: src/components/integrations/plugin-marketplace.tsx
 msgid "Could not add skills"
 msgstr "स्किल नहीं जोड़े जा सके"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "Could not annotate this image"
+msgstr "इस छवि पर एनोटेट नहीं किया जा सका"
 
 #: src/pages/PluginSubmissionsPanel.tsx
 msgid "Could not approve plugin"
@@ -3190,6 +3207,10 @@ msgstr "डाउनलोड हो रहा है…"
 #: src/components/teach/SkillDraftCard.tsx
 msgid "Draft skill"
 msgstr "ड्राफ़्ट स्किल"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "Drag over the image to point at what matters."
+msgstr "जो महत्वपूर्ण है उसे इंगित करने के लिए छवि पर खींचें।"
 
 #: src/pages/shell/avatar-studio-popover.tsx
 msgid "Drag, drop, or paste an image"
@@ -4935,6 +4956,11 @@ msgstr "Rakazo इसका उपयोग नहीं करता"
 msgid "Not working"
 msgstr "काम नहीं कर रहा"
 
+#. placeholder {0}: index + 1
+#: src/components/AnnotateImageDialog.tsx
+msgid "Note for box {0}"
+msgstr "बॉक्स {0} के लिए नोट"
+
 #: src/pages/KnowledgeSection.tsx
 msgid "Nothing remembered yet"
 msgstr "अभी तक कुछ याद नहीं किया गया"
@@ -5685,6 +5711,11 @@ msgstr "{secretName} हटाएँ? बॉट इसका उपयोग न
 msgid "Remove {site}"
 msgstr "{site} हटाएं"
 
+#. placeholder {0}: index + 1
+#: src/components/AnnotateImageDialog.tsx
+msgid "Remove box {0}"
+msgstr "बॉक्स {0} हटाएँ"
+
 #: src/pages/routine-editor/trigger-cards.tsx
 msgid "Remove change trigger"
 msgstr "बदलाव ट्रिगर हटाएँ"
@@ -6079,6 +6110,7 @@ msgstr "आपका वर्कस्पेस सहेजा जा रह�
 msgid "Saving..."
 msgstr "सहेजा जा रहा है..."
 
+#: src/components/AnnotateImageDialog.tsx
 #: src/components/SecretAskCard.tsx
 #: src/components/teach/SkillDraftCard.tsx
 #: src/components/vault/VaultItemEditor.tsx
@@ -7414,6 +7446,10 @@ msgstr "2 से 64 अक्षर इस्तेमाल करें"
 msgid "Use a found model"
 msgstr "मिला हुआ मॉडल उपयोग करें"
 
+#: src/components/AnnotateImageDialog.tsx
+msgid "Use annotated image"
+msgstr "एनोटेट की गई छवि का उपयोग करें"
+
 #: src/lib/model-connection-preflight.ts
 msgid "Use Connect to verify the key."
 msgstr "कुंजी जाँचने के लिए कनेक्ट करें का उपयोग करें।"
@@ -7613,6 +7649,10 @@ msgstr "आप Rakazo से सबसे ज़्यादा किसमे�
 #: src/pages/shell/message-cards.tsx
 msgid "What do you want me on first?"
 msgstr "आप मुझसे सबसे पहले किस पर काम करवाना चाहते हैं?"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "What is wrong here?"
+msgstr "यहाँ क्या गलत है?"
 
 #: src/components/teach/TeachComputerOverlay.tsx
 msgid "What result will you demonstrate?"

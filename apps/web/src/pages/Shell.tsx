@@ -1113,6 +1113,7 @@ function SpaceShell() {
               fileInputRef={composer.fileInputRef}
               onAttachmentPick={composer.onAttachmentPick}
               onRemoveAttachment={composer.removeAttachment}
+              onAnnotateAttachment={composer.annotateAttachment}
               onSend={composer.sendMessage}
               onStop={stopRun}
               phoneCallsEnabled={bootstrapMe?.phoneCallsEnabled === true}

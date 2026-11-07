@@ -33,6 +33,7 @@ import { useThemedStyles } from "../../lib/native";
 import { useChatOnScreen } from "../../lib/page-card-detail";
 import { useInboxBot } from "../../lib/search-inbox";
 import { useSplitView } from "../../lib/split-view";
+import type { PendingAttachment } from "../../lib/thread-attachments";
 import { useIncomingShareImport, useThreadAttachments } from "../../lib/thread-attachments";
 import { useThreadBots } from "../../lib/thread-bots";
 import {
@@ -66,6 +67,7 @@ import { SelectTextSheet } from "../select-text-sheet";
 import { ThreadComposer } from "../thread-composer";
 import { ThreadErrorNotice, ThreadFetchErrorNotice } from "../thread-error-notice";
 import { createThreadHeaderStyles } from "../thread-header-styles";
+import { AnnotateImageModal } from "./annotate-image-modal";
 import { QuoteSheet } from "./quote-sheet";
 import { ThreadComposerDock } from "./thread-composer-dock";
 import { useThreadHeader } from "./thread-header";
@@ -209,6 +211,7 @@ export function Thread({ sessionEpoch, userId }: { sessionEpoch: number; userId:
   const feedback = useThreadFeedback(threadKey, newClientId, echoed);
   const { error, setError } = feedback;
   const [selectableText, setSelectableText] = useState<string | null>(null);
+  const [annotating, setAnnotating] = useState<PendingAttachment | null>(null);
   const transcript = useThreadTranscript(snap?.messages, inGroup);
   const { reactionView, peerTranscript, setExpandedPeerMarkers } = transcript;
   const visibleMessages = transcript.visibleMessages;
@@ -627,6 +630,7 @@ export function Thread({ sessionEpoch, userId }: { sessionEpoch: number; userId:
                 current.filter((item) => item.id !== id),
               )
             }
+            onAnnotateAttachment={setAnnotating}
           >
             <ThreadComposer
               key={threadKey}
@@ -656,6 +660,21 @@ export function Thread({ sessionEpoch, userId }: { sessionEpoch: number; userId:
             />
           </ThreadComposerDock>
         </View>
+        {annotating && artifactTarget ? (
+          <AnnotateImageModal
+            attachment={annotating}
+            target={artifactTarget}
+            onClose={() => setAnnotating(null)}
+            onSaved={({ artifactId }) => {
+              attachments.setPendingAttachments((current) =>
+                current.map((item) =>
+                  item.id === annotating.id ? { ...item, artifactId, annotated: true } : item,
+                ),
+              );
+              setAnnotating(null);
+            }}
+          />
+        ) : null}
         {selectableText !== null ? (
           <SelectTextSheet text={selectableText} onClose={() => setSelectableText(null)} />
         ) : null}
