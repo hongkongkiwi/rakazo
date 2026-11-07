@@ -945,6 +945,11 @@ msgstr "Un outil d’intégration"
 msgid "Annotate"
 msgstr "Annoter"
 
+#. placeholder {0}: attachment.file.name
+#: src/pages/shell/composer-parts.tsx
+msgid "Annotate {0}"
+msgstr "Annoter {0}"
+
 #: src/components/AnnotateImageDialog.tsx
 msgid "Annotate image"
 msgstr "Annoter l'image"
@@ -3231,6 +3236,11 @@ msgstr "Chaque nom ne peut être utilisé qu’une fois."
 #: src/pages/McpServersOverlay.tsx
 msgid "Edit"
 msgstr "Modifier"
+
+#. placeholder {0}: attachment.file.name
+#: src/pages/shell/composer-parts.tsx
+msgid "Edit annotation on {0}"
+msgstr "Modifier l'annotation de {0}"
 
 #: src/components/AskCard.tsx
 msgid "Edit first"

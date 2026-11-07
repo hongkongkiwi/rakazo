@@ -946,6 +946,11 @@ msgstr "整合工具"
 msgid "Annotate"
 msgstr "標註"
 
+#. placeholder {0}: attachment.file.name
+#: src/pages/shell/composer-parts.tsx
+msgid "Annotate {0}"
+msgstr "標註 {0}"
+
 #: src/components/AnnotateImageDialog.tsx
 msgid "Annotate image"
 msgstr "標註圖片"
@@ -3232,6 +3237,11 @@ msgstr "每個名稱只能使用一次。"
 #: src/pages/McpServersOverlay.tsx
 msgid "Edit"
 msgstr "編輯"
+
+#. placeholder {0}: attachment.file.name
+#: src/pages/shell/composer-parts.tsx
+msgid "Edit annotation on {0}"
+msgstr "編輯 {0} 的標註"
 
 #: src/components/AskCard.tsx
 msgid "Edit first"

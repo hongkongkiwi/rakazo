@@ -79,9 +79,11 @@ export async function deliverSend(
     return undefined;
   }
   const artifactIds: string[] = [];
+  const targetKey = groupTarget ?? botTarget!;
   for (const [index, pending] of attachments.entries()) {
-    // An annotated image is already stored; uploads stay deferred for the rest.
-    let id = pending.artifactId ?? attempt.artifactIds.get(pending.id);
+    // A stored artifact belongs to the chat it was made for; a reroute uploads afresh.
+    const sameTarget = payload.originThreadKey === targetKey;
+    let id = sameTarget ? (pending.artifactId ?? attempt.artifactIds.get(pending.id)) : undefined;
     if (!id) {
       const artifact = await request(
         "artifacts/create",

@@ -945,6 +945,11 @@ msgstr "連携ツール"
 msgid "Annotate"
 msgstr "注釈を付ける"
 
+#. placeholder {0}: attachment.file.name
+#: src/pages/shell/composer-parts.tsx
+msgid "Annotate {0}"
+msgstr "{0} に注釈を付ける"
+
 #: src/components/AnnotateImageDialog.tsx
 msgid "Annotate image"
 msgstr "画像に注釈を付ける"
@@ -3231,6 +3236,11 @@ msgstr "各名前は一度だけ使用できます。"
 #: src/pages/McpServersOverlay.tsx
 msgid "Edit"
 msgstr "編集"
+
+#. placeholder {0}: attachment.file.name
+#: src/pages/shell/composer-parts.tsx
+msgid "Edit annotation on {0}"
+msgstr "{0} の注釈を編集"
 
 #: src/components/AskCard.tsx
 msgid "Edit first"

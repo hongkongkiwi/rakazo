@@ -945,6 +945,11 @@ msgstr "연동 도구"
 msgid "Annotate"
 msgstr "주석 달기"
 
+#. placeholder {0}: attachment.file.name
+#: src/pages/shell/composer-parts.tsx
+msgid "Annotate {0}"
+msgstr "{0}에 주석 달기"
+
 #: src/components/AnnotateImageDialog.tsx
 msgid "Annotate image"
 msgstr "이미지에 주석 달기"
@@ -3231,6 +3236,11 @@ msgstr "각 이름은 한 번만 사용할 수 있습니다."
 #: src/pages/McpServersOverlay.tsx
 msgid "Edit"
 msgstr "편집"
+
+#. placeholder {0}: attachment.file.name
+#: src/pages/shell/composer-parts.tsx
+msgid "Edit annotation on {0}"
+msgstr "{0}의 주석 편집"
 
 #: src/components/AskCard.tsx
 msgid "Edit first"

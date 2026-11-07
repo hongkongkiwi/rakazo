@@ -945,6 +945,11 @@ msgstr "एक इंटीग्रेशन टूल"
 msgid "Annotate"
 msgstr "एनोटेट करें"
 
+#. placeholder {0}: attachment.file.name
+#: src/pages/shell/composer-parts.tsx
+msgid "Annotate {0}"
+msgstr "{0} पर एनोटेट करें"
+
 #: src/components/AnnotateImageDialog.tsx
 msgid "Annotate image"
 msgstr "छवि पर एनोटेट करें"
@@ -3231,6 +3236,11 @@ msgstr "हर नाम का उपयोग केवल एक बार �
 #: src/pages/McpServersOverlay.tsx
 msgid "Edit"
 msgstr "संपादित करें"
+
+#. placeholder {0}: attachment.file.name
+#: src/pages/shell/composer-parts.tsx
+msgid "Edit annotation on {0}"
+msgstr "{0} पर एनोटेशन संपादित करें"
 
 #: src/components/AskCard.tsx
 msgid "Edit first"

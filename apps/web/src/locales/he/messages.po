@@ -945,6 +945,11 @@ msgstr "כלי של אינטגרציה"
 msgid "Annotate"
 msgstr "לסמן"
 
+#. placeholder {0}: attachment.file.name
+#: src/pages/shell/composer-parts.tsx
+msgid "Annotate {0}"
+msgstr "לסמן {0}"
+
 #: src/components/AnnotateImageDialog.tsx
 msgid "Annotate image"
 msgstr "לסמן תמונה"
@@ -3231,6 +3236,11 @@ msgstr "ניתן להשתמש בכל שם פעם אחת בלבד."
 #: src/pages/McpServersOverlay.tsx
 msgid "Edit"
 msgstr "עריכה"
+
+#. placeholder {0}: attachment.file.name
+#: src/pages/shell/composer-parts.tsx
+msgid "Edit annotation on {0}"
+msgstr "לערוך את הסימון ב-{0}"
 
 #: src/components/AskCard.tsx
 msgid "Edit first"

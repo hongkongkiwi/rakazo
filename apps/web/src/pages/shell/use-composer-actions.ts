@@ -439,9 +439,13 @@ export function useComposerActions({
         const uploaded =
           uploadedSendArtifacts.current.get(clientNonce) ?? new WeakMap<File, string>();
         uploadedSendArtifacts.current.set(clientNonce, uploaded);
+        const targetKey = groupTarget ?? botTarget;
         for (const pending of attachments) {
-          // An annotated image is already stored; uploads stay deferred for the rest.
-          const existing = pending.artifactId ?? uploaded.get(pending.file);
+          // A stored artifact belongs to the chat it was made for; a reroute uploads afresh.
+          const sameTarget = pending.threadKey === targetKey;
+          const existing = sameTarget
+            ? (pending.artifactId ?? uploaded.get(pending.file))
+            : undefined;
           if (existing) {
             uploaded.set(pending.file, existing);
             artifactIds.push(existing);

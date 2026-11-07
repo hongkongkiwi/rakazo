@@ -1,5 +1,6 @@
 import type { ImageAnnotationMark } from "@rakazo/contracts";
 import { IMAGE_ANNOTATION_MAX_MARKS } from "@rakazo/contracts";
+import { newClientId } from "@rakazo/core";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Image,
@@ -43,6 +44,8 @@ export function AnnotateImageModal({
   const [size, setSize] = useState<{ width: number; height: number } | null>(null);
   const [marks, setMarks] = useState<ImageAnnotationMark[]>([]);
   const [revision, setRevision] = useState(0);
+  // A reopened editor must not reuse the previous save's idempotency key.
+  const [sessionId] = useState(() => newClientId());
   const [draft, setDraft] = useState<Draft | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -132,7 +135,7 @@ export function AnnotateImageModal({
           mimeType: attachment.mimeType,
           contentBase64: attachment.contentBase64,
           marks,
-          clientNonce: `annotation:${attachment.id}:${revision}`,
+          clientNonce: `annotation:${attachment.id}:${sessionId}:${revision}`,
         },
         { timeoutMs: 120_000 },
       );

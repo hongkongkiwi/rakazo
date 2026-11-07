@@ -42,6 +42,14 @@ export async function annotateImage(input: {
   height: number;
 }> {
   const { default: sharp } = await import("sharp");
+  // An animated WebP or APNG would silently lose every frame but the first.
+  try {
+    const meta = await sharp(input.bytes, { limitInputPixels: MAX_INPUT_PIXELS }).metadata();
+    if ((meta.pages ?? 1) > 1) throw new AnnotateImageError("Animated images cannot be annotated");
+  } catch (error) {
+    if (error instanceof AnnotateImageError) throw error;
+    throw new AnnotateImageError("This image could not be read");
+  }
   let oriented: { data: Buffer; info: { width: number; height: number } };
   try {
     oriented = await sharp(input.bytes, { limitInputPixels: MAX_INPUT_PIXELS })

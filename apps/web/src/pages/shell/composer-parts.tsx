@@ -48,6 +48,11 @@ export function PendingAttachmentChips({
             {annotatable ? (
               <button
                 type="button"
+                aria-label={
+                  attachment.annotated
+                    ? t`Edit annotation on ${attachment.file.name}`
+                    : t`Annotate ${attachment.file.name}`
+                }
                 onClick={() => onAnnotate?.(attachment)}
                 className="shrink-0 text-muted-foreground underline underline-offset-2 hover:text-foreground"
               >

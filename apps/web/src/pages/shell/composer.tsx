@@ -645,7 +645,8 @@ const ComposerBody = memo(function Composer({
           markEdited();
           onRemoveAttachment(attachment);
         }}
-        onAnnotate={setAnnotating}
+        // While a send is in flight its success filters this list; do not replace items under it.
+        onAnnotate={sending ? undefined : setAnnotating}
       />
       {annotating ? (
         <AnnotateImageDialog

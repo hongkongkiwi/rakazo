@@ -46,6 +46,8 @@ export function AnnotateImageDialog({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [previewUrl] = useState(() => URL.createObjectURL(file));
+  // A reopened editor must not reuse the previous save's idempotency key.
+  const [sessionId] = useState(() => crypto.randomUUID());
   useEffect(() => () => URL.revokeObjectURL(previewUrl), [previewUrl]);
 
   const changeMarks = (next: ImageAnnotationMark[]) => {
@@ -97,7 +99,7 @@ export function AnnotateImageDialog({
         mimeType: prepared.type || file.type || "image/png",
         contentBase64,
         marks,
-        clientNonce: `annotation:${attachmentId}:${revision}`,
+        clientNonce: `annotation:${attachmentId}:${sessionId}:${revision}`,
       });
       const content = await rpc.artifacts.get({ ...target, artifactId: artifact.id });
       const preview = `data:${content.mimeType};base64,${content.contentBase64}`;
@@ -110,7 +112,15 @@ export function AnnotateImageDialog({
 
   return (
     <Dialog open onOpenChange={(open) => (!open && !saving ? onClose() : undefined)}>
-      <DialogContent className="max-h-[90vh] w-[min(90vw,56rem)] overflow-y-auto">
+      <DialogContent
+        className="max-h-[90vh] w-[min(90vw,56rem)] overflow-y-auto"
+        // A file dropped on the dialog belongs to the dialog, not the composer behind it.
+        onDragOver={(event) => event.preventDefault()}
+        onDrop={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+        }}
+      >
         <DialogTitle>
           <Trans>Annotate image</Trans>
         </DialogTitle>
