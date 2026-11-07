@@ -86,17 +86,31 @@ refresh token refreshes on its own. Temporary files are removed when the process
 
 A server launched as `npx [-y] <package>[@version]` (or `npx -p <package> <bin>`) is not
 downloaded on every start. Rakazo installs the package once, without running its install
-scripts, with `npm install` into
-`MCP_PACKAGES_DIR` (default `DATA_DIR/mcp-packages`, shared by the API and worker), then runs
-its bin directly; `npx` must still be in `MCP_STDIO_ALLOWED_COMMANDS`. The install has its own
-timeout, `MCP_STDIO_INSTALL_TIMEOUT_MS` (default 180000), separate from the handshake timeout
-`MCP_STDIO_STARTUP_TIMEOUT_MS` (default 30000). Pin a version so every start runs the same
-code; npm settings such as `NPM_CONFIG_REGISTRY` can be set in the server's environment
-variables. Any other `npx` form (local paths, git and tarball URLs, unknown `npx` flags) is
-refused. `npx` is the only supported package launcher: other package managers and runners
-(`npm`, `pnpm`, `yarn`, `bun`, `bunx`, `deno`, `uv`, `uvx`, `pipx` and the like) are refused
-even when allowlisted. To run a server from another ecosystem, install it on the host and
-allowlist its binary. An allowlisted interpreter or shell (`node`, `python`, `sh`) runs any
+scripts, with `npm install` into `MCP_PACKAGES_DIR` (default `DATA_DIR/mcp-packages`, shared
+by the API and worker), then runs its bin directly; the launcher must still be in
+`MCP_STDIO_ALLOWED_COMMANDS`. `pnpx` takes the same path with the same arguments: the same
+`npm install` and the same installed bin run, and the `pnpx` binary itself is never executed.
+The install has its own timeout, `MCP_STDIO_INSTALL_TIMEOUT_MS` (default 180000), separate
+from the handshake timeout `MCP_STDIO_STARTUP_TIMEOUT_MS` (default 30000). Pin a version so
+every start runs the same code; npm settings such as `NPM_CONFIG_REGISTRY` can be set in the
+server's environment variables. Any other `npx` or `pnpx` form (local paths, git and tarball
+URLs, unknown flags) is refused.
+
+`uvx <package>[extras][==version]` and `uvx --from <package> <bin>` install a Python package
+the same way: Rakazo creates a venv with `uv venv` and installs the requirement with
+`uv pip install`, then runs the console script the package declares; the `uvx` binary is never
+executed. The install takes wheels only and refuses a package that publishes only a source
+distribution, because building one would run that package's own code. Any PEP 440 specifier
+works in place of `==version`, including comma-separated clauses such as `>=1.0,<2.0`;
+environment markers are refused. Set `UV_*` or `PIP_*` variables such as `UV_INDEX_URL` or
+`PIP_INDEX_URL` in the server's environment to use an index mirror. Proxy and certificate
+settings (`HTTPS_PROXY`, `NO_PROXY`, `SSL_CERT_FILE`, `REQUESTS_CA_BUNDLE`) pass through to
+the install. Other `uvx` forms (paths, URLs, extra flags, direct references) are refused.
+
+`npx`, `pnpx` and `uvx` are the only supported package launchers: other package managers and
+runners (`npm`, `pnpm`, `yarn`, `bun`, `bunx`, `deno`, `uv`, `pipx` and the like) are refused
+even when allowlisted. Go and Rust servers have no launcher here: install their binary on the
+host and allowlist it. An allowlisted interpreter or shell (`node`, `python`, `sh`) runs any
 code passed in its arguments, so allowlist it only where that is acceptable. Each server runs as one process per user in each of the API and worker,
 shared by that user's bots, and stops after `MCP_STDIO_IDLE_MS` (default 900000, 15 minutes)
 without use. When a server fails to start, the reason (including the end of its stderr, with

@@ -62,12 +62,12 @@ import {
   DEFAULT_MCP_INSTALL_TIMEOUT_MS,
   defaultMcpPackagesRoot,
   ensureMcpPackage,
-  isNpxCommand,
-  parseNpxLaunch,
+  launcherBasename,
+  parsePackageLaunch,
 } from "./mcp-package-installer.js";
 import type { McpServerHealthUpdate } from "./mcp-server-health.js";
 import { needsMcpOAuthClient, recordMcpServerHealth } from "./mcp-server-health.js";
-import { McpSession, mcpStdioRefusal } from "./mcp-transport.js";
+import { isManagedLauncherCommand, McpSession, mcpStdioRefusal } from "./mcp-transport.js";
 import type { RemoteTransportDependencies } from "./remote-mcp.js";
 import { ConnectorRedirectError, isMcpSessionGoneError, mcpToolFields } from "./remote-mcp.js";
 import { appendToolCompletionAudit } from "./tool-completion-audit.js";
@@ -222,9 +222,9 @@ export type McpConnectorOptions = {
   /** Audit sink for failed discovery. Without it the log line stays the only trace. */
   events?: Pick<ThreadEvents, "append">;
   allowPrivateEndpoint?: boolean;
-  /** Where `npx` packages are installed; see `defaultMcpPackagesRoot`. */
+  /** Where launcher packages are installed; see `defaultMcpPackagesRoot`. */
   packagesDir?: string;
-  /** Upper bound for installing an `npx` package. */
+  /** Upper bound for installing a launcher package. */
   installTimeoutMs?: number;
   /** Upper bound for a stdio process to answer the MCP handshake, after any install. */
   startupTimeoutMs?: number;
@@ -374,7 +374,7 @@ export class McpConnector implements ConnectorProvider {
     string,
     { revision: number; since: number; until: number; delayMs: number; reason: string }
   >();
-  /** Session keys whose npx package is being installed right now. */
+  /** Session keys whose launcher package is being installed right now. */
   private readonly installing = new Set<string>();
   private reaper?: ReturnType<typeof setInterval>;
   private resolvedPackagesRoot?: string;
@@ -1094,17 +1094,23 @@ export class McpConnector implements ConnectorProvider {
       let accessTokenExpiresAtMs: number | undefined;
       if (server.transport === "stdio") {
         const command = String(server.command ?? "");
-        // The allowlist names the configured launcher (`npx`), checked before any install.
-        // Only a deployment change or an edit to the server fixes a refusal, so wait for one.
+        // The allowlist names the configured launcher (`npx`, `pnpx` or `uvx`), checked before
+        // any install. Only a deployment change or an edit to the server fixes a refusal, so
+        // wait for one.
         const refusal = mcpStdioRefusal(command, this.options);
         if (refusal) throw new McpConnectFailure(refusal, "reconnect");
-        const npx = parseNpxLaunch(command, args);
-        if (!npx && isNpxCommand(command))
-          throw new McpConnectFailure("This npx command isn't supported here", "reconnect");
+        const launch = parsePackageLaunch(command, args);
+        if (!launch && isManagedLauncherCommand(command)) {
+          throw new McpConnectFailure(
+            `This ${launcherBasename(command)} command isn't supported here`,
+            "reconnect",
+          );
+        }
         let installedBin: InstalledMcpBin | undefined;
-        if (npx) {
+        if (launch) {
           // Install outside the startup timeout, once per package, into the shared volume.
-          // npm sees the server's literal settings (e.g. NPM_CONFIG_*), never a grant.
+          // The installer sees the server's literal settings (e.g. NPM_CONFIG_*, UV_*), never
+          // a grant.
           const installEnv = Object.fromEntries(
             Object.entries(env).filter(
               ([, value]) => mcpOAuthEnvReferences(value).fields.length === 0,
@@ -1113,9 +1119,10 @@ export class McpConnector implements ConnectorProvider {
           const installKey = this.sessionKey(server, context);
           let installHealth: { value: string; at: number } | undefined;
           try {
-            installedBin = await ensureMcpPackage(npx.spec, {
+            installedBin = await ensureMcpPackage(launch.spec, {
               root: this.packagesRoot(),
-              binName: npx.binName,
+              binName: launch.binName,
+              runner: launch.runner,
               timeoutMs: this.options.installTimeoutMs,
               signal: context.signal,
               env: installEnv,
@@ -1208,7 +1215,7 @@ export class McpConnector implements ConnectorProvider {
         }
         await session.connectStdio({
           command,
-          args: npx ? npx.binArgs : args,
+          args: launch ? launch.binArgs : args,
           installedBin,
           env: launchEnv,
           allowedCommands: this.options.allowedCommands ?? [],

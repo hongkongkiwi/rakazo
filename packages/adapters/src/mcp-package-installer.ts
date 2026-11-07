@@ -18,6 +18,7 @@ import {
   chmod,
   mkdir,
   mkdtemp,
+  open,
   readdir,
   readFile,
   realpath,
@@ -29,6 +30,7 @@ import {
 import { hostname, tmpdir } from "node:os";
 import { basename, join, resolve, sep } from "node:path";
 import { getDefaultEnvironment } from "@modelcontextprotocol/sdk/client/stdio.js";
+import { mcpOAuthEnvReferences } from "@rakazo/contracts";
 
 export const DEFAULT_MCP_INSTALL_TIMEOUT_MS = 180_000;
 const READY_MARKER = ".ready";
@@ -37,14 +39,17 @@ const LOCK_POLL_MS = 250;
 const LOCK_GRACE_MS = 30_000;
 const OUTPUT_TAIL_CHARS = 2_000;
 
-/** An `npx` launch reduced to the registry package it runs and the bin's own arguments. */
-export type NpxLaunch = {
-  /** Registry spec: `name`, `name@version`, `name@tag` or `name@range`. */
+/** A package launcher reduced to the package it runs and the bin's own arguments. */
+export type LaunchSpec = {
+  /** Registry or PyPI spec, for example `name@1.2.3` or `name==1.2.3`. */
   spec: string;
-  /** Bin named with `-p <spec> <bin>`; otherwise npx's default bin selection applies. */
+  /** Bin named with `-p <spec> <bin>` or `uvx --from <spec> <bin>`. */
   binName?: string;
   binArgs: string[];
 };
+
+/** An `npx` or `pnpx` launch. */
+export type NpmLaunch = LaunchSpec;
 
 /**
  * A bin installed by {@link ensureMcpPackage}. Only values this module issued are accepted
@@ -78,29 +83,38 @@ export function registryPackageName(spec: string): string | undefined {
   return name;
 }
 
-export function isNpxCommand(command: string): boolean {
-  return /^npx(?:\.cmd|\.exe)?$/i.test(basename(command.trim()));
+/** The command's file name without a directory or a Windows launcher suffix. */
+export function launcherBasename(command: string): string {
+  return basename(command.trim().replaceAll("\\", "/")).replace(/\.(?:cmd|exe|ps1)$/i, "");
+}
+
+export function isNpmRunnerCommand(command: string): boolean {
+  return /^(?:npx|pnpx)(?:\.cmd|\.exe)?$/i.test(launcherBasename(command));
+}
+
+export function isUvxCommand(command: string): boolean {
+  return /^uvx(?:\.cmd|\.exe)?$/i.test(launcherBasename(command));
 }
 
 // Package managers and runners that fetch and run packages Rakazo can't vet. Whole commands,
 // not subcommands: global flags (`pnpm -C dir dlx`) and auto-installs (`bun run`, `uv run
 // --with`) make subcommand checks easy to slip past.
 const PACKAGE_RUNNER =
-  /^(?:npm|pnpm|pnpx|yarn|yarnpkg|corepack|bun|bunx|deno|uv|uvx|pipx)(?:\.cmd|\.exe|\.ps1)?$/i;
+  /^(?:npm|pnpm|yarn|yarnpkg|corepack|bun|bunx|deno|uv|pipx)(?:\.cmd|\.exe|\.ps1)?$/i;
 
-/** Whether `command` is a package runner other than npx, which stdio launches never use. */
+/** Package runners that cannot use a managed install. */
 export function isPackageRunnerCommand(command: string): boolean {
-  return PACKAGE_RUNNER.test(basename(command.trim()));
+  return PACKAGE_RUNNER.test(launcherBasename(command));
 }
 
 /**
- * Recognise `npx [-y|--yes] <spec> [args...]` and `npx [-y] -p|--package <spec> <bin> [args...]`
- * (with optional `--` separators). Anything else, including unknown npx flags and specs that
- * are not plain registry packages (paths, git or tarball URLs, aliases), returns undefined and
- * must not be launched.
+ * Recognise `npx`/`pnpx [-y|--yes] <spec> [args...]` and `[-y] -p|--package <spec> <bin>
+ * [args...]` (with optional `--` separators). Anything else, including unknown runner flags
+ * and specs that are not plain registry packages (paths, git or tarball URLs, aliases),
+ * returns undefined and must not be launched.
  */
-export function parseNpxLaunch(command: string, args: readonly string[]): NpxLaunch | undefined {
-  if (!isNpxCommand(command)) return undefined;
+export function parseNpmLaunch(command: string, args: readonly string[]): NpmLaunch | undefined {
+  if (!isNpmRunnerCommand(command)) return undefined;
   let spec: string | undefined;
   let index = 0;
   for (; index < args.length; index += 1) {
@@ -131,6 +145,51 @@ export function parseNpxLaunch(command: string, args: readonly string[]): NpxLau
   return { spec: first, binArgs };
 }
 
+const PYTHON_NAME = "[A-Za-z0-9](?:[A-Za-z0-9._-]*[A-Za-z0-9])?";
+const PYTHON_VERSION = "[A-Za-z0-9.*+!_-]+";
+const PYTHON_SPECIFIER = `(?:===|==|!=|<=|>=|<|>|~=)[ \\t]*${PYTHON_VERSION}`;
+const REQUIREMENT = new RegExp(
+  `^(${PYTHON_NAME})(?:\\[${PYTHON_NAME}(?:,${PYTHON_NAME})*\\])?(?:[ \\t]*${PYTHON_SPECIFIER}(?:[ \\t]*,[ \\t]*${PYTHON_SPECIFIER})*)?$`,
+);
+
+function distributionName(spec: string): string | undefined {
+  return REQUIREMENT.exec(spec)?.[1]
+    ?.toLowerCase()
+    .replace(/[-_.]+/g, "-");
+}
+
+export function parseUvxLaunch(command: string, args: readonly string[]): LaunchSpec | undefined {
+  if (!isUvxCommand(command)) return undefined;
+  let index = 0;
+  let from: string | undefined;
+  const first = args[index];
+  if (first === "--from") from = args[++index];
+  else if (first?.startsWith("--from=")) from = first.slice("--from=".length);
+  if (from !== undefined) {
+    index += 1;
+    if (args[index] === "--") index += 1;
+    const binName = args[index++];
+    if (!distributionName(from) || !binName || !BIN_NAME.test(binName)) return undefined;
+    return { spec: from, binName, binArgs: args.slice(index) };
+  }
+  if (args[index] === "--") index += 1;
+  const spec = args[index++];
+  if (!spec || !distributionName(spec)) return undefined;
+  return { spec, binArgs: args.slice(index) };
+}
+
+export type PackageLaunch = LaunchSpec & { runner: "npm" | "uv" };
+
+export function parsePackageLaunch(
+  command: string,
+  args: readonly string[],
+): PackageLaunch | undefined {
+  const npm = parseNpmLaunch(command, args);
+  if (npm) return { runner: "npm", ...npm };
+  const uv = parseUvxLaunch(command, args);
+  return uv ? { runner: "uv", ...uv } : undefined;
+}
+
 /**
  * Where managed packages live: `MCP_PACKAGES_DIR`, else `<DATA_DIR or /data>/mcp-packages`
  * when that volume is writable (the API and worker share it, so one install serves both),
@@ -155,14 +214,18 @@ export type EnsureMcpPackageOptions = {
   timeoutMs?: number;
   /** Stops this caller waiting. A started install keeps going, so the next launch finds it. */
   signal?: AbortSignal;
-  /** Extra environment for npm, such as the server's `NPM_CONFIG_*` settings. */
+  /** Extra environment for the installer, such as the server's `NPM_CONFIG_*` settings. */
   env?: Record<string, string>;
   /** Called once when the package is not installed yet and this call has to wait for it. */
   onInstall?: () => void;
   onSettled?: () => Promise<void>;
   /** npm executable. Tests point this at a stub. */
   npmCommand?: string;
-  /** What npm installs instead of `spec` (tests install a local tarball). */
+  /** Which installer runs; `uv` installs a PyPI requirement into its own venv. */
+  runner?: "npm" | "uv";
+  /** uv executable. Tests point this at a stub. */
+  uvCommand?: string;
+  /** What the installer installs instead of `spec` (tests install a local tarball). */
   installTarget?: string;
 };
 
@@ -170,13 +233,23 @@ const inFlight = new Map<string, Promise<void>>();
 
 /**
  * The install directory for `spec` under `root`. Native addons are built per Node ABI, so
- * the Node major version is part of the key.
+ * the npm key includes the Node major version; a uv venv is self-contained.
  */
 export function mcpPackageDir(
   spec: string,
   root: string,
   env: Record<string, string> = {},
+  runner: "npm" | "uv" = "npm",
 ): string {
+  if (runner === "uv") {
+    const key = createHash("sha256")
+      .update(
+        `uv\0${spec}\0${JSON.stringify(Object.entries(uvSettings(env)).sort(([a], [b]) => a.localeCompare(b)))}`,
+      )
+      .digest("hex")
+      .slice(0, 32);
+    return join(resolve(root), key);
+  }
   const nodeMajor = process.versions.node.split(".")[0];
   const key = createHash("sha256")
     .update(
@@ -197,10 +270,14 @@ export async function ensureMcpPackage(
   spec: string,
   options: EnsureMcpPackageOptions = {},
 ): Promise<InstalledMcpBin> {
-  const name = registryPackageName(spec);
-  if (!name) throw new Error(`Not an npm registry package: ${spec}`);
+  const runner = options.runner ?? "npm";
+  const name = runner === "uv" ? distributionName(spec) : registryPackageName(spec);
+  if (!name)
+    throw new Error(
+      `Not an ${runner === "uv" ? "PyPI requirement" : "npm registry package"}: ${spec}`,
+    );
   const root = resolve(options.root ?? defaultMcpPackagesRoot());
-  const dir = mcpPackageDir(spec, root, options.env);
+  const dir = mcpPackageDir(spec, root, options.env, runner);
   const key = basename(dir);
   if (!(await isReady(dir))) {
     options.onInstall?.();
@@ -215,6 +292,8 @@ export async function ensureMcpPackage(
         timeoutMs: options.timeoutMs ?? DEFAULT_MCP_INSTALL_TIMEOUT_MS,
         env: options.env ?? {},
         npmCommand: options.npmCommand ?? "npm",
+        runner,
+        uvCommand: options.uvCommand ?? "uv",
       }).finally(() => inFlight.delete(dir));
       inFlight.set(dir, pending);
     }
@@ -227,7 +306,7 @@ export async function ensureMcpPackage(
     await abortable(pending, options.signal);
   }
   const bin: InstalledMcpBin = Object.freeze({
-    binPath: await resolveBin(dir, name, options.binName),
+    binPath: await resolveBin(dir, name, options.binName, runner),
   });
   issued.add(bin);
   return bin;
@@ -271,6 +350,8 @@ type InstallPlan = {
   timeoutMs: number;
   env: Record<string, string>;
   npmCommand: string;
+  runner: "npm" | "uv";
+  uvCommand: string;
 };
 
 async function installLocked(plan: InstallPlan): Promise<void> {
@@ -295,10 +376,56 @@ async function installLocked(plan: InstallPlan): Promise<void> {
     }
     const staging = await mkdtemp(join(plan.root, `.tmp-${plan.key}-`));
     try {
-      // Anchor npm at the staging dir so it never walks up to an unrelated project.
-      await writeFile(join(staging, "package.json"), '{"private":true}\n');
-      await runNpmInstall(plan, staging);
-      await makeBinsExecutable(staging, plan.name);
+      if (plan.runner === "uv") {
+        const venv = join(staging, ".venv");
+        const env = {
+          ...installEnvironment(plan.env, "uv"),
+          UV_CACHE_DIR: join(plan.root, "uv", "cache"),
+          UV_PYTHON_INSTALL_DIR: join(plan.root, "uv", "python"),
+          UV_LINK_MODE: "copy",
+          UV_NO_PROGRESS: "1",
+          UV_NO_CONFIG: "1",
+        };
+        const started = Date.now();
+        await runInstall(plan, plan.uvCommand, ["venv", venv], env);
+        await runInstall(
+          { ...plan, timeoutMs: Math.max(1, plan.timeoutMs - (Date.now() - started)) },
+          plan.uvCommand,
+          [
+            "pip",
+            "install",
+            "--python",
+            join(venv, "bin", "python"),
+            // An sdist build runs the package's own code; install wheels only.
+            "--only-binary",
+            ":all:",
+            plan.target,
+          ],
+          env,
+        );
+        const { bins } = await declaredUvBins(staging, plan.name);
+        if (bins.length === 0)
+          throw new Error(`${plan.name} does not declare a single bin to run (available: none)`);
+        const python = join(plan.dir, ".venv", "bin", "python");
+        for (const [, path] of bins) {
+          // Console scripts are entry points: their shebang names this venv's interpreter, and
+          // publishing moves the venv (a staging path may differ), so rewrite the line itself.
+          const script = await readFile(path, "utf8");
+          const end = script.indexOf("\n");
+          const first = end === -1 ? script : script.slice(0, end);
+          const cr = first.endsWith("\r") ? "\r" : "";
+          if (first.replace(/\r$/, "").startsWith("#!")) {
+            const rest = end === -1 ? "" : script.slice(end);
+            await writeFile(path, `#!${python}${cr}${rest}`);
+          }
+          await chmod(path, 0o755);
+        }
+      } else {
+        // Anchor npm at the staging dir so it never walks up to an unrelated project.
+        await writeFile(join(staging, "package.json"), '{"private":true}\n');
+        await runNpmInstall(plan, staging);
+        await makeBinsExecutable(staging, plan.name);
+      }
       await writeFile(join(staging, READY_MARKER), `${JSON.stringify({ target: plan.target })}\n`);
       await rename(staging, plan.dir);
     } catch (error) {
@@ -404,19 +531,34 @@ export function npmSettings(extra: Record<string, string>): Record<string, strin
   );
 }
 
-function installEnvironment(extra: Record<string, string>): Record<string, string> {
+/** uv, pip and proxy settings from the host, the server's own env on top. */
+export function uvSettings(extra: Record<string, string>): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(extra).filter(
+      ([key]) =>
+        /^(?:uv_|pip_|https?_proxy$|no_proxy$|ssl_cert_file$|requests_ca_bundle$)/i.test(key) &&
+        /^[A-Za-z_][A-Za-z0-9_]*$/.test(key),
+    ),
+  );
+}
+
+function installEnvironment(
+  extra: Record<string, string>,
+  runner: "npm" | "uv" = "npm",
+): Record<string, string> {
   const env: Record<string, string> = { ...getDefaultEnvironment() };
-  for (const [key, value] of Object.entries(process.env)) {
-    if (value === undefined) continue;
-    if (
-      /^npm_config_/i.test(key) ||
-      /^(?:https?_proxy|no_proxy)$/i.test(key) ||
-      key === "NODE_EXTRA_CA_CERTS"
-    )
-      env[key] = value;
-  }
-  for (const [key, value] of Object.entries(npmSettings(extra))) {
+  const settings = runner === "uv" ? uvSettings : npmSettings;
+  const host = Object.fromEntries(
+    Object.entries(process.env).filter(
+      (entry): entry is [string, string] => entry[1] !== undefined,
+    ),
+  );
+  for (const [key, value] of Object.entries({ ...settings(host), ...settings(extra) })) {
     if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(key)) env[key] = value;
+  }
+  // The connector already drops these; keep both runners safe on their own.
+  for (const [key, value] of Object.entries(env)) {
+    if (mcpOAuthEnvReferences(value).fields.length > 0) delete env[key];
   }
   return env;
 }
@@ -434,6 +576,15 @@ function runNpmInstall(plan: InstallPlan, prefix: string): Promise<void> {
     "--loglevel=warn",
     plan.target,
   ];
+  return runInstall(plan, plan.npmCommand, args, installEnvironment(plan.env));
+}
+
+function runInstall(
+  plan: InstallPlan,
+  command: string,
+  args: string[],
+  env: Record<string, string>,
+): Promise<void> {
   return new Promise<void>((resolvePromise, reject) => {
     let output = "";
     const append = (chunk: Buffer) => {
@@ -441,8 +592,8 @@ function runNpmInstall(plan: InstallPlan, prefix: string): Promise<void> {
     };
     let child: ChildProcess;
     try {
-      child = spawn(plan.npmCommand, args, {
-        env: installEnvironment(plan.env),
+      child = spawn(command, args, {
+        env,
         stdio: ["ignore", "pipe", "pipe"],
         // Own process group, so a timeout also stops everything npm started.
         detached: process.platform !== "win32",
@@ -462,7 +613,11 @@ function runNpmInstall(plan: InstallPlan, prefix: string): Promise<void> {
     timer.unref?.();
     child.on("error", (error) => {
       clearTimeout(timer);
-      reject(new Error(`Could not run npm to install ${plan.target}: ${error.message}`));
+      reject(
+        new Error(
+          `Could not run ${installerName(plan, args)} to install ${plan.target}: ${error.message}`,
+        ),
+      );
     });
     child.on("close", (code, signal) => {
       clearTimeout(timer);
@@ -474,9 +629,18 @@ function runNpmInstall(plan: InstallPlan, prefix: string): Promise<void> {
       const reason = timedOut
         ? `timed out after ${Math.round(plan.timeoutMs / 1000)}s`
         : `failed (${code === null ? `signal ${signal}` : `exit ${code}`})`;
-      reject(new Error(`npm install ${plan.target} ${reason}${tail ? `: ${tail}` : ""}`));
+      reject(
+        new Error(
+          `${installerName(plan, args)} ${plan.target} ${reason}${tail ? `: ${tail}` : ""}`,
+        ),
+      );
     });
   });
+}
+
+function installerName(plan: InstallPlan, args: readonly string[]): string {
+  if (plan.runner !== "uv") return "npm install";
+  return args[0] === "venv" ? "uv venv" : "uv pip install";
 }
 
 function killTree(child: ChildProcess): void {
@@ -490,7 +654,82 @@ function killTree(child: ChildProcess): void {
 
 type DeclaredBins = { packageDir: string; unscoped: string; bins: Array<[string, string]> };
 
-/** The bins an installed package declares, as paths inside the package. */
+/** PEP 503 normalisation, which both distribution names and console-script names use. */
+function normalizeDistribution(name: string): string {
+  return name.toLowerCase().replace(/[-_.]+/g, "-");
+}
+
+/** The installed distribution's `Name:` header, which is authoritative for matching. */
+async function metadataName(distInfo: string): Promise<string | undefined> {
+  try {
+    const handle = await open(join(distInfo, "METADATA"), "r");
+    try {
+      // Headers come first; a long description later in the file is not worth reading.
+      const buffer = Buffer.alloc(4_096);
+      const { bytesRead } = await handle.read(buffer, 0, buffer.length, 0);
+      const name = /^Name:[ \t]*(.+?)\r?$/im.exec(buffer.toString("utf8", 0, bytesRead))?.[1];
+      return name ? normalizeDistribution(name.trim()) : undefined;
+    } finally {
+      await handle.close();
+    }
+  } catch {
+    return undefined;
+  }
+}
+
+/** The bins an installed uv package declares, as executable paths inside its venv. */
+async function declaredUvBins(
+  dir: string,
+  name: string,
+): Promise<Pick<DeclaredBins, "unscoped" | "bins">> {
+  const venv = join(dir, ".venv");
+  const entryPoints = await findUvEntryPoints(venv, normalizeDistribution(name));
+  const bins: Array<[string, string]> = [];
+  const actualVenv = await realpath(venv).catch(() => undefined);
+  const actualRoot = await realpath(dir).catch(() => undefined);
+  if (!entryPoints || !actualVenv || !actualRoot) return { unscoped: name, bins };
+  let section = "";
+  for (const line of (await readFile(entryPoints, "utf8")).split("\n")) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith("[")) {
+      section = trimmed;
+      continue;
+    }
+    if (section !== "[console_scripts]") continue;
+    const [script, target, ...rest] = trimmed.split("=");
+    if (!script || !target || rest.length > 0) continue;
+    const bin = script.trim();
+    if (!BIN_NAME.test(bin)) continue;
+    const path = await realpath(join(venv, "bin", bin)).catch(() => undefined);
+    // A console script must stay inside this venv and this install directory.
+    if (path?.startsWith(actualVenv + sep) && path.startsWith(actualRoot + sep))
+      bins.push([bin, path]);
+  }
+  return { unscoped: name, bins };
+}
+
+async function findUvEntryPoints(venv: string, name: string): Promise<string | undefined> {
+  const library = join(venv, "lib");
+  for (const entry of await readdir(library).catch(() => [] as string[])) {
+    if (!entry.startsWith("python")) continue;
+    const site = join(library, entry, "site-packages");
+    for (const distInfo of await readdir(site).catch(() => [] as string[])) {
+      if (!distInfo.endsWith(".dist-info")) continue;
+      const dir = join(site, distInfo);
+      if ((await metadataName(dir)) !== name) continue;
+      const path = join(dir, "entry_points.txt");
+      try {
+        await access(path);
+        return path;
+      } catch {
+        // Metadata without entry points declares no console scripts.
+      }
+    }
+  }
+  return undefined;
+}
+
+/** The bins an installed npm package declares, as paths inside the package. */
 async function declaredBins(dir: string, name: string): Promise<DeclaredBins> {
   const packageDir = join(dir, "node_modules", ...name.split("/"));
   let manifest: { name?: string; bin?: unknown };
@@ -530,8 +769,14 @@ async function makeBinsExecutable(dir: string, name: string): Promise<void> {
 }
 
 /** npx's choice: the named bin, else the only bin, else the one named after the package. */
-async function resolveBin(dir: string, name: string, binName?: string): Promise<string> {
-  const { unscoped, bins } = await declaredBins(dir, name);
+async function resolveBin(
+  dir: string,
+  name: string,
+  binName?: string,
+  runner: "npm" | "uv" = "npm",
+): Promise<string> {
+  const { unscoped, bins } =
+    runner === "uv" ? await declaredUvBins(dir, name) : await declaredBins(dir, name);
   const byName = new Map(bins);
   // Like npx: names that all run the same file (aliases) are one choice.
   const targets = new Set(bins.map(([, path]) => path));

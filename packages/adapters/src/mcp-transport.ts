@@ -14,8 +14,10 @@ import { closeMcpResource } from "./mcp-close.js";
 import type { InstalledMcpBin } from "./mcp-package-installer.js";
 import {
   isInstalledMcpBin,
-  isNpxCommand,
+  isNpmRunnerCommand,
   isPackageRunnerCommand,
+  isUvxCommand,
+  launcherBasename,
 } from "./mcp-package-installer.js";
 import { limitMcpResponseBody } from "./mcp-response-limit.js";
 import type { RemoteTransportDependencies, SafeRemoteFetch } from "./remote-mcp.js";
@@ -73,7 +75,7 @@ export interface McpStdioOptions {
   /**
    * Launch this managed package bin instead of `command`, with `args` as the bin's own
    * arguments. The allowlist still applies to `command` (the configured launcher, such as
-   * `npx`); only bins issued by `ensureMcpPackage` are accepted here.
+   * `npx`, `pnpx` or `uvx`); only bins issued by `ensureMcpPackage` are accepted here.
    */
   installedBin?: InstalledMcpBin;
   maxBufferSize?: number;
@@ -303,7 +305,12 @@ export function mcpStdioAvailable(policy: McpStdioPolicy): boolean {
   return policy.stdioEnabled === true && (policy.allowedCommands?.length ?? 0) > 0;
 }
 
-const PACKAGE_RUNNER_REFUSAL = "Only npx can launch packages here";
+const PACKAGE_RUNNER_REFUSAL = "Only npx, pnpx or uvx can launch packages here";
+
+/** Launchers whose package Rakazo installs and whose own binary it never runs. */
+export function isManagedLauncherCommand(command: string): boolean {
+  return isNpmRunnerCommand(command) || isUvxCommand(command);
+}
 
 /** Why this deployment can't run a stdio server with `command`, or undefined when it can. */
 export function mcpStdioRefusal(command: string, policy: McpStdioPolicy): string | undefined {
@@ -322,8 +329,10 @@ function stdioParams(options: McpStdioOptions): StdioServerParameters {
   if (options.installedBin !== undefined && !isInstalledMcpBin(options.installedBin)) {
     throw new Error("MCP stdio bin was not installed by Rakazo");
   }
-  if (options.installedBin === undefined && isNpxCommand(options.command)) {
-    throw new Error("npx only launches a package bin Rakazo installed");
+  if (options.installedBin === undefined && isManagedLauncherCommand(options.command)) {
+    throw new Error(
+      `${launcherBasename(options.command)} only launches a package bin Rakazo installed`,
+    );
   }
   const command = options.installedBin?.binPath ?? options.command.trim();
   const env: Record<string, string> = {};
