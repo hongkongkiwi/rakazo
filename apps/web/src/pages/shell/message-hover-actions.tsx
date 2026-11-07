@@ -73,7 +73,7 @@ export function MessageHoverActions({
     "grid h-11 w-11 place-items-center text-muted-foreground transition-colors hover:text-foreground [@media(hover:hover)_and_(pointer:fine)]:h-7 [@media(hover:hover)_and_(pointer:fine)]:w-7";
 
   return (
-    <MessageHoverMetadata pinned={moreOpen || reactionsOpen || copied} side={side}>
+    <MessageHoverMetadata pinned={moreOpen || reactionsOpen || copied || reviewing} side={side}>
       <div data-testid="message-hover-actions" className="flex items-center gap-0.5">
         {canReactToThreadMessage(message) ? (
           <Popover open={reactionsOpen} onOpenChange={setReactionsOpen}>
@@ -112,10 +112,12 @@ export function MessageHoverActions({
         </button>
         <DropdownMenu open={moreOpen} onOpenChange={setMoreOpen}>
           <DropdownMenuTrigger
-            aria-label={copied ? t`Copied` : t`More`}
+            aria-label={reviewing ? t`Reviewing…` : copied ? t`Copied` : t`More`}
             className={iconButtonClass}
           >
-            {copied ? (
+            {reviewing ? (
+              <Loader2 size={15} className="animate-spin" />
+            ) : copied ? (
               <Check size={15} strokeWidth={1.7} />
             ) : (
               <MoreHorizontal size={15} strokeWidth={1.7} />
