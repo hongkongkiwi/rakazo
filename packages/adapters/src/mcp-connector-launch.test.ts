@@ -1,6 +1,7 @@
-import { chmod, mkdir, mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
+import { realpathSync } from "node:fs";
+import { chmod, mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { hostname, tmpdir } from "node:os";
-import { join } from "node:path";
+import { delimiter, join } from "node:path";
 import { getLogger } from "@rakazo/logging";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
@@ -47,6 +48,59 @@ process.stdin.on("data", (chunk) => {
 `;
 
 const SPEC = "@demo/mail-mcp@1.0.0";
+
+const UV_SPEC = "mail-mcp==1.0.0";
+
+/** The real node binary, symlinked into each fake venv as `bin/python` so the
+ * console script's `#!<venv>/bin/python` shebang launches it. A `#!/bin/sh`
+ * shim would need a second shebang hop, which macOS `execve` does not resolve. */
+const NODE = realpathSync(process.execPath);
+
+/** A fake `uv`: records each invocation to `logPath` and, on
+ * `pip install --python <venv>/bin/python --only-binary :all: <spec>`, writes a
+ * fake venv with a METADATA + entry_points.txt dist-info and one `mail-mcp`
+ * console script. `uv venv` symlinks `<venv>/bin/python` to the real node
+ * binary, and the console script keeps its JS body behind a
+ * `#!<venv>/bin/python` first line the install relocates. */
+function uvStub(logPath: string): string {
+  return `#!/usr/bin/env node
+const fs = require("node:fs");
+const path = require("node:path");
+const args = process.argv.slice(2);
+const log = ${JSON.stringify(logPath)};
+fs.mkdirSync(path.dirname(log), { recursive: true });
+let entries = [];
+try { entries = JSON.parse(fs.readFileSync(log, "utf8")); } catch {}
+entries.push({ argv: args, env: { ...process.env } });
+fs.writeFileSync(log, JSON.stringify(entries));
+if (args[0] === "venv") {
+  const venv = args[1];
+  fs.mkdirSync(path.join(venv, "bin"), { recursive: true });
+  fs.mkdirSync(path.join(venv, "lib", "python3.12", "site-packages"), { recursive: true });
+  fs.symlinkSync(${JSON.stringify(NODE)}, path.join(venv, "bin", "python"));
+  return;
+}
+if (args[0] === "pip" && args[1] === "install") {
+  const py = args[args.indexOf("--python") + 1];
+  const spec = args.at(-1);
+  const venv = path.dirname(path.dirname(py));
+  const normalized = spec.replace(/[^A-Za-z0-9._-].*/, "").replace(/-/g, "_");
+  const site = path.join(venv, "lib", "python3.12", "site-packages");
+  const distInfo = path.join(site, normalized + "-1.0.0.dist-info");
+  fs.mkdirSync(distInfo, { recursive: true });
+  fs.writeFileSync(path.join(distInfo, "METADATA"), "Metadata-Version: 2.1\\nName: mail-mcp\\nVersion: 1.0.0\\n");
+  fs.writeFileSync(path.join(distInfo, "entry_points.txt"), "[console_scripts]\\nmail-mcp = mail_mcp:main\\n");
+  fs.mkdirSync(path.join(venv, "bin"), { recursive: true });
+  const script = ${JSON.stringify(SERVER_SOURCE)};
+  const body = script.slice(script.indexOf("\\n") + 1);
+  fs.writeFileSync(path.join(venv, "bin", "mail-mcp"), "#!" + path.join(venv, "bin", "python") + "\\n" + body);
+  fs.chmodSync(path.join(venv, "bin", "mail-mcp"), 0o755);
+  return;
+}
+console.error("unexpected uv invocation: " + args.join(" "));
+process.exit(1);
+`;
+}
 
 /** What a finished install leaves behind, without running npm. */
 async function publishPackage(root: string): Promise<void> {
@@ -184,6 +238,113 @@ describe("MCP connector managed stdio launch", () => {
     }
   });
 
+  it("launches a pnpx package through the same managed npm install", async () => {
+    await publishPackage(root);
+    const connector = connectorFor({
+      allowedCommands: ["pnpx"],
+      server: { ...SERVER, command: "pnpx" },
+    });
+    try {
+      const tools = await connector.discoverTools(contextFor());
+      expect(tools.map((tool) => tool.name)).toEqual(["mcp__mail__hello"]);
+      const [tool] = tools;
+      expect(await callTool(connector, tool!)).toMatchObject([
+        { type: "result", data: { content: [{ text: "hi --region eu" }] } },
+      ]);
+    } finally {
+      await connector.close();
+    }
+  });
+
+  it("installs a uvx package with a stub uv and launches its console script", async () => {
+    const binDir = await mkdtemp(join(tmpdir(), "rakazo-uv-bin-"));
+    const uvLogPath = join(root, "uv-argv.json");
+    const stubPath = join(binDir, "uv");
+    await writeFile(stubPath, uvStub(uvLogPath));
+    await chmod(stubPath, 0o755);
+    const previousPath = process.env.PATH;
+    process.env.PATH = `${binDir}${delimiter}${previousPath ?? ""}`;
+    env = { UV_INDEX_URL: "https://mirror.example.test/simple" };
+    const connector = connectorFor({
+      allowedCommands: ["uvx"],
+      server: { ...SERVER, command: "uvx", args: [UV_SPEC, "--region", "eu"] },
+    });
+    try {
+      const tools = await connector.discoverTools(contextFor());
+      expect(tools.map((tool) => tool.name)).toEqual(["mcp__mail__hello"]);
+      const [tool] = tools;
+      expect(await callTool(connector, tool!)).toMatchObject([
+        { type: "result", data: { content: [{ text: "hi --region eu" }] } },
+      ]);
+
+      const invocations = JSON.parse(await readFile(uvLogPath, "utf8")) as Array<{
+        argv: string[];
+        env: Record<string, string | undefined>;
+      }>;
+      expect(invocations).toHaveLength(2);
+      expect(invocations[0]!.argv[0]).toBe("venv");
+      expect(invocations[0]!.argv[1]).toMatch(/\.venv$/);
+      expect(invocations[1]!.argv).toEqual([
+        "pip",
+        "install",
+        "--python",
+        expect.stringMatching(/\.venv\/bin\/python$/),
+        "--only-binary",
+        ":all:",
+        UV_SPEC,
+      ]);
+
+      const installEnv = invocations[1]!.env;
+      expect(installEnv.UV_CACHE_DIR).toBe(join(root, "uv", "cache"));
+      expect(installEnv.UV_PYTHON_INSTALL_DIR).toBe(join(root, "uv", "python"));
+      expect(installEnv.UV_LINK_MODE).toBe("copy");
+      expect(installEnv.UV_NO_CONFIG).toBe("1");
+      expect(installEnv.UV_INDEX_URL).toBe("https://mirror.example.test/simple");
+      expect(installEnv.MAIL_API_KEY).toBeUndefined();
+      expect(JSON.stringify(invocations)).not.toContain("{{oauth.access_token}}");
+    } finally {
+      if (previousPath === undefined) delete process.env.PATH;
+      else process.env.PATH = previousPath;
+      await rm(binDir, { recursive: true, force: true });
+      await connector.close();
+    }
+  });
+
+  it("keeps OAuth values out of a uvx install", async () => {
+    const binDir = await mkdtemp(join(tmpdir(), "rakazo-uv-bin-"));
+    const uvLogPath = join(root, "uv-argv.json");
+    const stubPath = join(binDir, "uv");
+    await writeFile(stubPath, uvStub(uvLogPath));
+    await chmod(stubPath, 0o755);
+    const previousPath = process.env.PATH;
+    process.env.PATH = `${binDir}${delimiter}${previousPath ?? ""}`;
+    env = { MAIL_API_KEY: "Bearer {{oauth.access_token}}" };
+    const connector = connectorFor({
+      allowedCommands: ["uvx"],
+      server: { ...SERVER, command: "uvx", args: [UV_SPEC, "--region", "eu"] },
+    });
+    try {
+      const tools = await connector.discoverTools(contextFor());
+      expect(tools.map((tool) => tool.name)).toEqual(["mcp__mail__unavailable"]);
+      expect(tools[0]?.description).toContain("Reconnect this server");
+
+      const invocations = JSON.parse(await readFile(uvLogPath, "utf8")) as Array<{
+        argv: string[];
+        env: Record<string, string | undefined>;
+      }>;
+      expect(invocations).toHaveLength(2);
+      for (const invocation of invocations) {
+        expect(invocation.env.MAIL_API_KEY).toBeUndefined();
+      }
+      expect(JSON.stringify(invocations)).not.toContain("{{oauth.access_token}}");
+    } finally {
+      if (previousPath === undefined) delete process.env.PATH;
+      else process.env.PATH = previousPath;
+      await rm(binDir, { recursive: true, force: true });
+      await connector.close();
+    }
+  });
+
   it("launches with the arguments kept in the encrypted credential", async () => {
     await publishPackage(root);
     args = ["-y", SPEC, "--region", "us"];
@@ -229,7 +390,7 @@ describe("MCP connector managed stdio launch", () => {
   it.each([
     ["bunx", ["pkg"]],
     ["pnpm", ["dlx", "pkg"]],
-    ["uvx", ["pkg"]],
+    ["pipx", ["run", "pkg"]],
   ])("refuses package runner %s before installing or launching", async (command, args) => {
     const launches = vi.spyOn(McpSession.prototype, "connectStdio");
     const installs = vi.spyOn(installer, "ensureMcpPackage");
@@ -240,7 +401,7 @@ describe("MCP connector managed stdio launch", () => {
     try {
       const tools = await connector.discoverTools(contextFor());
       expect(tools).toMatchObject([{ name: "mcp__mail__unavailable" }]);
-      expect(tools[0]?.description).toContain("Only npx can launch packages here");
+      expect(tools[0]?.description).toContain("Only npx, pnpx or uvx can launch packages here");
       expect(launches).not.toHaveBeenCalled();
       expect(installs).not.toHaveBeenCalled();
     } finally {
@@ -262,6 +423,51 @@ describe("MCP connector managed stdio launch", () => {
       const tools = await connector.discoverTools(contextFor());
       expect(tools).toMatchObject([{ name: "mcp__mail__unavailable" }]);
       expect(tools[0]?.description).toContain("This npx command isn't supported here");
+      expect(launches).not.toHaveBeenCalled();
+      expect(installs).not.toHaveBeenCalled();
+    } finally {
+      await connector.close();
+    }
+  });
+
+  it.each([
+    [["--registry", "https://registry.example.test", SPEC]],
+    [["-c", "echo hi"]],
+    [["-p", "a", "-p", "b", "bin"]],
+  ])("refuses a pnpx launch it can't reduce to a registry package: %j", async (args) => {
+    const launches = vi.spyOn(McpSession.prototype, "connectStdio");
+    const installs = vi.spyOn(installer, "ensureMcpPackage");
+    const connector = connectorFor({
+      allowedCommands: ["pnpx"],
+      server: { ...SERVER, command: "pnpx", args },
+    });
+    try {
+      const tools = await connector.discoverTools(contextFor());
+      expect(tools).toMatchObject([{ name: "mcp__mail__unavailable" }]);
+      expect(tools[0]?.description).toContain("This pnpx command isn't supported here");
+      expect(launches).not.toHaveBeenCalled();
+      expect(installs).not.toHaveBeenCalled();
+    } finally {
+      await connector.close();
+    }
+  });
+
+  it.each([
+    [["--with", "extra", UV_SPEC]],
+    [["-q", UV_SPEC]],
+    [["--index-url", "https://mirror.example.test", UV_SPEC]],
+    [["./local-server"]],
+  ])("refuses a uvx launch it can't reduce to a registry package: %j", async (args) => {
+    const launches = vi.spyOn(McpSession.prototype, "connectStdio");
+    const installs = vi.spyOn(installer, "ensureMcpPackage");
+    const connector = connectorFor({
+      allowedCommands: ["uvx"],
+      server: { ...SERVER, command: "uvx", args },
+    });
+    try {
+      const tools = await connector.discoverTools(contextFor());
+      expect(tools).toMatchObject([{ name: "mcp__mail__unavailable" }]);
+      expect(tools[0]?.description).toContain("This uvx command isn't supported here");
       expect(launches).not.toHaveBeenCalled();
       expect(installs).not.toHaveBeenCalled();
     } finally {

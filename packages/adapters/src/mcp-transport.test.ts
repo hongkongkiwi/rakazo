@@ -8,6 +8,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { MCP_CLOSE_TIMEOUT_MS } from "./mcp-close.js";
 import { StoredMcpOAuthProvider } from "./mcp-oauth.js";
 import {
+  isManagedLauncherCommand,
   McpSession,
   McpStdioLaunchError,
   mcpStdioRefusal,
@@ -235,37 +236,89 @@ describe("MCP transport seam", () => {
     await session.close();
   });
 
+  it("gives pnpx and uvx their own missing-bin refusal", async () => {
+    const session = new McpSession();
+    await expect(
+      session.connectStdio({ command: "pnpx", args: ["-y", "pkg"], allowedCommands: ["pnpx"] }),
+    ).rejects.toThrow("pnpx only launches a package bin Rakazo installed");
+    await expect(
+      session.connectStdio({ command: "uvx", args: ["pkg"], allowedCommands: ["uvx"] }),
+    ).rejects.toThrow("uvx only launches a package bin Rakazo installed");
+    // The launcher itself must still be allowlisted.
+    await expect(session.connectStdio({ command: "pnpx", allowedCommands: [] })).rejects.toThrow(
+      "allowlist",
+    );
+    await expect(session.connectStdio({ command: "uvx", allowedCommands: [] })).rejects.toThrow(
+      "allowlist",
+    );
+    await session.close();
+  });
+
   const RUNNERS = [
-    "bunx",
-    "pnpx",
-    "uvx",
-    "pipx",
-    "/usr/local/bin/pnpm",
     "npm",
+    "pnpm",
     "yarn",
+    "yarnpkg",
+    "corepack",
     "bun",
+    "bunx",
     "deno",
     "uv",
+    "pipx",
+    "/usr/local/bin/pnpm",
+    "/opt/corepack",
     "pnpm.cmd",
     "BUNX.exe",
+    "yarnpkg.exe",
   ];
 
   it.each(RUNNERS)("refuses package runner %s even when allowlisted", async (command) => {
     expect(mcpStdioRefusal(command, { stdioEnabled: true, allowedCommands: [command] })).toBe(
-      "Only npx can launch packages here",
+      "Only npx, pnpx or uvx can launch packages here",
     );
     const session = new McpSession();
     await expect(
       session.connectStdio({ command, args: ["dlx", "pkg"], allowedCommands: [command] }),
-    ).rejects.toThrow("Only npx can launch packages here");
+    ).rejects.toThrow("Only npx, pnpx or uvx can launch packages here");
     await session.close();
   });
 
-  it("still allows npx and plain allowlisted binaries", () => {
-    const policy = { stdioEnabled: true, allowedCommands: ["npx", "/opt/mcp/server", "node"] };
+  it("still allows managed launchers and plain allowlisted binaries", () => {
+    const policy = {
+      stdioEnabled: true,
+      allowedCommands: ["npx", "pnpx", "uvx", "/opt/mcp/server", "node"],
+    };
     expect(mcpStdioRefusal("npx", policy)).toBeUndefined();
+    expect(mcpStdioRefusal("pnpx", policy)).toBeUndefined();
+    expect(mcpStdioRefusal("uvx", policy)).toBeUndefined();
     expect(mcpStdioRefusal("/opt/mcp/server", policy)).toBeUndefined();
     expect(mcpStdioRefusal("node", policy)).toBeUndefined();
+  });
+
+  describe("isManagedLauncherCommand", () => {
+    it.each(["npx", "pnpx", "uvx", "/opt/bin/npx", "pnpx.cmd", "UVX.exe"])(
+      "accepts managed launcher %s",
+      (command) => {
+        expect(isManagedLauncherCommand(command)).toBe(true);
+      },
+    );
+
+    it.each([
+      "npm",
+      "pnpm",
+      "yarn",
+      "yarnpkg",
+      "corepack",
+      "bun",
+      "bunx",
+      "deno",
+      "uv",
+      "pipx",
+      "node",
+      "npxx",
+    ])("rejects %s", (command) => {
+      expect(isManagedLauncherCommand(command)).toBe(false);
+    });
   });
 
   it("rejects remote endpoints that resolve to a private address", async () => {

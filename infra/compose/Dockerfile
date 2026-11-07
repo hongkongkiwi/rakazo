@@ -10,7 +10,7 @@ WORKDIR /app
 # needs its manifest below, or --frozen-lockfile fails. The store is a cache mount, so
 # a lockfile change reuses whatever was already downloaded.
 COPY --chmod=755 package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN corepack install && chmod -R a+rX "${COREPACK_HOME}"
+RUN corepack install && chmod -R a+rX "${COREPACK_HOME}" && pnpx --version
 COPY --chmod=755 patches patches
 COPY --chmod=755 apps/api/package.json apps/api/
 COPY --chmod=755 apps/desktop/package.json apps/desktop/
@@ -41,6 +41,21 @@ RUN pnpm --filter @rakazo/db generate
 RUN pnpm --filter @rakazo/api --filter @rakazo/worker build
 RUN RAKAZO_ALLOW_DEV_SECRETS=1 pnpm --filter @rakazo/web build
 RUN install -d -m 750 -o node -g node /data /app/apps/web/node_modules/.vite-temp /app/apps/web/asset-archive
+ARG TARGETARCH
+ARG UV_VERSION=0.12.19
+RUN set -eux; \
+  case "$TARGETARCH" in \
+    amd64) uv_arch=x86_64; uv_sha256=23bf5552d220e0842b65c862097b2ebaeba0064b74eda5e565e77fd25969d8c8 ;; \
+    arm64) uv_arch=aarch64; uv_sha256=0804e9b164c64b6914182d5920c08551958a095986f10a3731056df701126436 ;; \
+    *) echo "unsupported TARGETARCH: $TARGETARCH" >&2; exit 1 ;; \
+  esac; \
+  archive="$(mktemp)"; \
+  curl -fsSL "https://releases.astral.sh/github/uv/releases/download/${UV_VERSION}/uv-${uv_arch}-unknown-linux-gnu.tar.gz" -o "$archive"; \
+  echo "$uv_sha256  $archive" | sha256sum -c -; \
+  tar -xzf "$archive" -C /usr/local/bin --strip-components=1 "uv-${uv_arch}-unknown-linux-gnu/uv" "uv-${uv_arch}-unknown-linux-gnu/uvx"; \
+  rm -f "$archive"; \
+  uv --version; \
+  uvx --version
 # Last root step, so a cached earlier layer cannot be the filesystem that ships.
 RUN /tmp/apt-security.sh --check && rm -f /tmp/apt-security.sh
 ARG GIT_SHA
