@@ -47,6 +47,7 @@ vi.mock("@rakazo/ui-web", async () => {
         value?: string;
         autoComplete?: string;
         placeholder?: string;
+        readOnly?: boolean;
         onChange?: () => void;
       }) =>
         createElement("input", {
@@ -55,6 +56,7 @@ vi.mock("@rakazo/ui-web", async () => {
           value: props.value,
           autoComplete: props.autoComplete,
           placeholder: props.placeholder,
+          readOnly: props.readOnly,
           onChange: props.onChange,
         }),
     ],
@@ -138,4 +140,29 @@ it("treats a preset reply without auth as bearer", async () => {
   await renderPreset(legacy);
   expect(credentialInput()).not.toBeNull();
   expect(host.textContent).toContain("Bearer token");
+});
+
+it("pins the header name and prompts for an API key on a header preset", async () => {
+  await renderPreset({
+    id: "agentmail",
+    name: "AgentMail",
+    url: "https://mcp.agentmail.to/mcp",
+    auth: "header",
+    authHeader: "x-api-key",
+  });
+  expect(host.querySelector<HTMLInputElement>("#source-header")?.value).toBe("x-api-key");
+  expect(host.querySelector<HTMLInputElement>("#source-header")?.readOnly).toBe(true);
+  expect(credentialInput()).not.toBeNull();
+  expect(host.textContent).toContain("API key");
+});
+
+it("sends an OAuth preset to the browser sign-in path", async () => {
+  await renderPreset({
+    id: "slack",
+    name: "Slack",
+    url: "https://mcp.slack.com/mcp",
+    auth: "oauth",
+  });
+  expect(credentialInput()).toBeNull();
+  expect(host.textContent).toContain("Save and sign in");
 });

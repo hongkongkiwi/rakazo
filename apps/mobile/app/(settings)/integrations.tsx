@@ -577,9 +577,14 @@ export default function Integrations() {
     return (
       <View key={server.id} testID="registered-mcp-server" style={styles.row}>
         <ConnectorIcon name={server.name} size={LOGO_SIZE} />
-        <Text numberOfLines={1} style={[styles.title, styles.grow]}>
-          {server.name}
-        </Text>
+        <View style={styles.grow}>
+          <Text numberOfLines={1} style={styles.title}>
+            {server.name}
+          </Text>
+          {state === "needs_client" ? (
+            <Text style={styles.secondary}>{t("Finish MCP authorization in the web app.")}</Text>
+          ) : null}
+        </View>
         <View style={styles.connectionStatus}>
           {symbol ? (
             <View
@@ -825,7 +830,7 @@ export default function Integrations() {
     setCredential("");
     // Replies from before the auth field carry none; those presets behaved as bearer sources.
     setSourceAuth(preset ? (preset.auth ?? "bearer") : "none");
-    setAuthHeader("x-api-key");
+    setAuthHeader(preset?.authHeader ?? "x-api-key");
   }
 
   async function authorizeMcp(serverId: string) {
@@ -844,6 +849,10 @@ export default function Integrations() {
         await refresh();
       }
     } catch (reason) {
+      if (!isCurrent()) return;
+      // The server records why the flow stopped, so re-read it before showing the failure;
+      // a stale Connect button would otherwise send the person straight back into the error.
+      await refresh().catch(() => undefined);
       if (isCurrent()) setMcpError(errorText(reason, t("Could not start MCP OAuth")));
     } finally {
       if (isCurrent()) setPending(null);
@@ -984,14 +993,12 @@ export default function Integrations() {
     { id: "mcp", label: t("MCP server"), kind: "mcp" },
     { id: "api", label: "OpenAPI", kind: "api" },
     { id: "graphql", label: "GraphQL", kind: "graphql" },
-    ...sourcePresets
-      .filter((preset) => preset.auth !== "oauth")
-      .map((preset) => ({
-        id: `preset:${preset.id}`,
-        label: preset.name,
-        kind: "mcp" as const,
-        preset,
-      })),
+    ...sourcePresets.map((preset) => ({
+      id: `preset:${preset.id}`,
+      label: preset.name,
+      kind: "mcp" as const,
+      preset,
+    })),
   ];
 
   function startAdding(option: AddCustomOption | undefined) {

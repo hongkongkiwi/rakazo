@@ -89,6 +89,27 @@ export const MCP_SOURCE_PRESETS: McpSourcePreset[] = [
     auth: "bearer",
   },
   { id: "instabox", name: "Instabox", url: "https://api.instabox.sh/mcp", auth: "bearer" },
+  {
+    id: "agentmail",
+    name: "AgentMail",
+    url: "https://mcp.agentmail.to/mcp",
+    auth: "header",
+    authHeader: "x-api-key",
+  },
+  { id: "slack", name: "Slack", url: "https://mcp.slack.com/mcp", auth: "oauth" },
+  {
+    id: "planetscale",
+    name: "PlanetScale",
+    url: "https://mcp.pscale.dev/mcp/planetscale",
+    auth: "oauth",
+  },
+  {
+    id: "elevenlabs",
+    name: "ElevenLabs",
+    url: "https://api.elevenlabs.io/v1/mcp",
+    auth: "oauth",
+  },
+  { id: "aiven", name: "Aiven", url: "https://mcp.aiven.live/mcp", auth: "oauth" },
 ];
 
 /** Applies a preset named in an MCP install: its fixed URL and auth, so clients send only
@@ -105,9 +126,18 @@ export function applyMcpSourcePreset(
   if (auth === "oauth") {
     throw new Error(`${preset.name} needs OAuth sign-in, which this install does not support`);
   }
+  // The catalog knows where a header-auth service reads its key, so caller auth and
+  // headers cannot override it.
+  const header = auth === "header" ? preset.authHeader : undefined;
+  if (auth === "header" && !header) {
+    throw new Error(`${preset.name} is missing its API key header name`);
+  }
   return {
     source: preset.url ?? source,
-    config: { preset: preset.url ? preset.id : "custom", auth: { type: auth } },
+    config: {
+      preset: preset.url ? preset.id : "custom",
+      auth: header ? { type: "header", name: header } : { type: auth },
+    },
   };
 }
 

@@ -167,16 +167,46 @@ export function parseMcpOAuthAuthorizationParams(value: string): Record<string, 
   return params;
 }
 
+/** Header names the HTTP transport owns; a credential header may not replace them. */
+const MCP_SOURCE_TRANSPORT_HEADER =
+  /^(connection|content-length|host|proxy-authorization|proxy-connection|te|trailer|transfer-encoding|upgrade)$/i;
+
+/** The header a header-auth preset fills with the person's API key. */
+const McpSourceAuthHeaderSchema = z
+  .string()
+  .max(120)
+  // HTTP field names are tokens (RFC 9110 section 5.6.2), including underscores.
+  .regex(/^[!#$%&'*+.^_`|~0-9A-Za-z-]+$/, "Invalid HTTP header name")
+  .refine((name) => !MCP_SOURCE_TRANSPORT_HEADER.test(name), "Transport-level header names");
+
 /** A remote MCP service offered as a one-step source and how it authenticates. */
-export const McpSourcePresetSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  /** Fixed endpoint; omitted when the person enters their own. */
-  url: z.string().url().optional(),
-  urlPlaceholder: z.string().optional(),
-  /** Bearer is the legacy default: presets saved before this field carry a pasted token. */
-  auth: z.enum(["none", "bearer", "oauth"]).default("bearer"),
-});
+export const McpSourcePresetSchema = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    /** Fixed endpoint; omitted when the person enters their own. */
+    url: z.string().url().optional(),
+    urlPlaceholder: z.string().optional(),
+    /** Bearer is the legacy default: presets saved before this field carry a pasted token. */
+    auth: z.enum(["none", "bearer", "header", "oauth"]).default("bearer"),
+    /** Required by, and only valid with, the header auth mode. Never a credential value. */
+    authHeader: McpSourceAuthHeaderSchema.optional(),
+  })
+  .superRefine((preset, ctx) => {
+    if (preset.auth === "header" && !preset.authHeader) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["authHeader"],
+        message: "A header auth preset must name its header",
+      });
+    } else if (preset.auth !== "header" && preset.authHeader !== undefined) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["authHeader"],
+        message: "Only a header auth preset may name a header",
+      });
+    }
+  });
 export type McpSourcePreset = z.infer<typeof McpSourcePresetSchema>;
 
 const McpServerBaseInput = z.object({

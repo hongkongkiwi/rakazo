@@ -19,7 +19,7 @@ describe("MCP source preset catalog", () => {
       expect(ids, required).toContain(required);
     }
     // Vendors with no verified preset must never appear, even as a guess.
-    for (const unsupported of ["asana", "figma", "jira", "notion", "slack"]) {
+    for (const unsupported of ["asana", "figma", "jira", "notion"]) {
       expect(ids, unsupported).not.toContain(unsupported);
     }
   });
@@ -48,7 +48,7 @@ describe("MCP source preset catalog", () => {
   });
 
   it("carries only preset fields, never credential values", () => {
-    const allowed = new Set(["id", "name", "url", "urlPlaceholder", "auth"]);
+    const allowed = new Set(["id", "name", "url", "urlPlaceholder", "auth", "authHeader"]);
     for (const entry of MCP_SOURCE_PRESETS) {
       expect(
         Object.keys(entry).every((key) => allowed.has(key)),
