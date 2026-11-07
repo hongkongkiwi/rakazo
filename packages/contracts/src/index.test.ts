@@ -224,6 +224,15 @@ describe("contracts", () => {
     expect(MessageBlock.parse({ kind: "steps", steps })).toEqual({ kind: "steps", steps });
   });
 
+  it("accepts a changes block and rejects an empty list", () => {
+    const changes = {
+      kind: "changes" as const,
+      files: [{ path: "notes/a.md", change: "created" as const, bytes: 12 }],
+    };
+    expect(MessageBlock.parse(changes)).toEqual(changes);
+    expect(MessageBlock.safeParse({ kind: "changes", files: [] }).success).toBe(false);
+  });
+
   it("limits reactions to persisted non-channel messages", () => {
     expect(
       canReactToThreadMessage({ id: "message-1", blocks: [{ kind: "text", text: "hi" }] }),

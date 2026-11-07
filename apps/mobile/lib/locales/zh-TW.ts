@@ -1,4 +1,7 @@
 export const ZH_TW_MESSAGES: Record<string, string> = {
+  "New file": "新檔案",
+  "Changed file": "已變更檔案",
+  "Files written": "寫入的檔案",
   "No matches": "沒有相符的結果",
   "Always ask": "一律詢問",
   "Search tools": "搜尋工具",

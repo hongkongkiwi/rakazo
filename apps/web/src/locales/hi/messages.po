@@ -1488,6 +1488,10 @@ msgstr "पासवर्ड बदलें"
 msgid "Change server"
 msgstr "सर्वर बदलें"
 
+#: src/components/ChangesCard.tsx
+msgid "Changed file"
+msgstr "बदली गई फ़ाइल"
+
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Changing…"
 msgstr "बदला जा रहा है…"
@@ -3488,6 +3492,10 @@ msgstr "कंप्यूटर पर फ़ाइलें या फ़ो�
 msgid "Files or folders, one per line"
 msgstr "फ़ाइलें या फ़ोल्डर, हर पंक्ति में एक"
 
+#: src/components/ChangesCard.tsx
+msgid "Files written"
+msgstr "लिखी गई फ़ाइलें"
+
 #: src/pages/Artifacts.tsx
 msgid "Files your bots create, like reports, docs and images, collect here."
 msgstr "आपके बॉट्स द्वारा बनाई गई फ़ाइलें, जैसे रिपोर्ट, दस्तावेज़ और छवियाँ, यहाँ इकट्ठा होती हैं।"
@@ -4692,6 +4700,10 @@ msgstr "नए कंप्यूटर इस पर चलते हैं"
 #: src/components/VaultSettings.tsx
 msgid "New contact"
 msgstr "नया संपर्क"
+
+#: src/components/ChangesCard.tsx
+msgid "New file"
+msgstr "नई फ़ाइल"
 
 #: src/pages/GroupPanel.tsx
 msgid "New group"

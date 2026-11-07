@@ -1,4 +1,7 @@
 export const NL_MESSAGES: Record<string, string> = {
+  "New file": "Nieuw bestand",
+  "Changed file": "Gewijzigd bestand",
+  "Files written": "Geschreven bestanden",
   "No matches": "Geen resultaten",
   "Always ask": "Altijd vragen",
   "Search tools": "Tools zoeken",

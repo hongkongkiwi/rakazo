@@ -88,7 +88,7 @@ export function recordComputerAction(
   call: ToolCall,
   kind: Exclude<ComputerCommand["kind"], "shell">,
   target: string,
-  outcome: { error?: string; bytes?: number } = {},
+  outcome: { error?: string; bytes?: number; change?: "created" | "modified" } = {},
 ) {
   return appendComputerCommand(ctx, {
     executionId: call.executionId,
@@ -99,6 +99,7 @@ export function recordComputerAction(
     exitCode: outcome.error ? 1 : 0,
     output: outcome.error ? redactSecrets(outcome.error, ctx.secrets) : "",
     ...(outcome.bytes === undefined ? {} : { bytes: outcome.bytes }),
+    ...(outcome.change === undefined ? {} : { change: outcome.change }),
   });
 }
 

@@ -1489,6 +1489,10 @@ msgstr "修改密碼"
 msgid "Change server"
 msgstr "更換伺服器"
 
+#: src/components/ChangesCard.tsx
+msgid "Changed file"
+msgstr "已變更檔案"
+
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Changing…"
 msgstr "正在修改…"
@@ -3489,6 +3493,10 @@ msgstr "電腦上的檔案或資料夾"
 msgid "Files or folders, one per line"
 msgstr "檔案或資料夾，每行一個"
 
+#: src/components/ChangesCard.tsx
+msgid "Files written"
+msgstr "寫入的檔案"
+
 #: src/pages/Artifacts.tsx
 msgid "Files your bots create, like reports, docs and images, collect here."
 msgstr "你的機器人建立的檔案，例如報告、文件和圖片，都會匯集在這裡。"
@@ -4693,6 +4701,10 @@ msgstr "新電腦執行於"
 #: src/components/VaultSettings.tsx
 msgid "New contact"
 msgstr "新增聯絡人"
+
+#: src/components/ChangesCard.tsx
+msgid "New file"
+msgstr "新檔案"
 
 #: src/pages/GroupPanel.tsx
 msgid "New group"

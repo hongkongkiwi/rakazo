@@ -1488,6 +1488,10 @@ msgstr "Cambiar contraseña"
 msgid "Change server"
 msgstr "Cambiar servidor"
 
+#: src/components/ChangesCard.tsx
+msgid "Changed file"
+msgstr "Archivo modificado"
+
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Changing…"
 msgstr "Cambiando…"
@@ -3488,6 +3492,10 @@ msgstr "Archivos o carpetas del equipo"
 msgid "Files or folders, one per line"
 msgstr "Archivos o carpetas, uno por línea"
 
+#: src/components/ChangesCard.tsx
+msgid "Files written"
+msgstr "Archivos escritos"
+
 #: src/pages/Artifacts.tsx
 msgid "Files your bots create, like reports, docs and images, collect here."
 msgstr "Los archivos que crean tus bots, como informes, documentos e imágenes, se reúnen aquí."
@@ -4692,6 +4700,10 @@ msgstr "Las nuevas computadoras se ejecutan en"
 #: src/components/VaultSettings.tsx
 msgid "New contact"
 msgstr "Nuevo contacto"
+
+#: src/components/ChangesCard.tsx
+msgid "New file"
+msgstr "Archivo nuevo"
 
 #: src/pages/GroupPanel.tsx
 msgid "New group"

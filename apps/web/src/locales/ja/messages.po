@@ -1488,6 +1488,10 @@ msgstr "パスワードを変更"
 msgid "Change server"
 msgstr "サーバを変更"
 
+#: src/components/ChangesCard.tsx
+msgid "Changed file"
+msgstr "変更されたファイル"
+
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Changing…"
 msgstr "変更中…"
@@ -3488,6 +3492,10 @@ msgstr "コンピューター上のファイルまたはフォルダ"
 msgid "Files or folders, one per line"
 msgstr "ファイルまたはフォルダ（1行に1つ）"
 
+#: src/components/ChangesCard.tsx
+msgid "Files written"
+msgstr "書き込んだファイル"
+
 #: src/pages/Artifacts.tsx
 msgid "Files your bots create, like reports, docs and images, collect here."
 msgstr "ボットが作成したレポート、ドキュメント、画像などのファイルがここに集まります。"
@@ -4692,6 +4700,10 @@ msgstr "新しいコンピューターの実行先"
 #: src/components/VaultSettings.tsx
 msgid "New contact"
 msgstr "新しい連絡先"
+
+#: src/components/ChangesCard.tsx
+msgid "New file"
+msgstr "新しいファイル"
 
 #: src/pages/GroupPanel.tsx
 msgid "New group"

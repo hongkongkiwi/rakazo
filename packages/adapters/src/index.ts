@@ -6,6 +6,7 @@ export * from "./ai-consent.js";
 export type { ApnsVoipConfig } from "./apns-voip.js";
 export { apnsVoipConfig, createApnsVoipProvider } from "./apns-voip-config.js";
 export * from "./artifact-store-factory.js";
+export * from "./run-changes.js";
 export * from "./artifacts.js";
 export * from "./audit-forwarding.js";
 export * from "./auto-review.js";

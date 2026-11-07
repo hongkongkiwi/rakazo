@@ -1488,6 +1488,10 @@ msgstr "Parolayı değiştir"
 msgid "Change server"
 msgstr "Sunucuyu değiştir"
 
+#: src/components/ChangesCard.tsx
+msgid "Changed file"
+msgstr "Değiştirilen dosya"
+
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Changing…"
 msgstr "Değiştiriliyor…"
@@ -3488,6 +3492,10 @@ msgstr "Bilgisayardaki dosya veya klasörler"
 msgid "Files or folders, one per line"
 msgstr "Dosya veya klasörler, her satıra bir tane"
 
+#: src/components/ChangesCard.tsx
+msgid "Files written"
+msgstr "Yazılan dosyalar"
+
 #: src/pages/Artifacts.tsx
 msgid "Files your bots create, like reports, docs and images, collect here."
 msgstr "Botlarınızın oluşturduğu raporlar, belgeler ve görseller gibi dosyalar burada toplanır."
@@ -4692,6 +4700,10 @@ msgstr "Yeni bilgisayarlar şununla çalışır"
 #: src/components/VaultSettings.tsx
 msgid "New contact"
 msgstr "Yeni kişi"
+
+#: src/components/ChangesCard.tsx
+msgid "New file"
+msgstr "Yeni dosya"
 
 #: src/pages/GroupPanel.tsx
 msgid "New group"
