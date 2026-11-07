@@ -2780,6 +2780,7 @@ msgid "Create your Rakazo"
 msgstr "Rakazoを作成"
 
 #: src/components/AskCard.tsx
+#: src/components/ChangesCard.tsx
 msgid "Created"
 msgstr "作成済み"
 
@@ -3487,6 +3488,10 @@ msgstr "コンピューター上のファイルまたはフォルダ"
 #: src/pages/routine-editor/trigger-cards.tsx
 msgid "Files or folders, one per line"
 msgstr "ファイルまたはフォルダ（1行に1つ）"
+
+#: src/components/ChangesCard.tsx
+msgid "Files written"
+msgstr "書き込んだファイル"
 
 #: src/pages/Artifacts.tsx
 msgid "Files your bots create, like reports, docs and images, collect here."
@@ -4514,6 +4519,10 @@ msgstr "サーバーのモデル"
 #: src/lib/model-connection-preflight.ts
 msgid "Models list OK. {modelCount, plural, one {# model} other {# models}} available. Chat was not tested."
 msgstr "モデル一覧は正常です。{modelCount, plural, one {#個のモデル} other {#個のモデル}}が利用可能です。チャットはテストされていません。"
+
+#: src/components/ChangesCard.tsx
+msgid "Modified"
+msgstr "変更済み"
 
 #: src/lib/cron.ts
 msgid "Monday"

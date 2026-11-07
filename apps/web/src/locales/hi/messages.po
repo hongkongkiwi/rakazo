@@ -2780,6 +2780,7 @@ msgid "Create your Rakazo"
 msgstr "अपना Rakazo बनाएं"
 
 #: src/components/AskCard.tsx
+#: src/components/ChangesCard.tsx
 msgid "Created"
 msgstr "बनाया गया"
 
@@ -3487,6 +3488,10 @@ msgstr "कंप्यूटर पर फ़ाइलें या फ़ो�
 #: src/pages/routine-editor/trigger-cards.tsx
 msgid "Files or folders, one per line"
 msgstr "फ़ाइलें या फ़ोल्डर, हर पंक्ति में एक"
+
+#: src/components/ChangesCard.tsx
+msgid "Files written"
+msgstr "लिखी गई फ़ाइलें"
 
 #: src/pages/Artifacts.tsx
 msgid "Files your bots create, like reports, docs and images, collect here."
@@ -4514,6 +4519,10 @@ msgstr "सर्वर से मॉडल"
 #: src/lib/model-connection-preflight.ts
 msgid "Models list OK. {modelCount, plural, one {# model} other {# models}} available. Chat was not tested."
 msgstr "मॉडल सूची ठीक है। {modelCount, plural, one {# मॉडल} other {# मॉडल}} उपलब्ध है। चैट का परीक्षण नहीं हुआ।"
+
+#: src/components/ChangesCard.tsx
+msgid "Modified"
+msgstr "संशोधित"
 
 #: src/lib/cron.ts
 msgid "Monday"

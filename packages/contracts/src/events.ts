@@ -256,6 +256,21 @@ export const MessageBlock = z.discriminatedUnion("kind", [
     durationMs: z.number().int().nonnegative().optional(),
   }),
   z.object({
+    /** Files this turn wrote on its computer. Shell edits are not attributed. */
+    kind: z.literal("changes"),
+    files: z
+      .array(
+        z.object({
+          path: z.string().min(1).max(1000),
+          /** Absent on writes recorded before the server told these apart. */
+          change: z.enum(["created", "modified"]).optional(),
+          bytes: z.number().int().nonnegative().optional(),
+        }),
+      )
+      .min(1)
+      .max(30),
+  }),
+  z.object({
     kind: z.literal("subagent"),
     agentId: z.string(),
     name: z.string(),
@@ -420,6 +435,8 @@ export const ComputerCommandSchema = z.object({
   output: z.string(),
   /** Size written by write_file. */
   bytes: z.number().int().nonnegative().optional(),
+  /** Whether write_file made the file or replaced one that was already there. */
+  change: z.enum(["created", "modified"]).optional(),
 });
 export type ComputerCommand = z.infer<typeof ComputerCommandSchema>;
 

@@ -2780,6 +2780,7 @@ msgid "Create your Rakazo"
 msgstr "Maak je Rakazo"
 
 #: src/components/AskCard.tsx
+#: src/components/ChangesCard.tsx
 msgid "Created"
 msgstr "Aangemaakt"
 
@@ -3487,6 +3488,10 @@ msgstr "Bestanden of mappen op de computer"
 #: src/pages/routine-editor/trigger-cards.tsx
 msgid "Files or folders, one per line"
 msgstr "Bestanden of mappen, één per regel"
+
+#: src/components/ChangesCard.tsx
+msgid "Files written"
+msgstr "Geschreven bestanden"
 
 #: src/pages/Artifacts.tsx
 msgid "Files your bots create, like reports, docs and images, collect here."
@@ -4514,6 +4519,10 @@ msgstr "Modellen van de server"
 #: src/lib/model-connection-preflight.ts
 msgid "Models list OK. {modelCount, plural, one {# model} other {# models}} available. Chat was not tested."
 msgstr "Modellenlijst is in orde. {modelCount, plural, one {# model} other {# modellen}} beschikbaar. Chat is niet getest."
+
+#: src/components/ChangesCard.tsx
+msgid "Modified"
+msgstr "Gewijzigd"
 
 #: src/lib/cron.ts
 msgid "Monday"

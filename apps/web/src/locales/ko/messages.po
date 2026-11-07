@@ -2780,6 +2780,7 @@ msgid "Create your Rakazo"
 msgstr "Rakazo 계정 만들기"
 
 #: src/components/AskCard.tsx
+#: src/components/ChangesCard.tsx
 msgid "Created"
 msgstr "생성됨"
 
@@ -3487,6 +3488,10 @@ msgstr "컴퓨터의 파일 또는 폴더"
 #: src/pages/routine-editor/trigger-cards.tsx
 msgid "Files or folders, one per line"
 msgstr "파일 또는 폴더, 한 줄에 하나씩"
+
+#: src/components/ChangesCard.tsx
+msgid "Files written"
+msgstr "작성한 파일"
 
 #: src/pages/Artifacts.tsx
 msgid "Files your bots create, like reports, docs and images, collect here."
@@ -4514,6 +4519,10 @@ msgstr "서버에서 찾은 모델"
 #: src/lib/model-connection-preflight.ts
 msgid "Models list OK. {modelCount, plural, one {# model} other {# models}} available. Chat was not tested."
 msgstr "모델 목록이 정상입니다. {modelCount, plural, one {모델 #개} other {모델 #개}}를 사용할 수 있습니다. 채팅은 테스트하지 않았습니다."
+
+#: src/components/ChangesCard.tsx
+msgid "Modified"
+msgstr "수정됨"
 
 #: src/lib/cron.ts
 msgid "Monday"

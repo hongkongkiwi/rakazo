@@ -2780,6 +2780,7 @@ msgid "Create your Rakazo"
 msgstr "Rakazo hesabını oluştur"
 
 #: src/components/AskCard.tsx
+#: src/components/ChangesCard.tsx
 msgid "Created"
 msgstr "Oluşturuldu"
 
@@ -3487,6 +3488,10 @@ msgstr "Bilgisayardaki dosya veya klasörler"
 #: src/pages/routine-editor/trigger-cards.tsx
 msgid "Files or folders, one per line"
 msgstr "Dosya veya klasörler, her satıra bir tane"
+
+#: src/components/ChangesCard.tsx
+msgid "Files written"
+msgstr "Yazılan dosyalar"
 
 #: src/pages/Artifacts.tsx
 msgid "Files your bots create, like reports, docs and images, collect here."
@@ -4514,6 +4519,10 @@ msgstr "Sunucudan gelen modeller"
 #: src/lib/model-connection-preflight.ts
 msgid "Models list OK. {modelCount, plural, one {# model} other {# models}} available. Chat was not tested."
 msgstr "Model listesi tamam. {modelCount, plural, one {# model} other {# model}} kullanılabilir. Sohbet test edilmedi."
+
+#: src/components/ChangesCard.tsx
+msgid "Modified"
+msgstr "Değiştirildi"
 
 #: src/lib/cron.ts
 msgid "Monday"

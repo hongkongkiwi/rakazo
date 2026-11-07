@@ -44,6 +44,7 @@ import {
   clearRoutineBackoff,
   modelAccountRefusal,
 } from "./routine-backoff.js";
+import { buildRunChanges } from "./run-changes.js";
 import type { RunContext, RunState } from "./run-context.js";
 import { persistTurnCheckpoint } from "./run-context.js";
 import { enqueueSteeringContinuation, renewRunLease, requeueComputerRun } from "./run-lifecycle.js";
@@ -850,6 +851,15 @@ export async function completeRun(ctx: RunContext) {
         redactBlocks(completionBlocks, ctx.secrets),
         reply.publishedMidTurnUserMessage || runAllowsSilentEmpty(run.trigger),
       );
+  // The files this turn wrote on its computer. A silent turn stays silent.
+  const changesBlock =
+    !ctx.state.handedOff && blocks.length > 0 && run.trigger !== BACKGROUND_HELPER_TRIGGER
+      ? await buildRunChanges(deps.prisma, runId).catch((error) => {
+          getLogger().error("run file changes", error);
+          return null;
+        })
+      : null;
+  const replyBlocks = changesBlock ? [...blocks, changesBlock] : blocks;
   const text = ctx.state.handedOff
     ? ""
     : redactSecrets(completionNotificationBody(silentReply.assembled, blocks), ctx.secrets);
@@ -882,7 +892,7 @@ export async function completeRun(ctx: RunContext) {
     leaseOwner: ctx.workerId,
     leaseFence: ctx.fence,
     outcome: "completed",
-    blocks,
+    blocks: replyBlocks,
     markUnread:
       !groupSilentEnd &&
       completionMarksUnread(run.trigger, text, ctx.source.peerMessage?.repliesToRequest === true),

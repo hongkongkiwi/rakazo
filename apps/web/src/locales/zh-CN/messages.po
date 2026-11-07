@@ -2780,6 +2780,7 @@ msgid "Create your Rakazo"
 msgstr "创建你的 Rakazo"
 
 #: src/components/AskCard.tsx
+#: src/components/ChangesCard.tsx
 msgid "Created"
 msgstr "已创建"
 
@@ -3487,6 +3488,10 @@ msgstr "计算机上的文件或文件夹"
 #: src/pages/routine-editor/trigger-cards.tsx
 msgid "Files or folders, one per line"
 msgstr "文件或文件夹，每行一个"
+
+#: src/components/ChangesCard.tsx
+msgid "Files written"
+msgstr "写入的文件"
 
 #: src/pages/Artifacts.tsx
 msgid "Files your bots create, like reports, docs and images, collect here."
@@ -4514,6 +4519,10 @@ msgstr "来自服务器的模型"
 #: src/lib/model-connection-preflight.ts
 msgid "Models list OK. {modelCount, plural, one {# model} other {# models}} available. Chat was not tested."
 msgstr "模型列表正常。{modelCount, plural, one {# 个模型} other {# 个模型}}可用。未测试聊天。"
+
+#: src/components/ChangesCard.tsx
+msgid "Modified"
+msgstr "已修改"
 
 #: src/lib/cron.ts
 msgid "Monday"

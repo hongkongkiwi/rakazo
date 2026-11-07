@@ -1,4 +1,6 @@
 export const PL_MESSAGES: Record<string, string> = {
+  "Files written": "Zapisane pliki",
+  "Modified": "Zmieniono",
   "No matches": "Brak wyników",
   "Always ask": "Zawsze pytaj",
   "Search tools": "Szukaj narzędzi",

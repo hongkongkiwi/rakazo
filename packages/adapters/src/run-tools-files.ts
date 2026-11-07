@@ -104,19 +104,28 @@ export const fileTools: ToolHandlers = {
     }
     const content = new TextEncoder().encode(textContentArg(args.content, ""));
     ctx.computer.checkpoint.markDirty();
+    const computer = await ctx.computer.get("tool", name);
+    const target = resolveBotWorkspacePath(ctx.computer.mode, bot.id, filePath);
+    // A cheap one-byte read tells a new file from a rewrite without loading the old content.
+    let change: "created" | "modified" = "created";
     try {
-      await deps.sandbox.writeFile(
-        await ctx.computer.get("tool", name),
-        { path: resolveBotWorkspacePath(ctx.computer.mode, bot.id, filePath), content },
-        context,
-      );
+      await deps.sandbox.readFile(computer, target, context, { maxBytes: 1 });
+      change = "modified";
+    } catch {
+      // A missing file is the normal new-file case; the write reports any real failure.
+    }
+    try {
+      await deps.sandbox.writeFile(computer, { path: target, content }, context);
     } catch (error) {
       await recordComputerAction(ctx, call, "write_file", filePath, {
         error: error instanceof Error ? error.message : "could not write file",
       });
       throw error;
     }
-    await recordComputerAction(ctx, call, "write_file", filePath, { bytes: content.byteLength });
+    await recordComputerAction(ctx, call, "write_file", filePath, {
+      bytes: content.byteLength,
+      change,
+    });
     return call.finish({ ok: true, path: filePath });
   },
   generate_image: generateMedia,

@@ -15,6 +15,7 @@ import { memo, useCallback, useMemo } from "react";
 import { ArtifactFileCard } from "../../components/ArtifactFileCard";
 import { AskCard } from "../../components/AskCard";
 import { CollaborationMarker } from "../../components/ai/CollaborationMarker";
+import { ChangesCard } from "../../components/ChangesCard";
 import { CloudAgentCard } from "../../components/CloudAgentCard";
 import { McpAppCard } from "../../components/McpAppCard";
 import { PageBlockCard } from "../../components/pages/PageBlockCard";
@@ -416,6 +417,13 @@ export const MessageView = memo(function MessageView({
               >
                 <span className="text-warning">◷</span>
                 <span>{block.text}</span>
+              </div>
+            );
+          }
+          if (block.kind === "changes") {
+            return (
+              <div key={i} className="flex justify-start">
+                <ChangesCard block={block} />
               </div>
             );
           }

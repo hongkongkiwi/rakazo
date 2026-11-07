@@ -1,4 +1,6 @@
 export const JA_MESSAGES: Record<string, string> = {
+  "Files written": "書き込んだファイル",
+  "Modified": "変更済み",
   "No matches": "一致するものはありません",
   "Always ask": "常に確認",
   "Search tools": "ツールを検索",

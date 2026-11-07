@@ -1,4 +1,6 @@
 export const DE_MESSAGES: Record<string, string> = {
+  "Files written": "Geschriebene Dateien",
+  "Modified": "Geändert",
   "No matches": "Keine Treffer",
   "Always ask": "Immer fragen",
   "Search tools": "Tools durchsuchen",
