@@ -117,11 +117,9 @@ export function AnnotateImageDialog({
     }
   };
 
-  // A file dropped on the dialog or its backdrop belongs here, not to the composer behind it.
-  const stopDrop = (event: React.DragEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-  };
+  // A dropped file is not added behind the dialog. The composer is disabled while it is
+  // open; preventing the browser default still lets the window listener reset its drag state.
+  const stopDrop = (event: React.DragEvent) => event.preventDefault();
   return (
     <Dialog open onOpenChange={(open) => (!open && !saving ? onClose() : undefined)}>
       <DialogContent

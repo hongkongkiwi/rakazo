@@ -73,7 +73,7 @@ function DialogContent({
     showCloseButton?: boolean;
     overlayClassName?: string;
     /** Events on the backdrop itself, such as keeping a dropped file out of the page behind. */
-    overlayProps?: DialogPrimitive.Backdrop.Props;
+    overlayProps?: Omit<DialogPrimitive.Backdrop.Props, "className">;
   }) {
   return (
     <DialogPortal>

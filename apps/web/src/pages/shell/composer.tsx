@@ -393,7 +393,8 @@ const ComposerBody = memo(function Composer({
   const replyAnnouncementKind = useRef<"reply" | "cancelled" | null>(null);
   const prevReplyTarget = useRef<ThreadMessage | null>(null);
   const { draggingFiles, fileDragActive, dropHandlers } = useComposerFileDrop({
-    disabled,
+    // A drop while the annotation editor is open belongs to the editor, not the composer.
+    disabled: disabled || Boolean(annotating),
     onDropFiles: pickAttachments,
   });
   const canSend =
