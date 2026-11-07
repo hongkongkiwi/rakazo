@@ -283,6 +283,9 @@ export class ComputerBrowserProvider implements BrowserProvider {
         }
       | null
       | undefined;
+    // Only an explicit null says the page was checked and has no purchase. A missing field comes
+    // from a helper that did not check, so it stays unverified and the decider never acts on it.
+    if (found === null) return { purchase: null, verified: true };
     if (!found) return { purchase: null };
     return {
       purchase: {

@@ -5,12 +5,14 @@ import type {
   BrowserDownload,
   BrowserProvider,
   ComputerRef,
+  PageDecider,
 } from "@rakazo/adapter-kit";
 import { MAX_BROWSER_UPLOAD_FILES } from "@rakazo/adapter-kit";
 import type { PurchaseCardField } from "@rakazo/contracts";
 import { PURCHASE_CARD_FIELDS } from "@rakazo/contracts";
 import { getLogger } from "@rakazo/logging";
 import { redactConnectorPayload } from "./connector-safety.js";
+import { runPageDecisionChain } from "./page-decision-chain.js";
 import { TOOL_RESULT_TEXT_LIMIT } from "./pi-runtime-limits.js";
 import type { PurchaseApproval } from "./purchase-gate.js";
 import { MAX_ACTIONS_PER_CALL } from "./tool-loop.js";
@@ -62,6 +64,9 @@ export type BrowserActInput =
  * path the bot's own tools use for a file there.
  */
 export type PageToolOptions = {
+  decider?: PageDecider;
+  redactions?: () => string[];
+  allowStep?: (url: string) => Promise<boolean>;
   desktopTools?: boolean;
   downloads?: { folder: string; botPath: (path: string) => string };
 };
@@ -117,7 +122,18 @@ export async function browserNavigateFromTool(
       { url, downloads: options.downloads?.folder, signal: context.signal },
       context,
     );
-    return formatBrowserResult(withBotPaths(result, options), options);
+    const continued = await runPageDecisionChain({
+      browser,
+      computer,
+      context,
+      result,
+      goal: args.goal,
+      decider: options.decider,
+      redactions: options.redactions,
+      downloads: options.downloads?.folder,
+      allowStep: options.allowStep,
+    });
+    return formatBrowserResult(withBotPaths(continued, options), options);
   } catch (error) {
     context.signal.throwIfAborted();
     return formatBrowserResult(
@@ -348,8 +364,19 @@ export async function browserActFromTool(
         }),
       );
     }
+    const continued = await runPageDecisionChain({
+      browser,
+      computer,
+      context,
+      result,
+      goal: args.goal,
+      decider: options.decider,
+      redactions: options.redactions,
+      downloads: options.downloads?.folder,
+      allowStep: options.allowStep,
+    });
     return redactBrowserResult(
-      formatBrowserResult(withBotPaths(result, options), options),
+      formatBrowserResult(withBotPaths(continued, options), options),
       options.redactions?.() ?? [],
     );
   } catch (error) {

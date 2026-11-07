@@ -369,6 +369,8 @@ export function botsRoutes(ctx: RouterContext) {
             computerMode: source.computer?.scope === "dedicated" ? "dedicated" : "team",
             modelProvider: source.modelProvider,
             modelId: source.modelId,
+            pageDeciderProvider: source.pageDeciderProvider,
+            pageDeciderModelId: source.pageDeciderModelId,
             thinkingLevel: source.thinkingLevel,
             disabledBuiltinTools: source.disabledBuiltinTools,
             replyMode: source.replyMode,
@@ -423,6 +425,20 @@ export function botsRoutes(ctx: RouterContext) {
           current: { provider: existing.modelProvider, model: existing.modelId },
         });
         if (!modelChange.ok) throw new ORPCError("BAD_REQUEST", { message: modelChange.error });
+        if (input.pageDeciderProvider !== undefined) {
+          const deciderChange = await validateBotModelChange(botModelValidation(context.actor), {
+            userId: context.actor.userId,
+            spaceId: context.actor.spaceId,
+            provider: input.pageDeciderProvider,
+            model: input.pageDeciderModelId ?? null,
+            current: {
+              provider: existing.pageDeciderProvider,
+              model: existing.pageDeciderModelId,
+            },
+          });
+          if (!deciderChange.ok)
+            throw new ORPCError("BAD_REQUEST", { message: deciderChange.error });
+        }
         const thinkingLevel = input.thinkingLevel;
         if (!existing.thread) throw new IsolationError();
         // Picking a set on one bot pins it unless it is the owner's default, which unpins it.
@@ -463,6 +479,12 @@ export function botsRoutes(ctx: RouterContext) {
             autoSpeak: input.autoSpeak,
             ...(input.modelProvider !== undefined
               ? { modelProvider: input.modelProvider, modelId: input.modelId ?? null }
+              : {}),
+            ...(input.pageDeciderProvider !== undefined
+              ? {
+                  pageDeciderProvider: input.pageDeciderProvider,
+                  pageDeciderModelId: input.pageDeciderModelId ?? null,
+                }
               : {}),
             ...(input.thinkingLevel !== undefined ? { thinkingLevel } : {}),
             ...(input.teamChatAmbientEnabled !== undefined

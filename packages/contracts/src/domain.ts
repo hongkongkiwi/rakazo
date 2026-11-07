@@ -108,6 +108,8 @@ export const BotSchema = z.object({
   createdAt: z.string(),
   voiceId: z.string().nullable(),
   autoSpeak: z.boolean(),
+  pageDeciderProvider: z.string().nullable().default(null),
+  pageDeciderModelId: z.string().nullable().default(null),
   modelProvider: z.string().nullable(),
   modelId: z.string().nullable(),
   thinkingLevel: ThinkingLevelSchema.nullable(),
@@ -476,6 +478,8 @@ export const UpdateBotInput = z
     sectionId: Id.nullable().optional(),
     voiceId: z.string().max(120).nullable().optional(),
     autoSpeak: z.boolean().optional(),
+    pageDeciderProvider: z.string().trim().min(1).max(80).nullable().optional(),
+    pageDeciderModelId: z.string().trim().min(1).max(200).nullable().optional(),
     modelProvider: z.string().trim().min(1).max(80).nullable().optional(),
     modelId: z.string().trim().min(1).max(200).nullable().optional(),
     thinkingLevel: ThinkingLevelSchema.nullable().optional(),
@@ -490,6 +494,22 @@ export const UpdateBotInput = z
     expectedSettings: BotSettingsValuesSchema.optional(),
   })
   .superRefine((value, ctx) => {
+    const deciderProvided = value.pageDeciderProvider !== undefined;
+    const deciderModelProvided = value.pageDeciderModelId !== undefined;
+    if (
+      deciderProvided !== deciderModelProvided ||
+      (deciderProvided &&
+        !(
+          (value.pageDeciderProvider === null && value.pageDeciderModelId === null) ||
+          (Boolean(value.pageDeciderProvider) && Boolean(value.pageDeciderModelId))
+        ))
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Page decider provider and model must both be set or both cleared",
+        path: ["pageDeciderModelId"],
+      });
+    }
     const providerProvided = value.modelProvider !== undefined;
     const modelProvided = value.modelId !== undefined;
     if (!providerProvided && !modelProvided) return;

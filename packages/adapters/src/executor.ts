@@ -1,4 +1,9 @@
-import type { AgentRunRequest, ComputerRef, SemanticMemoryProvider } from "@rakazo/adapter-kit";
+import type {
+  AgentRunRequest,
+  ComputerRef,
+  PageDecider,
+  SemanticMemoryProvider,
+} from "@rakazo/adapter-kit";
 import { DEFAULT_CONTEXT_STRATEGY, runContinueJob } from "@rakazo/adapter-kit";
 import type { MessageBlock, RunStatus } from "@rakazo/contracts";
 import { disabledBuiltinToolSet } from "@rakazo/contracts";
@@ -115,6 +120,7 @@ import {
 } from "./model-selection.js";
 import { modelAcceptsImageInput } from "./model-vision.js";
 import { usesNativeShell } from "./native-shell.js";
+import { createConfiguredPageDecider } from "./page-decider-factory.js";
 import { paymentWalletConnected } from "./payment-wallets.js";
 import { restoreComputerModels } from "./pi-runtime-computer-mode.js";
 import { loadPurchaseRedactions } from "./purchase-service.js";
@@ -129,7 +135,11 @@ import type {
   RunningHelper,
   RunState,
 } from "./run-context.js";
-import { restoreTurnCheckpointEffects, settleRunningHelpers } from "./run-context.js";
+import {
+  addRunSecrets,
+  restoreTurnCheckpointEffects,
+  settleRunningHelpers,
+} from "./run-context.js";
 import { APPROVED_EFFECT_REPLAY_ORDER, buildApprovalContinuation } from "./run-effects.js";
 import {
   BOT_DIRECTORY_LIMIT,
@@ -1506,6 +1516,26 @@ export function createRunExecutor(executorDeps: ExecutorDeps) {
           settleRunningHelpers: settleHelpers,
           stopHeartbeatAfterCompletion,
         };
+        // Opt-in per bot: without both settings the browser tools never construct a decider.
+        if (bot.pageDeciderProvider && bot.pageDeciderModelId) {
+          let resolved: Promise<PageDecider | undefined> | undefined;
+          ctx.pageDecider = () => {
+            resolved ??= createConfiguredPageDecider({
+              deps,
+              run,
+              bot,
+              threadId: thread.id,
+              registerSecrets: (values) => addRunSecrets(ctx, values),
+            }).catch((error: unknown) => {
+              // A stale or disconnected choice leaves the original browser call unchanged.
+              getLogger().warn("page decider model unavailable", {
+                errorName: error instanceof Error ? error.name : typeof error,
+              });
+              return undefined;
+            });
+            return resolved;
+          };
+        }
         const pluginLine =
           connectedPlugins.length > 0
             ? `Connected plugins: ${connectedPlugins.map((row) => `${row.displayName} (${row.connectorId}:${row.provider})`).join(", ")}. Prefer those plugin tools over the computer browser or web search when reading app data (repos, releases, mail, calendar, and similar).`

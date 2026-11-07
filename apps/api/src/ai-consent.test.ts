@@ -68,6 +68,23 @@ describe("consent grants", () => {
       }),
     );
   });
+  it("discloses a bot's separate page-decider model as a recipient", async () => {
+    const { deps, actor } = setup();
+    deps.env.agentRuntime = "pi";
+    vi.mocked(deps.prisma.bot.findMany).mockResolvedValue([
+      {
+        modelProvider: null,
+        modelId: null,
+        thinkingLevel: null,
+        pageDeciderProvider: "google",
+        pageDeciderModelId: "gemini-2.5-flash",
+      },
+    ] as never);
+    const status = await aiConsentStatus(deps, actor, { botId: "bot", uses: ["model"] });
+    expect(status.recipients.some((recipient) => recipient.detail === "gemini-2.5-flash")).toBe(
+      true,
+    );
+  });
   it("includes an inactive routine only when the check is for that routine", async () => {
     const { deps, actor } = setup();
     deps.env.agentRuntime = "pi";

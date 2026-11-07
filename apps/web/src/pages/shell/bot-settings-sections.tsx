@@ -124,6 +124,9 @@ export function ModelSection({
   thinkingLevel,
   defaultThinkingLevel,
   onThinkingLevelChange,
+  pageDeciderChoices,
+  pageDeciderValue,
+  onPageDeciderChange,
 }: {
   ids: string;
   containerRef: RefObject<HTMLDivElement | null>;
@@ -135,6 +138,9 @@ export function ModelSection({
   thinkingLevel: string;
   defaultThinkingLevel: ThinkingLevel;
   onThinkingLevelChange: (level: string) => void;
+  pageDeciderChoices?: readonly ChatModelChoice[];
+  pageDeciderValue?: string;
+  onPageDeciderChange?: (key: string) => void;
 }) {
   const { t } = useLingui();
   return (
@@ -188,6 +194,36 @@ export function ModelSection({
               ))}
             </NativeSelect>
           </label>
+        ) : null}
+        {onPageDeciderChange ? (
+          <div className="space-y-1">
+            <label
+              htmlFor={`${ids}-page-decider`}
+              className={`flex min-h-11 items-center justify-between gap-3 ${rowLabelClass}`}
+            >
+              <Trans>Page decider</Trans>
+              <NativeSelect
+                id={`${ids}-page-decider`}
+                className="max-w-2/3"
+                value={pageDeciderValue ?? ""}
+                onChange={(event) => onPageDeciderChange(event.target.value)}
+              >
+                {(pageDeciderChoices ?? []).map((choice) => (
+                  <NativeSelectOption key={choice.key} value={choice.key}>
+                    {choice.label}
+                  </NativeSelectOption>
+                ))}
+              </NativeSelect>
+            </label>
+            <p className="text-label text-muted-foreground">
+              <Trans>
+                Lets the bot continue simple page clicks toward a goal. Off by default. Page text
+                goes to the model you choose here and is covered by your AI data-sharing consent.
+                Needs browser_act enabled, and never takes a step that page rules require you to
+                approve.
+              </Trans>
+            </p>
+          </div>
         ) : null}
       </div>
     </div>

@@ -99,6 +99,8 @@ function mapBot(
     autoSpeak?: boolean;
     modelProvider?: string | null;
     modelId?: string | null;
+    pageDeciderProvider?: string | null;
+    pageDeciderModelId?: string | null;
     thinkingLevel?: string | null;
     teamChatAmbientEnabled?: boolean;
     teamChatRules?: string;
@@ -147,6 +149,10 @@ function mapBot(
     autoSpeak: bot.autoSpeak ?? false,
     modelProvider: bot.modelProvider ? canonicalPiProviderId(bot.modelProvider) : null,
     modelId: bot.modelId ?? null,
+    pageDeciderProvider: bot.pageDeciderProvider
+      ? canonicalPiProviderId(bot.pageDeciderProvider)
+      : null,
+    pageDeciderModelId: bot.pageDeciderModelId ?? null,
     thinkingLevel: (bot.thinkingLevel as Bot["thinkingLevel"]) ?? null,
     teamChatAmbientEnabled: bot.teamChatAmbientEnabled ?? false,
     teamChatRules: bot.teamChatRules ?? "",
@@ -524,6 +530,8 @@ export function createRepos(
         spawnKey?: string;
         modelProvider?: string | null;
         modelId?: string | null;
+        pageDeciderProvider?: string | null;
+        pageDeciderModelId?: string | null;
         thinkingLevel?: string | null;
         disabledBuiltinTools?: string[];
         initialMessage?: {
@@ -623,6 +631,8 @@ export function createRepos(
               spawnKey,
               modelProvider,
               modelId,
+              pageDeciderProvider: input.pageDeciderProvider ?? null,
+              pageDeciderModelId: input.pageDeciderModelId ?? null,
               thinkingLevel,
               disabledBuiltinTools,
             },

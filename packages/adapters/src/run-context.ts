@@ -4,6 +4,7 @@ import type {
   ComputerRef,
   ConnectorTool,
   MediaGenerationProvider,
+  PageDecider,
   SandboxProvider,
   SemanticMemoryProvider,
   WebProvider,
@@ -264,6 +265,8 @@ export interface RunProviders {
 export interface RunContext {
   deps: ExecutorDeps;
   providers: RunProviders;
+  /** Optional runtime injection; absent until a composition root explicitly enables it. */
+  pageDecider?: () => Promise<PageDecider | undefined>;
   run: Run;
   runId: string;
   workerId: string;

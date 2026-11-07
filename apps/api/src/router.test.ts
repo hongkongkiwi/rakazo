@@ -7375,6 +7375,129 @@ describe("bot model auth on save", () => {
   });
 });
 
+describe("bot duplicate settings", () => {
+  const actor = {
+    spaceId: "space-1",
+    userId: "user-1",
+    email: "user@rakazo.test",
+    isDeploymentOwner: true,
+  } satisfies Actor;
+
+  it("copies the page decider model with the rest of the bot settings", async () => {
+    const source = {
+      id: "bot-1",
+      spaceId: actor.spaceId,
+      userId: actor.userId,
+      name: "Ada",
+      title: "",
+      description: "",
+      instructions: "",
+      color: "ink",
+      avatarSet: "organic",
+      avatarSetPinned: false,
+      notifyOnFinish: true,
+      pinned: false,
+      sectionId: null,
+      archivedAt: null,
+      unread: false,
+      memoryScope: null,
+      parentBotId: null,
+      preview: "",
+      status: "idle",
+      computerMode: "team",
+      createdAt: new Date("2026-01-01T00:00:00.000Z"),
+      updatedAt: new Date("2026-01-01T00:00:00.000Z"),
+      voiceId: null,
+      autoSpeak: false,
+      teamChatAmbientEnabled: false,
+      teamChatRules: "",
+      webhookConfigured: false,
+      spawnKey: null,
+      dailyCheckIns: true,
+      fleetManagement: true,
+      replyMode: "chat",
+      modelProvider: "openai",
+      modelId: "gpt-4.1",
+      pageDeciderProvider: "google",
+      pageDeciderModelId: "gemini-2.5-flash",
+      thinkingLevel: null,
+      disabledBuiltinTools: [],
+      computer: { scope: "team" },
+      thread: { id: "thread-1" },
+      threadId: "thread-1",
+    };
+    const botCreate = vi.fn(async ({ data }: { data: Record<string, unknown> }) => ({
+      id: "bot-2",
+      ...data,
+    }));
+    const tx = {
+      $queryRaw: vi.fn(async () => []),
+      spaceMember: {
+        findUnique: vi.fn(async () => ({ organizationId: "org-1", space: { deletingAt: null } })),
+        findFirst: vi.fn(async () => ({ userId: actor.userId })),
+      },
+      bot: {
+        aggregate: vi.fn(async () => ({ _max: { position: 0 } })),
+        findMany: vi.fn(async () => []),
+        create: botCreate,
+        findFirstOrThrow: vi.fn(async () => ({
+          ...source,
+          id: "bot-2",
+          name: "Ada copy",
+          thread: { id: "thread-2", unread: false, messages: [], runs: [] },
+          threadId: "thread-2",
+        })),
+      },
+      thread: { create: vi.fn(async () => ({ id: "thread-2" })) },
+      browserProfile: { create: vi.fn(async () => ({})) },
+      memoryDocument: { create: vi.fn(async () => ({})) },
+      computer: {
+        findUnique: vi.fn(async () => ({ id: "computer-1", scopeKey: "team-key" })),
+        upsert: vi.fn(async () => ({ id: "computer-1" })),
+      },
+    };
+    const prisma = {
+      bot: { findFirst: vi.fn(async () => source) },
+      botMcpServer: { findMany: vi.fn(async () => []) },
+      deploymentSettings: { findUnique: vi.fn(async () => null) },
+      $transaction: vi.fn(async (work: (client: typeof tx) => unknown) => work(tx)),
+    };
+    const handler = new RPCHandler(
+      createRouter({
+        prisma,
+        secrets: { load: () => ({}) },
+        events: { notify: vi.fn().mockResolvedValue(undefined) },
+        env: {
+          defaultProvider: "fake",
+          defaultModel: "fake-model",
+          webOrigin: "http://127.0.0.1:5173",
+          screenProxySecret: "fake-test-secret",
+          sandboxProvider: "fake",
+        },
+      } as unknown as RouterDeps),
+    );
+    const response = await handle(
+      handler,
+      new Request("http://127.0.0.1/rpc/bots/duplicate", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ json: { botId: source.id } }),
+      }),
+      { prefix: "/rpc", context: { actor } },
+    );
+
+    expect(response.status).toBe(200);
+    expect(botCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          pageDeciderProvider: "google",
+          pageDeciderModelId: "gemini-2.5-flash",
+        }),
+      }),
+    );
+  });
+});
+
 describe("bot restore computer quota", () => {
   function fixture(archivedBot: { archivedAt: Date | null } | null, inUse = 0) {
     const bot = archivedBot

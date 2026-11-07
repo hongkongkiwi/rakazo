@@ -330,11 +330,17 @@ export const builtinAgentTools: ConnectorTool[] = [
   {
     name: "browser_navigate",
     description:
-      'Open a URL in the page browser on this bot\'s computer and return the page like browser_snapshot, or for a file download its saved path in downloads. Prefer this over pixel clicks for web pages. If the result includes fallback:"computer_act", use computer_act on the desktop browser instead.',
+      'Open a URL and return the page like browser_snapshot, or a download\'s saved path in downloads. A goal also continues simple clicks on the same site. Prefer this over pixel clicks for web pages. If the result includes fallback:"computer_act", use computer_act on the desktop browser instead.',
     inputSchema: {
       type: "object",
       properties: {
         url: { type: "string", description: "http(s) URL to open." },
+        goal: {
+          type: "string",
+          maxLength: 400,
+          description:
+            "Optional outcome to reach on this page. Steps are taken only when they need no approval.",
+        },
       },
       required: ["url"],
     },
@@ -353,7 +359,7 @@ export const builtinAgentTools: ConnectorTool[] = [
   },
   {
     name: "browser_act",
-    description: `Click or fill page elements by ref from browser_snapshot (kinds: ${BROWSER_ACT_KINDS.join(", ")}). click is a real mouse click, and fill on a dropdown takes one of its options' visible labels or values. The result shows the page after the action, and a snapshot covers the whole page, so scrolling is rarely needed. upload attaches your files to a "file upload" element; use it instead of clicking upload buttons. fill_secret types one field of a login saved with request_secret, by its label, only on the site it was saved for (in a frame: the frame's site); you never see the value. fill_card types an approved purchase's card or a saved card, only on its approved site; leave out ref to find the field, even in a payment frame. fill_code types a request_secret oneTimeCode once, only on its site. fill_pay_token hands an approved purchase's pay token to its checkout; no ref. type presses keys like a keyboard and replaces the field's text; use it for code boxes and fields that ignore fill. For a code split into one box per digit, type the whole code once into the first box, and to correct it type it again. A file download, or a PDF a tab shows, is saved to Downloads and listed in downloads with its path; if its state is downloading, the file appears there when done. Prefer this over computer_act for web pages. If the result includes fallback:"computer_act", use computer_act instead.`,
+    description: `Click or fill page elements by ref from browser_snapshot (kinds: ${BROWSER_ACT_KINDS.join(", ")}). click is a real mouse click, and fill on a dropdown takes one of its options' visible labels or values. The result shows the page; a snapshot covers the whole page, so scrolling is rarely needed. upload attaches files to a "file upload" element instead of clicking upload buttons. fill_secret types one field of a login saved with request_secret, by its label, only on the site it was saved for (in a frame: the frame's site); you never see the value. fill_card types an approved purchase's card or a saved card, only on its approved site; leave out ref to find the field, even in a payment frame. fill_code types a request_secret oneTimeCode once, only on its site. fill_pay_token hands an approved purchase's pay token to its checkout; no ref. type presses keys like a keyboard and replaces the field's text; use it for code boxes and fields that ignore fill. For a code split one digit per box, type it once into the first box; type it again to correct. A file download, or a PDF a tab shows, is saved to Downloads and listed in downloads with its path; if its state is downloading, the file appears there when done. Prefer this over computer_act for web pages. Goal also continues simple clicks on this site. If the result includes fallback:"computer_act", use computer_act instead.`,
     inputSchema: {
       type: "object",
       properties: {
@@ -399,6 +405,12 @@ export const builtinAgentTools: ConnectorTool[] = [
             },
             required: ["kind"],
           },
+        },
+        goal: {
+          type: "string",
+          maxLength: 400,
+          description:
+            "Optional outcome to reach after this call. Steps are taken only when they need no approval.",
         },
       },
       required: ["actions"],

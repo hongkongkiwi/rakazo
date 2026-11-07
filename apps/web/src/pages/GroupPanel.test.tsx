@@ -100,6 +100,8 @@ function fakeBot(id: string, name: string): Bot {
     autoSpeak: false,
     modelProvider: null,
     modelId: null,
+    pageDeciderProvider: null,
+    pageDeciderModelId: null,
     thinkingLevel: null,
     teamChatAmbientEnabled: false,
     teamChatRules: "",

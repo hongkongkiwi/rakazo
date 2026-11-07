@@ -67,7 +67,13 @@ export async function aiConsentStatus(
               archivedAt: null,
               ...(botIds ? { id: { in: botIds } } : {}),
             },
-            select: { modelProvider: true, modelId: true, thinkingLevel: true },
+            select: {
+              modelProvider: true,
+              modelId: true,
+              thinkingLevel: true,
+              pageDeciderProvider: true,
+              pageDeciderModelId: true,
+            },
           })
         : [],
       // An active routine with its own model is another recipient for this bot.
@@ -162,6 +168,21 @@ export async function aiConsentStatus(
       }),
     );
     selected.push(...roleModels.filter((model) => model !== null));
+    // A separate page-decider provider also receives page content, so it needs its own disclosure.
+    const deciderModels = await Promise.all(
+      bots.map(async (bot) => {
+        const provider = bot.pageDeciderProvider;
+        const id = bot.pageDeciderModelId;
+        if (!provider || !id) return null;
+        return {
+          provider,
+          id,
+          credential: await findModelCredential(deps.prisma, actor, provider, id),
+          thinkingLevel: null,
+        };
+      }),
+    );
+    selected.push(...deciderModels.filter((model) => model !== null));
     if (deps.env.teamChatJudgeProvider && deps.env.teamChatJudgeModel) {
       selected.push({
         provider: deps.env.teamChatJudgeProvider,
