@@ -1286,6 +1286,10 @@ msgstr "בוט"
 msgid "Bot"
 msgstr "בוט"
 
+#: src/pages/shell/thread-model-chip.tsx
+msgid "Bot default"
+msgstr ""
+
 #: src/components/vault/BotEmailAddresses.tsx
 msgid "Bot email addresses"
 msgstr "כתובות האימייל של הבוטים"
@@ -2596,6 +2600,10 @@ msgstr "לא ניתן לשמור את הקול"
 msgid "Could not save the credential"
 msgstr "לא ניתן לשמור את פרטי הגישה"
 
+#: src/pages/shell/thread-model-chip.tsx
+msgid "Could not save the model"
+msgstr ""
+
 #: src/pages/shell/message-cards.tsx
 msgid "Could not save this choice"
 msgstr "לא ניתן לשמור את הבחירה הזו"
@@ -2641,6 +2649,10 @@ msgstr "לא ניתן לשלוח את התשובה"
 #: src/pages/model-settings/space-bots-model.tsx
 msgid "Could not switch {failedNames}. Try again."
 msgstr "לא ניתן להחליף את {failedNames}. אפשר לנסות שוב."
+
+#: src/pages/shell/thread-model-chip.tsx
+msgid "Could not switch the model"
+msgstr ""
 
 #: src/pages/shell/use-computer.tsx
 msgid "Could not take control"
@@ -3559,6 +3571,10 @@ msgstr "משלים את חיבור ה-MCP…"
 msgid "Focus message"
 msgstr "מעבר להודעה"
 
+#: src/pages/shell/thread-model-chip.tsx
+msgid "Follow the bot"
+msgstr ""
+
 #: src/pages/Auth.tsx
 msgid "Forgot password?"
 msgstr "שכחת סיסמה?"
@@ -4474,6 +4490,7 @@ msgstr "מצב"
 #: src/pages/routine-editor/model-settings.tsx
 #: src/pages/shell/agent-import-plan.tsx
 #: src/pages/shell/bot-settings-sections.tsx
+#: src/pages/shell/thread-model-chip.tsx
 msgid "Model"
 msgstr "מודל"
 
@@ -4494,6 +4511,10 @@ msgstr "מזהה מודל"
 #: src/pages/model-settings/role-model-picker.tsx
 msgid "Model options"
 msgstr "אפשרויות מודל"
+
+#: src/pages/shell/thread-model-chip.tsx
+msgid "Model: {effectiveLabel}"
+msgstr ""
 
 #: src/pages/ModelSettingsOverlay.tsx
 #: src/pages/settings-nav.ts
@@ -6278,6 +6299,10 @@ msgstr "URL של השרת"
 msgid "Set"
 msgstr "הגדרה"
 
+#: src/pages/shell/thread-model-chip.tsx
+msgid "Set as bot default"
+msgstr ""
+
 #: src/components/call/CallCard.tsx
 #: src/components/SidebarFooter.tsx
 #: src/pages/MessagingSettingsPanel.tsx
@@ -6551,6 +6576,7 @@ msgid "Space"
 msgstr "מרחב"
 
 #: src/pages/shell/bot-panel.tsx
+#: src/pages/shell/thread-model-chip.tsx
 msgid "Space default"
 msgstr "ברירת המחדל של המרחב"
 

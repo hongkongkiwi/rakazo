@@ -1013,6 +1013,10 @@ function SpaceShell() {
               }
               callBot(bot);
             }}
+            onModelChanged={() => {
+              if (!active) return;
+              void Promise.all([refreshThread(active.id), refreshBots()]).catch(() => undefined);
+            }}
           />
           {!active && !activeGroup && initialBotsLoaded ? (
             <div className="grid flex-1 place-items-center">

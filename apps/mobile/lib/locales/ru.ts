@@ -296,6 +296,10 @@ export const RU_MESSAGES: Record<string, string> = {
   "Set up Executor on your server in the web app.":
     "Настройте Executor на сервере в веб-приложении.",
   "Space default": "Пространство по умолчанию",
+  "This chat's model": "Модель этого чата",
+  "Follow the bot": "Как у бота",
+  "Could not load models": "Не удалось загрузить модели",
+  "Could not switch the model": "Не удалось сменить модель",
   "Can't read images": "Не может читать изображения",
   "Stop all workers and confirm that provider operations have stopped before releasing this computer.":
     "Остановите всех воркеров и убедитесь, что операции провайдера остановлены, прежде чем освобождать этот компьютер.",

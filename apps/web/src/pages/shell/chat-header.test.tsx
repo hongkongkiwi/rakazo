@@ -47,6 +47,8 @@ vi.mock("../../components/IconTooltip", () => ({
 vi.mock("../../components/SubscriptionGate", () => ({
   useBilling: () => ({ status: billing.status, showPlans: () => undefined }),
 }));
+// The model chip owns its own queries; header behavior is what this file covers.
+vi.mock("./thread-model-chip", () => ({ ThreadModelChip: () => null }));
 
 import { ChatHeader } from "./chat-header";
 
@@ -85,6 +87,7 @@ function renderHeader({ inGroup = false } = {}) {
         onOpenNavigation={() => undefined}
         onTogglePanel={() => undefined}
         onCall={() => undefined}
+        onModelChanged={() => undefined}
       />,
     ),
   );

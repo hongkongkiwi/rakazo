@@ -93,7 +93,13 @@ function mapBot(
     memoryScope: string | null;
     createdAt: Date;
     updatedAt: Date;
-    thread: { id: string; unread: boolean } | null;
+    thread: {
+      id: string;
+      unread: boolean;
+      modelProvider: string | null;
+      modelId: string | null;
+      thinkingLevel: string | null;
+    } | null;
     computer: { scope: string } | null;
     voiceId?: string | null;
     autoSpeak?: boolean;
@@ -206,6 +212,9 @@ export function createRepos(
           select: {
             id: true,
             unread: true,
+            modelProvider: true,
+            modelId: true,
+            thinkingLevel: true,
           },
         },
         runs: activeRunSelection,

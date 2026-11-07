@@ -1258,6 +1258,14 @@ export const ThreadMessagePageSchema = z.object({
 });
 export type ThreadMessagePage = z.infer<typeof ThreadMessagePageSchema>;
 
+/** A conversation's own model, picked while chatting. Empty fields follow the bot's. */
+export const ThreadModelSchema = z.object({
+  modelProvider: z.string().nullable(),
+  modelId: z.string().nullable(),
+  thinkingLevel: ThinkingLevelSchema.nullable(),
+});
+export type ThreadModel = z.infer<typeof ThreadModelSchema>;
+
 export const ThreadSnapshotSchema = z.object({
   threadId: Id,
   cursor: z.number().int().min(-1),
@@ -1270,6 +1278,7 @@ export const ThreadSnapshotSchema = z.object({
   run: RunSchema.nullable(),
   activeRuns: z.array(RunSchema).optional(),
   computer: ComputerStatusSchema.optional(),
+  model: ThreadModelSchema.optional(),
 });
 export type ThreadSnapshot = z.infer<typeof ThreadSnapshotSchema>;
 

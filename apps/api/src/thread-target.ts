@@ -50,17 +50,26 @@ import type { ImageAdmissionRun } from "./thread-image-admission.js";
 import { assertThreadImageInput } from "./thread-image-admission.js";
 import { cancelThreadRuns, finishThreadStop, isStopMessage } from "./thread-stop.js";
 
+/** A conversation's own model, picked mid-chat; null fields follow the bot's. */
+export type ThreadModelChoice = {
+  modelProvider: string | null;
+  modelId: string | null;
+  thinkingLevel: string | null;
+};
+
 export type ThreadTarget =
   | {
       kind: "bot";
       botId: string;
       threadId: string;
+      threadModel?: ThreadModelChoice;
       bot: Awaited<ReturnType<ReturnType<typeof createRepos>["getBot"]>>;
     }
   | {
       kind: "group";
       groupId: string;
       threadId: string;
+      threadModel?: ThreadModelChoice;
       groupName: string;
       members: GroupMember[];
       memberBotIds: string[];
@@ -385,6 +394,11 @@ export async function resolveThreadTarget(
       kind: "bot",
       botId: bot.id,
       threadId: bot.thread.id,
+      threadModel: {
+        modelProvider: bot.thread.modelProvider,
+        modelId: bot.thread.modelId,
+        thinkingLevel: bot.thread.thinkingLevel,
+      },
       bot,
     };
   }
@@ -402,6 +416,11 @@ export async function resolveThreadTarget(
       kind: "group",
       groupId: group.id,
       threadId: group.thread.id,
+      threadModel: {
+        modelProvider: group.thread.modelProvider,
+        modelId: group.thread.modelId,
+        thinkingLevel: group.thread.thinkingLevel,
+      },
       groupName: group.name,
       members,
       memberBotIds: members.map((member) => member.botId),
@@ -426,7 +445,7 @@ export async function threadHead(prisma: PrismaClient, target: ThreadTarget) {
 async function assertImageRecipients(
   tx: Prisma.TransactionClient,
   actor: Actor,
-  target: { threadId: string },
+  target: { threadId: string; threadModel?: ThreadModelChoice },
   text: string | undefined,
   attachmentBlocks: MessageBlock[],
   recipient: {
@@ -437,6 +456,8 @@ async function assertImageRecipients(
 ) {
   if (!attachmentBlocks.some((block) => block.kind === "image")) return;
   const { botId, runs } = recipient;
+  // The next run picks the conversation's model over the bot's, so an image must suit it.
+  const threadModel = target.threadModel;
   const answered = [];
   for (const run of runs.filter(
     (run) => run.status === "waiting_input" && run.userId === actor.userId,
@@ -463,6 +484,7 @@ async function assertImageRecipients(
       attachmentBlocks,
       run && (isConversationalRun(run.trigger) || run.status === "waiting_input") ? run : undefined,
       recipient.imageAdmission,
+      threadModel,
     );
   }
 }

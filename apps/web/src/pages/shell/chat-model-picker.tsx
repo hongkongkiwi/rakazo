@@ -19,6 +19,66 @@ import { useId, useMemo, useState } from "react";
 import { TextOnlyMark } from "../../components/TextOnlyMark";
 import { useListSearch } from "../../lib/use-list-search";
 
+/** The searchable model list shared by the bot panel and the in-conversation picker. */
+export function ModelChoiceCommand({
+  query,
+  setQuery,
+  sections,
+  value,
+  onSelect,
+  imagesHintId,
+}: {
+  query: string;
+  setQuery: (query: string) => void;
+  sections: { key: string; heading?: string; data: ChatModelChoice[] }[];
+  value: string;
+  onSelect: (key: string) => void;
+  imagesHintId?: string;
+}) {
+  const { t } = useLingui();
+  return (
+    <Command
+      shouldFilter={false}
+      className="h-auto min-h-0 max-h-(--available-height) rounded-none bg-popover *:data-[slot=command-input-wrapper]:shrink-0"
+    >
+      <ListSearchInput
+        command
+        query={query}
+        setQuery={setQuery}
+        label={t`Search models`}
+        placeholder={t`Search`}
+      />
+      <CommandList className="min-h-0 max-h-80 flex-1 overflow-y-auto">
+        <CommandEmpty>
+          <Trans>No matching models</Trans>
+        </CommandEmpty>
+        {sections.map((section) => (
+          <CommandGroup key={section.key} heading={section.heading}>
+            {section.data.map((choice) => (
+              <CommandItem
+                key={choice.key}
+                aria-label={choice.label}
+                // cmdk falls back to the row's text for an empty value.
+                value={choice.key || "space-default"}
+                data-checked={choice.key === value}
+                aria-describedby={choice.images === false ? imagesHintId : undefined}
+                onSelect={() => onSelect(choice.key)}
+              >
+                <span className="min-w-0 flex-1 truncate">{choice.title ?? choice.label}</span>
+                {choice.images === false ? (
+                  <span className="shrink-0 text-muted-foreground">
+                    <TextOnlyMark />
+                  </span>
+                ) : null}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        ))}
+      </CommandList>
+    </Command>
+  );
+}
+
 /** A chat's model: a native select, or a searchable list once there are too many to scan. */
 export function ChatModelPicker({
   id,
@@ -94,50 +154,17 @@ export function ChatModelPicker({
           collisionAvoidance={{ side: "flip", align: "shift", fallbackAxisSide: "none" }}
           className="w-(--anchor-width) max-h-(--available-height) gap-0 overflow-hidden bg-popover p-0 opacity-100 animate-none! backdrop-filter-none"
         >
-          <Command
-            shouldFilter={false}
-            className="h-auto min-h-0 max-h-(--available-height) rounded-none bg-popover *:data-[slot=command-input-wrapper]:shrink-0"
-          >
-            <ListSearchInput
-              command
-              query={query}
-              setQuery={setQuery}
-              label={t`Search models`}
-              placeholder={t`Search`}
-            />
-            <CommandList className="min-h-0 max-h-80 flex-1 overflow-y-auto">
-              <CommandEmpty>
-                <Trans>No matching models</Trans>
-              </CommandEmpty>
-              {sections.map((section) => (
-                <CommandGroup key={section.key} heading={section.heading}>
-                  {section.data.map((choice) => (
-                    <CommandItem
-                      key={choice.key}
-                      aria-label={choice.label}
-                      // cmdk falls back to the row's text for an empty value.
-                      value={choice.key || "space-default"}
-                      data-checked={choice.key === value}
-                      aria-describedby={choice.images === false ? imagesHintId : undefined}
-                      onSelect={() => {
-                        onChange(choice.key);
-                        openChange(false);
-                      }}
-                    >
-                      <span className="min-w-0 flex-1 truncate">
-                        {choice.title ?? choice.label}
-                      </span>
-                      {choice.images === false ? (
-                        <span className="shrink-0 text-muted-foreground">
-                          <TextOnlyMark />
-                        </span>
-                      ) : null}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              ))}
-            </CommandList>
-          </Command>
+          <ModelChoiceCommand
+            query={query}
+            setQuery={setQuery}
+            sections={sections}
+            value={value}
+            imagesHintId={imagesHintId}
+            onSelect={(key) => {
+              onChange(key);
+              openChange(false);
+            }}
+          />
         </PopoverContent>
       ) : null}
     </Popover>

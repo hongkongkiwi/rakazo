@@ -142,6 +142,20 @@ export default function BotProfile() {
       </View>
       <SettingsGroup>
         <SettingsRow
+          key="chat-model"
+          accessibilityRole="button"
+          chevron="right"
+          title={t("This chat's model")}
+          leading={
+            <NativeSymbol
+              ios="cpu"
+              android="hardware-chip-outline"
+              color={tokens.mutedForeground}
+            />
+          }
+          onPress={() => router.push({ pathname: "/thread-model", params: { botId } })}
+        />
+        <SettingsRow
           key="routines"
           accessibilityRole="button"
           chevron="right"

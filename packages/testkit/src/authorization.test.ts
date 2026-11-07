@@ -325,6 +325,10 @@ describeWithDatabase("API authorization and resource isolation", () => {
       ["threads/send", { botId: "missing-bot", text: "Nope" }],
       ["threads/send", { groupId: "missing-group", text: "Nope" }],
       [
+        "threads/setModel",
+        { botId: "missing-bot", modelProvider: "missing-provider", modelId: "missing-model" },
+      ],
+      [
         "threads/sendWithRoutines",
         { botId: "missing-bot", clientNonce: "nope", routineIds: ["missing-routine"] },
       ],

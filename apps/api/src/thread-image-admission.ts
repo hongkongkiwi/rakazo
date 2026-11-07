@@ -11,6 +11,7 @@ import {
   parseModelSecret,
   resolveMemberMainModel,
   runModelChoice,
+  runModelFallback,
   runtimeModelAcceptsImages,
   selectConfiguredModel,
 } from "@rakazo/adapters";
@@ -43,6 +44,7 @@ export async function assertThreadImageInput(
     hostedProvider?: string;
     codexCatalog?: CodexLiveCatalog;
   },
+  thread?: ModelChoice | null,
 ) {
   if (!blocks.some((block) => block.kind === "image")) return;
   const bot = await prisma.bot.findFirst({
@@ -52,7 +54,9 @@ export async function assertThreadImageInput(
   if (!bot) return;
   // A running turn has already selected its model, including any backup switch.
   const running = run?.status === "running" && run.modelProvider && run.modelId;
-  const override = running ? run : run ? runModelChoice(run, bot) : bot;
+  // A send with no run yet selects the same way the next run will.
+  const pending = run ?? { modelProvider: null, modelId: null, thinkingLevel: null };
+  const override = running ? run : runModelChoice(pending, bot, thread);
   const overrideCredential =
     override.modelProvider && override.modelId
       ? configuration
@@ -65,9 +69,25 @@ export async function assertThreadImageInput(
           )
         : await findModelCredential(prisma, actor, override.modelProvider, override.modelId)
       : null;
+  // The run's own model is settled while running; otherwise the bot's model is the next try.
+  const fallback = running ? null : runModelFallback(pending, bot, thread);
+  const fallbackCredential =
+    fallback?.modelProvider && fallback.modelId
+      ? configuration
+        ? await findConnectedModelCredential(
+            prisma,
+            configuration.secrets,
+            actor,
+            fallback.modelProvider,
+            fallback.modelId,
+          )
+        : await findModelCredential(prisma, actor, fallback.modelProvider, fallback.modelId)
+      : null;
   const selected = selectConfiguredModel({
     override,
     overrideCredential,
+    fallback,
+    fallbackCredential,
     main: configuration
       ? await resolveMemberMainModel({ prisma, secretStore: configuration.secrets }, actor)
       : await mainModelWithoutSecrets(prisma, actor),

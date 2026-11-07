@@ -161,6 +161,36 @@ export async function botsRunOwnModels(deps: RouterDeps, actor: Actor, botIds: s
   return credentials.every(Boolean);
 }
 
+/** Whether a conversation's own model can run for this member, so a send has a model. */
+export async function threadRunsModel(
+  deps: RouterDeps,
+  actor: Actor,
+  threadModel:
+    | { modelProvider: string | null; modelId: string | null; thinkingLevel?: string | null }
+    | undefined,
+) {
+  if (!threadModel?.modelProvider || !threadModel.modelId) return false;
+  const overrideCredential = await findConnectedModelCredential(
+    deps.prisma,
+    deps.secrets,
+    actor,
+    threadModel.modelProvider,
+    threadModel.modelId,
+  );
+  return Boolean(
+    selectConfiguredModel({
+      override: {
+        modelProvider: threadModel.modelProvider,
+        modelId: threadModel.modelId,
+        thinkingLevel: threadModel.thinkingLevel ?? null,
+      },
+      overrideCredential,
+      main: null,
+      defaults: {},
+    }).credential,
+  );
+}
+
 export const THREAD_MESSAGE_PAGE_SIZE = 100;
 
 /** Silence longer than this on a thread stream is indistinguishable from a dead socket. */

@@ -1287,6 +1287,10 @@ msgstr "機器人"
 msgid "Bot"
 msgstr "機器人"
 
+#: src/pages/shell/thread-model-chip.tsx
+msgid "Bot default"
+msgstr ""
+
 #: src/components/vault/BotEmailAddresses.tsx
 msgid "Bot email addresses"
 msgstr "Bot 的電子郵件地址"
@@ -2597,6 +2601,10 @@ msgstr "無法儲存該語音"
 msgid "Could not save the credential"
 msgstr "無法儲存憑證"
 
+#: src/pages/shell/thread-model-chip.tsx
+msgid "Could not save the model"
+msgstr ""
+
 #: src/pages/shell/message-cards.tsx
 msgid "Could not save this choice"
 msgstr "無法儲存此選擇"
@@ -2642,6 +2650,10 @@ msgstr "無法提交此回答"
 #: src/pages/model-settings/space-bots-model.tsx
 msgid "Could not switch {failedNames}. Try again."
 msgstr "無法切換 {failedNames}，請再試一次。"
+
+#: src/pages/shell/thread-model-chip.tsx
+msgid "Could not switch the model"
+msgstr ""
 
 #: src/pages/shell/use-computer.tsx
 msgid "Could not take control"
@@ -3560,6 +3572,10 @@ msgstr "正在完成 MCP 連線…"
 msgid "Focus message"
 msgstr "移至訊息欄"
 
+#: src/pages/shell/thread-model-chip.tsx
+msgid "Follow the bot"
+msgstr ""
+
 #: src/pages/Auth.tsx
 msgid "Forgot password?"
 msgstr "忘記密碼？"
@@ -4475,6 +4491,7 @@ msgstr "模式"
 #: src/pages/routine-editor/model-settings.tsx
 #: src/pages/shell/agent-import-plan.tsx
 #: src/pages/shell/bot-settings-sections.tsx
+#: src/pages/shell/thread-model-chip.tsx
 msgid "Model"
 msgstr "模型"
 
@@ -4495,6 +4512,10 @@ msgstr "模型 ID"
 #: src/pages/model-settings/role-model-picker.tsx
 msgid "Model options"
 msgstr "模型選項"
+
+#: src/pages/shell/thread-model-chip.tsx
+msgid "Model: {effectiveLabel}"
+msgstr ""
 
 #: src/pages/ModelSettingsOverlay.tsx
 #: src/pages/settings-nav.ts
@@ -6279,6 +6300,10 @@ msgstr "伺服器 URL"
 msgid "Set"
 msgstr "設定"
 
+#: src/pages/shell/thread-model-chip.tsx
+msgid "Set as bot default"
+msgstr ""
+
 #: src/components/call/CallCard.tsx
 #: src/components/SidebarFooter.tsx
 #: src/pages/MessagingSettingsPanel.tsx
@@ -6552,6 +6577,7 @@ msgid "Space"
 msgstr "空間"
 
 #: src/pages/shell/bot-panel.tsx
+#: src/pages/shell/thread-model-chip.tsx
 msgid "Space default"
 msgstr "空間預設"
 

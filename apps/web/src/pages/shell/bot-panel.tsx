@@ -167,6 +167,8 @@ export function BotSettings({
   const persistedDisabledToolsRef = useRef(disabledBuiltinTools);
   const serverDisabledToolsRef = useRef(disabledBuiltinTools);
   const pendingSavesRef = useRef(0);
+  // A model pick is a complete action, so it saves once the new value has rendered.
+  const pendingModelSaveRef = useRef(false);
   useEffect(() => {
     const next = bot.disabledBuiltinTools ?? [];
     if (serverDisabledToolsRef.current === next) return;
@@ -493,6 +495,12 @@ export function BotSettings({
     return saveQueueRef.current;
   }
 
+  useEffect(() => {
+    if (!pendingModelSaveRef.current) return;
+    pendingModelSaveRef.current = false;
+    void enqueueSave();
+  }, [modelKey, thinkingLevel, enqueueSave]);
+
   return (
     <div data-testid="bot-settings">
       <div data-testid="bot-profile-header" className="flex flex-col items-center pb-5 text-center">
@@ -581,6 +589,7 @@ export function BotSettings({
               onModelChange={(key) => {
                 setModelKey(key);
                 setThinkingLevel("");
+                pendingModelSaveRef.current = true;
               }}
               thinkingOptions={thinkingOptions}
               thinkingLevel={thinkingLevel}

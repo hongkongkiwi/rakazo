@@ -1286,6 +1286,10 @@ msgstr "Bot"
 msgid "Bot"
 msgstr "Bot"
 
+#: src/pages/shell/thread-model-chip.tsx
+msgid "Bot default"
+msgstr ""
+
 #: src/components/vault/BotEmailAddresses.tsx
 msgid "Bot email addresses"
 msgstr "Adresy e-mail botów"
@@ -2596,6 +2600,10 @@ msgstr "Nie udało się zapisać głosu"
 msgid "Could not save the credential"
 msgstr "Nie udało się zapisać danych uwierzytelniających"
 
+#: src/pages/shell/thread-model-chip.tsx
+msgid "Could not save the model"
+msgstr ""
+
 #: src/pages/shell/message-cards.tsx
 msgid "Could not save this choice"
 msgstr "Nie udało się zapisać tego wyboru"
@@ -2641,6 +2649,10 @@ msgstr "Nie udało się wysłać tej odpowiedzi"
 #: src/pages/model-settings/space-bots-model.tsx
 msgid "Could not switch {failedNames}. Try again."
 msgstr "Nie udało się przełączyć {failedNames}. Spróbuj ponownie."
+
+#: src/pages/shell/thread-model-chip.tsx
+msgid "Could not switch the model"
+msgstr ""
 
 #: src/pages/shell/use-computer.tsx
 msgid "Could not take control"
@@ -3559,6 +3571,10 @@ msgstr "Kończenie połączenia MCP…"
 msgid "Focus message"
 msgstr "Przejdź do wiadomości"
 
+#: src/pages/shell/thread-model-chip.tsx
+msgid "Follow the bot"
+msgstr ""
+
 #: src/pages/Auth.tsx
 msgid "Forgot password?"
 msgstr "Nie pamiętasz hasła?"
@@ -4474,6 +4490,7 @@ msgstr "Tryb"
 #: src/pages/routine-editor/model-settings.tsx
 #: src/pages/shell/agent-import-plan.tsx
 #: src/pages/shell/bot-settings-sections.tsx
+#: src/pages/shell/thread-model-chip.tsx
 msgid "Model"
 msgstr "Model"
 
@@ -4494,6 +4511,10 @@ msgstr "Identyfikator modelu"
 #: src/pages/model-settings/role-model-picker.tsx
 msgid "Model options"
 msgstr "Opcje modelu"
+
+#: src/pages/shell/thread-model-chip.tsx
+msgid "Model: {effectiveLabel}"
+msgstr ""
 
 #: src/pages/ModelSettingsOverlay.tsx
 #: src/pages/settings-nav.ts
@@ -6278,6 +6299,10 @@ msgstr "Adres URL serwera"
 msgid "Set"
 msgstr "Ustaw"
 
+#: src/pages/shell/thread-model-chip.tsx
+msgid "Set as bot default"
+msgstr ""
+
 #: src/components/call/CallCard.tsx
 #: src/components/SidebarFooter.tsx
 #: src/pages/MessagingSettingsPanel.tsx
@@ -6551,6 +6576,7 @@ msgid "Space"
 msgstr "Przestrzeń"
 
 #: src/pages/shell/bot-panel.tsx
+#: src/pages/shell/thread-model-chip.tsx
 msgid "Space default"
 msgstr "Domyślne dla przestrzeni"
 

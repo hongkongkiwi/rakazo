@@ -18,6 +18,7 @@ import {
   readStoredModelAuth,
   routineRunModelPin,
   runModelChoice,
+  runModelFallback,
   selectDefaultCredentialId,
   validateBotModelChange,
   validateConnectedModelChoice,
@@ -98,6 +99,24 @@ describe("routine model pin", () => {
 
   it("follows the bot when a routine run only recorded the model an attempt used", () => {
     expect(runModelChoice({ modelPinned: false, ...routine }, bot)).toEqual(bot);
+  });
+
+  it("offers the bot's model under a conversation's own, unless the run is pinned", () => {
+    const thread = {
+      modelProvider: "thread-provider",
+      modelId: "thread-model",
+      thinkingLevel: null,
+    };
+    expect(runModelFallback({ modelPinned: false, ...routine }, bot, thread)).toEqual(bot);
+    expect(runModelFallback({ modelPinned: true, ...routine }, bot, thread)).toBeNull();
+    expect(runModelFallback({ modelPinned: false, ...routine }, bot, bot)).toBeNull();
+    expect(
+      runModelFallback({ modelPinned: false, ...routine }, bot, {
+        modelProvider: "thread-provider",
+        modelId: null,
+        thinkingLevel: null,
+      }),
+    ).toBeNull();
   });
 
   it("ignores run model columns that belong to an ordinary run", () => {

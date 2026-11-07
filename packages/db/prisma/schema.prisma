@@ -1067,6 +1067,10 @@ model Thread {
   externalConversationId      String?    @unique
   externalConversation        ExternalConversation? @relation(fields: [externalConversationId], references: [id], onDelete: Cascade)
   userId                      String
+  /// The conversation's own model, picked mid-chat; null follows the bot's.
+  modelProvider               String?
+  modelId                     String?
+  thinkingLevel               String?
   createdAt                   DateTime   @default(now())
   nextEventSeq                Int        @default(0)
   nextMessageSeq              Int        @default(0)

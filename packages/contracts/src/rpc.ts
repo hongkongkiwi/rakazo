@@ -143,6 +143,7 @@ import {
   TeachRecordingEventSchema,
   THREAD_MESSAGE_TEXT_MAX_LENGTH,
   ThreadMessagePageSchema,
+  ThreadModelSchema,
   ThreadSnapshotSchema,
   TimeZoneSchema,
   UpdateAgentSkillInput,
@@ -282,6 +283,24 @@ const threadSendWithRoutinesInput = threadSendFields.safeExtend({
   clientNonce: z.string().min(1).max(200),
   routineIds: z.array(Id).min(1).max(64),
 });
+
+/** A conversation's model: set provider and id together, or clear both to follow the bot. */
+const setThreadModelInput = threadTarget
+  .safeExtend({
+    modelProvider: z.string().trim().min(1).max(80).nullable(),
+    modelId: z.string().trim().min(1).max(200).nullable(),
+    thinkingLevel: ThinkingLevelSchema.nullable().default(null),
+  })
+  .superRefine((input, ctx) => {
+    const bothNull = input.modelProvider === null && input.modelId === null;
+    const bothSet = Boolean(input.modelProvider) && Boolean(input.modelId);
+    if (!bothNull && !bothSet)
+      ctx.addIssue({
+        code: "custom",
+        message: "Model provider and model id must both be set or both cleared",
+        path: ["modelId"],
+      });
+  });
 
 const spaceName = z.string().trim().min(1).max(60);
 const organizationName = spaceName;
@@ -680,6 +699,8 @@ export const appContract = {
       .input(threadTarget.safeExtend({ cursor: z.number().int().min(-1) }))
       .output(eventIterator(ProductEventSchema)),
     send: oc.input(threadSendInput).output(threadSendOutput),
+    /** The conversation runs on this model from its next run; clearing it follows the bot. */
+    setModel: oc.input(setThreadModelInput).output(ThreadModelSchema),
     /**
      * A send that also test-runs the mentioned routines: the message and every run commit
      * together, keyed by the nonce. A separate procedure, because an API without it must

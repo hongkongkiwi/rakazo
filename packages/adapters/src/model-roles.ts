@@ -94,29 +94,44 @@ export async function resolveMemberMainModel(
 export function selectConfiguredModel(input: {
   /** The bot's or the run's own model; null follows the main model. */
   override: ModelChoice | null;
+  /** The bot's model under a conversation's own; tried when that one cannot run. */
+  fallback?: ModelChoice | null;
   hostedProvider?: string;
   overrideCredential: ModelCredential;
+  fallbackCredential?: ModelCredential;
   main: MemberMainModel | null;
   defaults: DeploymentModelDefaults;
 }) {
-  const { override: bot, overrideCredential, main } = input;
+  const { override: bot, overrideCredential, fallback, main } = input;
   const hasOverride = Boolean(bot?.modelProvider && usableModelId(bot.modelId));
   // A model runs on its own connection, or on the deployment's for its funded provider.
   const runnable = (provider: string | null | undefined, credential: ModelCredential) =>
     Boolean(credential || (provider && provider === input.hostedProvider));
   // The override provider, model and credential must win together.
   const useOverride = hasOverride && runnable(bot?.modelProvider, overrideCredential);
-  const useMain = !useOverride && main !== null && runnable(main.provider, main.credential);
-  const fallback = deploymentModelRole("main", input.defaults).primary;
+  const hasFallback = Boolean(fallback?.modelProvider && usableModelId(fallback.modelId));
+  const useFallback =
+    !useOverride &&
+    hasFallback &&
+    runnable(fallback?.modelProvider, input.fallbackCredential ?? null);
+  const useMain =
+    !useOverride && !useFallback && main !== null && runnable(main.provider, main.credential);
+  const deployment = deploymentModelRole("main", input.defaults).primary;
   const selected = useOverride
     ? {
         provider: bot!.modelProvider!,
         id: usableModelId(bot!.modelId),
         credential: overrideCredential,
       }
-    : useMain
-      ? { provider: main.provider, id: main.modelId, credential: main.credential }
-      : { provider: fallback?.provider, id: fallback?.modelId ?? null, credential: null };
+    : useFallback
+      ? {
+          provider: fallback!.modelProvider!,
+          id: usableModelId(fallback!.modelId),
+          credential: input.fallbackCredential ?? null,
+        }
+      : useMain
+        ? { provider: main.provider, id: main.modelId, credential: main.credential }
+        : { provider: deployment?.provider, id: deployment?.modelId ?? null, credential: null };
   // The main model's effort belongs to that model, so an override of the same model keeps it.
   const mainThinking =
     main &&
@@ -125,13 +140,17 @@ export function selectConfiguredModel(input: {
       backupChoiceKey({ provider: selected.provider ?? "", modelId: selected.id })
       ? (main.thinkingLevel ?? null)
       : null;
+  // The level follows the model that won; a bare bot level rides the main model, and a
+  // choice that cannot run leaves none behind. The failed choice is never consulted.
+  const winning = useOverride ? bot : useFallback ? fallback : null;
   return {
     ...selected,
-    // Preserve bot thinking for the main model; drop it for an unavailable override.
     thinkingLevel:
-      hasOverride && !useOverride
+      hasOverride && !useOverride && !useFallback
         ? null
-        : (((bot?.thinkingLevel ?? mainThinking) as AgentRunRequest["model"]["thinkingLevel"]) ??
+        : (((winning
+            ? (winning.thinkingLevel ?? mainThinking)
+            : (bot?.thinkingLevel ?? mainThinking)) as AgentRunRequest["model"]["thinkingLevel"]) ??
           null),
   };
 }

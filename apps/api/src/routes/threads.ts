@@ -1,7 +1,7 @@
 import { ORPCError } from "@orpc/server";
 import { runContinueJob, runJobKey } from "@rakazo/adapter-kit";
-import { settleCallRequest } from "@rakazo/adapters";
-import type { Actor } from "@rakazo/contracts";
+import { settleCallRequest, validateBotModelChange } from "@rakazo/adapters";
+import type { Actor, ThreadModel } from "@rakazo/contracts";
 import {
   AttachmentValidationError,
   CALL_CLIENT_NONCE_PREFIX,
@@ -60,6 +60,7 @@ import {
   HEARTBEAT,
   modelSetup,
   THREAD_MESSAGE_PAGE_SIZE,
+  threadRunsModel,
   withHeartbeats,
 } from "./shared.js";
 
@@ -94,7 +95,7 @@ export function takeoverReleaser(deps: RouterDeps, actor: Actor, target: ThreadT
 }
 
 export function threadsRoutes(ctx: RouterContext) {
-  const { deps, authed, callsEnabled, codexCatalog, repos, agentSkills } = ctx;
+  const { deps, authed, callsEnabled, codexCatalog, repos, agentSkills, botModelValidation } = ctx;
   /** The bot a reaction can wake: the thread's bot, or in a group the bot that wrote the message. */
   const reactedBotId = async (target: ThreadTarget, messageId: string) =>
     target.kind === "bot"
@@ -117,6 +118,7 @@ export function threadsRoutes(ctx: RouterContext) {
       target.kind === "group" ? await replyParentBotId(deps.prisma, target, input) : undefined;
     const noModel =
       setup.needsModel &&
+      !(await threadRunsModel(deps, actor, target.threadModel)) &&
       !(await botsRunOwnModels(deps, actor, sendTargetBotIds(target, input, replied)));
     if (noModel && (target.kind !== "bot" || !isStopMessage(input))) {
       throw new ORPCError("BAD_REQUEST", { message: MODEL_REQUIRED_SEND_ERROR });
@@ -166,6 +168,34 @@ export function threadsRoutes(ctx: RouterContext) {
           includeArchived: true,
         });
         return threadSnapshot(deps, target, context.actor.userId);
+      }),
+      /** The conversation's model for its next run; clearing both follows the bot. */
+      setModel: authed.threads.setModel.handler(async ({ context, input }) => {
+        const target = await resolveThreadTarget(deps.prisma, context.actor, input);
+        const existing = await deps.prisma.thread.findUniqueOrThrow({
+          where: { id: target.threadId },
+          select: { modelProvider: true, modelId: true, thinkingLevel: true },
+        });
+        const change = await validateBotModelChange(botModelValidation(context.actor), {
+          userId: context.actor.userId,
+          spaceId: context.actor.spaceId,
+          provider: input.modelProvider,
+          model: input.modelId,
+          thinkingLevel: input.thinkingLevel,
+          current: { provider: existing.modelProvider, model: existing.modelId },
+        });
+        if (!change.ok) throw new ORPCError("BAD_REQUEST", { message: change.error });
+        // A level means nothing without the conversation's own model to run it on.
+        const thinkingLevel = change.provider && change.model ? change.thinkingLevel : null;
+        const model = await deps.prisma.thread.update({
+          where: { id: target.threadId },
+          data: { modelProvider: change.provider, modelId: change.model, thinkingLevel },
+          select: { modelProvider: true, modelId: true, thinkingLevel: true },
+        });
+        return {
+          ...model,
+          thinkingLevel: (model.thinkingLevel as ThreadModel["thinkingLevel"]) ?? null,
+        };
       }),
       messages: authed.threads.messages.handler(async ({ context, input }) => {
         const target = await resolveThreadTarget(deps.prisma, context.actor, input, {
@@ -281,6 +311,7 @@ export function threadsRoutes(ctx: RouterContext) {
         // Without a model or while teaching, the reaction is still saved; it just starts no turn.
         const mayStartTurn =
           (!(await modelSetup(deps, context.actor)).needsModel ||
+            (await threadRunsModel(deps, context.actor, target.threadModel)) ||
             (await botsRunOwnModels(deps, context.actor, [
               await reactedBotId(target, input.messageId),
             ]))) &&

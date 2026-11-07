@@ -846,12 +846,14 @@ export type ModelChoice = {
 
 /**
  * The model a queued run will use. `modelPinned` is the choice captured when the
- * run was created. Model columns written later only record the attempt, so a
+ * run was created. A conversation can pick its own model mid-chat, and that wins
+ * over the bot's; model columns written later only record the attempt, so a
  * routine that follows its bot still follows the bot after a resume.
  */
 export function runModelChoice(
   run: ModelChoice & { modelPinned?: boolean },
   bot: ModelChoice,
+  thread?: ModelChoice | null,
 ): ModelChoice {
   if (run.modelPinned && run.modelProvider && usableModelId(run.modelId)) {
     return {
@@ -860,6 +862,37 @@ export function runModelChoice(
       thinkingLevel: run.thinkingLevel,
     };
   }
+  if (thread?.modelProvider && usableModelId(thread.modelId)) {
+    return {
+      modelProvider: thread.modelProvider,
+      modelId: thread.modelId,
+      thinkingLevel: thread.thinkingLevel,
+    };
+  }
+  return {
+    modelProvider: bot.modelProvider,
+    modelId: bot.modelId,
+    thinkingLevel: bot.thinkingLevel,
+  };
+}
+
+/**
+ * The bot's model, offered under a conversation's own. A conversation can outlive
+ * the connection that ran its model, so the bot's may still be the one that works.
+ */
+export function runModelFallback(
+  run: ModelChoice & { modelPinned?: boolean },
+  bot: ModelChoice,
+  thread?: ModelChoice | null,
+): ModelChoice | null {
+  if (run.modelPinned && run.modelProvider && usableModelId(run.modelId)) return null;
+  if (!thread?.modelProvider || !usableModelId(thread.modelId)) return null;
+  // A conversation on the bot's own model needs no second try.
+  if (
+    thread.modelProvider === bot.modelProvider &&
+    usableModelId(thread.modelId) === usableModelId(bot.modelId)
+  )
+    return null;
   return {
     modelProvider: bot.modelProvider,
     modelId: bot.modelId,

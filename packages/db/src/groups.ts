@@ -181,7 +181,7 @@ const archivedGroupInclude = {
 } as const;
 
 const groupTargetInclude = {
-  thread: { select: { id: true } },
+  thread: { select: { id: true, modelProvider: true, modelId: true, thinkingLevel: true } },
   members: {
     where: { bot: { archivedAt: null } },
     include: {

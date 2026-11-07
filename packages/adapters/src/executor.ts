@@ -112,6 +112,7 @@ import {
   PINNED_PROVIDER_NOT_CONNECTED,
   pinnedModelCredentialError,
   runModelChoice,
+  runModelFallback,
 } from "./model-selection.js";
 import { modelAcceptsImageInput } from "./model-vision.js";
 import { usesNativeShell } from "./native-shell.js";
@@ -645,7 +646,7 @@ export function createRunExecutor(executorDeps: ExecutorDeps) {
           initialBotCommandEnvironment,
         );
         // modelPinned distinguishes the captured choice from an attempt's recorded model.
-        const modelChoice = runModelChoice(run, bot);
+        const modelChoice = runModelChoice(run, bot, thread);
         const hasModelOverride = Boolean(modelChoice.modelProvider && modelChoice.modelId);
         const overrideCredential =
           !pinnedComputerModels && hasModelOverride && modelChoice.modelProvider
@@ -655,6 +656,18 @@ export function createRunExecutor(executorDeps: ExecutorDeps) {
                 run,
                 modelChoice.modelProvider,
                 modelChoice.modelId,
+              )
+            : null;
+        // A conversation's model can outlive its connection, so the bot's model is next.
+        const fallbackChoice = pinnedComputerModels ? null : runModelFallback(run, bot, thread);
+        const fallbackCredential =
+          fallbackChoice?.modelProvider && fallbackChoice.modelId
+            ? await findConnectedModelCredential(
+                deps.prisma,
+                deps.secretStore,
+                run,
+                fallbackChoice.modelProvider,
+                fallbackChoice.modelId,
               )
             : null;
         runAbortController = new AbortController();
@@ -911,6 +924,8 @@ export function createRunExecutor(executorDeps: ExecutorDeps) {
           : selectConfiguredModel({
               override: modelChoice,
               overrideCredential,
+              fallback: fallbackChoice,
+              fallbackCredential,
               main,
               hostedProvider: (await modelCreditBillingEnabled(deps))
                 ? resolveDeploymentModel().provider

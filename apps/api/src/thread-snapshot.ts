@@ -1,4 +1,4 @@
-import type { ThreadSnapshot } from "@rakazo/contracts";
+import type { ThreadModel, ThreadSnapshot } from "@rakazo/contracts";
 import {
   ACTIVE_RUN_STATUSES,
   BACKGROUND_RUN_TRIGGERS,
@@ -105,7 +105,14 @@ export async function threadSnapshot(
                   orderBy: { seq: "asc" },
                 })
               : [];
-          return { messagePage, last, run: currentRun, activeRuns, liveEvents, shared };
+          return {
+            messagePage,
+            last,
+            run: currentRun,
+            activeRuns,
+            liveEvents,
+            shared,
+          };
         },
         { timeout: 15_000, maxWait: 5_000 },
       ),
@@ -118,6 +125,7 @@ export async function threadSnapshot(
       olderCursor: core.messagePage.olderCursor,
       run: core.run ? mapRun(core.run) : null,
       activeRuns: core.activeRuns.map(mapRun),
+      model: toThreadModel(target.threadModel),
       computer: toComputerStatus(
         target.botId,
         target.bot.computer,
@@ -212,6 +220,25 @@ export async function threadSnapshot(
           ? mapRun(primaryActiveRun)
           : null,
     activeRuns: core.activeRuns.map(mapRun),
+    model: toThreadModel(target.threadModel),
+  };
+}
+
+/** The stored choice in contract shape; a missing thread follows the bot. */
+function toThreadModel(
+  row:
+    | {
+        modelProvider: string | null;
+        modelId: string | null;
+        thinkingLevel: string | null;
+      }
+    | null
+    | undefined,
+): ThreadModel {
+  return {
+    modelProvider: row?.modelProvider ?? null,
+    modelId: row?.modelId ?? null,
+    thinkingLevel: (row?.thinkingLevel as ThreadModel["thinkingLevel"]) ?? null,
   };
 }
 

@@ -89,6 +89,63 @@ describe("configured model selection", () => {
       },
     },
     {
+      name: "keeps a conversation's model when its own connection runs it",
+      input: {
+        override: {
+          modelProvider: "thread-provider",
+          modelId: "thread-model",
+          thinkingLevel: "low",
+        },
+        overrideCredential: credential("thread-provider", "thread-model"),
+        fallback: bot,
+        fallbackCredential: overrideCredential,
+      },
+      expected: {
+        provider: "thread-provider",
+        id: "thread-model",
+        credential: credential("thread-provider", "thread-model"),
+        thinkingLevel: "low",
+      },
+    },
+    {
+      name: "falls back to the bot's model when the conversation's cannot run",
+      input: {
+        override: {
+          modelProvider: "thread-provider",
+          modelId: "thread-model",
+          thinkingLevel: "low",
+        },
+        overrideCredential: null,
+        fallback: bot,
+        fallbackCredential: overrideCredential,
+      },
+      expected: {
+        provider: "bot-provider",
+        id: "bot-model",
+        credential: overrideCredential,
+        thinkingLevel: "high",
+      },
+    },
+    {
+      name: "never lends a failed conversation's thinking level to the bot's model",
+      input: {
+        override: {
+          modelProvider: "thread-provider",
+          modelId: "thread-model",
+          thinkingLevel: "low",
+        },
+        overrideCredential: null,
+        fallback: { modelProvider: "bot-provider", modelId: "bot-model", thinkingLevel: null },
+        fallbackCredential: credential("bot-provider", "bot-model"),
+      },
+      expected: {
+        provider: "bot-provider",
+        id: "bot-model",
+        credential: credential("bot-provider", "bot-model"),
+        thinkingLevel: null,
+      },
+    },
+    {
       name: "keeps bot thinking with the main model",
       input: { override: { modelProvider: null, modelId: null, thinkingLevel: "high" } },
       expected: {
