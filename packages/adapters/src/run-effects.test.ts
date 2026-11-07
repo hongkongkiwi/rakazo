@@ -1,3 +1,4 @@
+import { toolEffectIdempotencyKey } from "@rakazo/core/node/approval-effect-key";
 import { RunHistoryWriteError } from "@rakazo/db";
 import { describe, expect, it, vi } from "vitest";
 import { legacyPiToolCallId, recordEffect, runScopedToolExecutionId } from "./run-effects.js";
@@ -229,6 +230,30 @@ describe("executor tool effect ownership", () => {
       expect(f.append).not.toHaveBeenCalled();
     },
   );
+  it("refuses a modern key reused for different arguments", async () => {
+    const key = toolEffectIdempotencyKey("run-1", "write_fixture", { path: "a.txt" });
+    const f = fixture([
+      {
+        id: "effect-1",
+        runId: "run-1",
+        spaceId: "space-a",
+        idempotencyKey: key,
+        kind: "write_fixture",
+        request: { path: "b.txt" },
+        status: "completed",
+        result: { ok: true },
+      },
+    ]);
+    await expect(
+      recordEffect(f.deps, run("run-1"), "write_fixture", key, { path: "a.txt" }),
+    ).rejects.toThrow("different arguments");
+    // The same request still reconciles as an ordinary duplicate.
+    const duplicate = await recordEffect(f.deps, run("run-1"), "write_fixture", key, {
+      path: "b.txt",
+    });
+    expect(duplicate.duplicate).toBe(true);
+  });
+
   it("decodes only the exact Pi backend tuple shape", () => {
     expect(legacyPiToolCallId(JSON.stringify(["pi-tool", "main", "call_1"]))).toBe("call_1");
     for (const invalid of [
