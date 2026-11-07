@@ -128,6 +128,7 @@ export function createResultReviewer(deps: {
     let requestText = "";
     let reviewedModel: string | undefined;
     let effects: Array<{ kind: string; status: string }> = [];
+    let effectsTruncated = false;
     if (message.runId) {
       const run = await deps.prisma.run.findFirst({
         where: {
@@ -148,12 +149,15 @@ export function createResultReviewer(deps: {
       requestText = run?.task.prompt?.trim() ?? "";
       reviewedModel = run ? `${run.modelProvider}/${run.modelId}` : undefined;
       // Every recorded outcome matters, including a failure or a denied action.
-      effects = await deps.prisma.externalEffect.findMany({
+      // The latest bounded set is more useful than the first; say when older ones are missing.
+      const recent = await deps.prisma.externalEffect.findMany({
         where: { runId: message.runId },
-        orderBy: { createdAt: "asc" },
-        take: EFFECTS_MAX,
+        orderBy: { createdAt: "desc" },
+        take: EFFECTS_MAX + 1,
         select: { kind: true, status: true },
       });
+      effectsTruncated = recent.length > EFFECTS_MAX;
+      effects = recent.slice(0, EFFECTS_MAX).reverse();
     }
     if (!requestText) {
       const previous = await deps.prisma.message.findFirst({
@@ -167,7 +171,7 @@ export function createResultReviewer(deps: {
     const evidence = [
       `Request:\n${requestText.slice(0, REQUEST_MAX_CHARS) || "(not available)"}`,
       `Reply:\n${reply.slice(0, REPLY_MAX_CHARS) || "(no text reply)"}`,
-      `Recorded effects:\n${
+      `Recorded effects${effectsTruncated ? " (latest 10; older omitted)" : ""}:\n${
         effects.length
           ? effects
               .map((effect) => `- ${humanizeToolName(effect.kind)}: ${effect.status}`)

@@ -12,7 +12,13 @@ const actor: Actor = {
 };
 
 function fixture(
-  options: { reply?: string; fail?: boolean; noModel?: boolean; activeRun?: boolean } = {},
+  options: {
+    reply?: string;
+    fail?: boolean;
+    noModel?: boolean;
+    activeRun?: boolean;
+    effects?: Array<{ kind: string; status: string }>;
+  } = {},
 ) {
   const run = vi.fn(async function* (_request?: unknown, _context?: unknown) {
     if (options.fail) throw new Error("provider down");
@@ -40,7 +46,7 @@ function fixture(
       })),
     },
     externalEffect: {
-      findMany: vi.fn(async () => [{ kind: "send_email", status: "completed" }]),
+      findMany: vi.fn(async () => options.effects ?? [{ kind: "send_email", status: "completed" }]),
     },
   };
   const reviewer = createResultReviewer({
@@ -95,6 +101,19 @@ describe("result review", () => {
     const review = await reviewer(actor, input);
     expect(review.verdict).toBe("unclear");
     expect(review.summary).toContain("No review model");
+  });
+
+  it("tells the reviewer when older effects were omitted", async () => {
+    const { reviewer, run } = fixture({
+      reply: '{"verdict":"pass","summary":"ok","findings":[]}',
+      effects: Array.from({ length: 11 }, (_, index) => ({
+        kind: `tool_${index}`,
+        status: "completed",
+      })),
+    });
+    await reviewer(actor, input);
+    const request = run.mock.calls[0]?.[0] as { prompt?: string };
+    expect(request.prompt).toContain("older omitted");
   });
 
   it("does not review a message whose run is still working", async () => {
