@@ -941,6 +941,23 @@ msgstr "לא ניתן היה להשתמש במפתח API שיובא. יש לבט
 msgid "An integration tool"
 msgstr "כלי של אינטגרציה"
 
+#: src/pages/shell/composer-parts.tsx
+msgid "Annotate"
+msgstr "לסמן"
+
+#. placeholder {0}: attachment.file.name
+#: src/pages/shell/composer-parts.tsx
+msgid "Annotate {0}"
+msgstr "לסמן {0}"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "Annotate image"
+msgstr "לסמן תמונה"
+
+#: src/pages/shell/composer-parts.tsx
+msgid "Annotated"
+msgstr "מסומן"
+
 #: src/lib/activity-list-filters.ts
 msgid "Another agent"
 msgstr "סוכן אחר"
@@ -1399,6 +1416,7 @@ msgstr "אין גישה לשרת."
 msgid "Can't read images"
 msgstr "לא ניתן לקרוא תמונות"
 
+#: src/components/AnnotateImageDialog.tsx
 #: src/components/AskCard.tsx
 #: src/components/ConfirmDialog.tsx
 #: src/components/integrations/plugin-marketplace.tsx
@@ -2121,6 +2139,10 @@ msgstr "לא ניתן להוסיף את שרת ה-MCP"
 #: src/components/integrations/plugin-marketplace.tsx
 msgid "Could not add skills"
 msgstr "לא ניתן להוסיף מיומנויות"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "Could not annotate this image"
+msgstr "לא ניתן היה לסמן את התמונה"
 
 #: src/pages/PluginSubmissionsPanel.tsx
 msgid "Could not approve plugin"
@@ -3191,6 +3213,10 @@ msgstr "מוריד…"
 msgid "Draft skill"
 msgstr "טיוטת מיומנות"
 
+#: src/components/AnnotateImageDialog.tsx
+msgid "Drag over the image to point at what matters."
+msgstr "גררו על התמונה כדי לסמן את מה שחשוב."
+
 #: src/pages/shell/avatar-studio-popover.tsx
 msgid "Drag, drop, or paste an image"
 msgstr "אפשר לגרור, לשחרר או להדביק תמונה"
@@ -3210,6 +3236,11 @@ msgstr "ניתן להשתמש בכל שם פעם אחת בלבד."
 #: src/pages/McpServersOverlay.tsx
 msgid "Edit"
 msgstr "עריכה"
+
+#. placeholder {0}: attachment.file.name
+#: src/pages/shell/composer-parts.tsx
+msgid "Edit annotation on {0}"
+msgstr "לערוך את הסימון ב-{0}"
 
 #: src/components/AskCard.tsx
 msgid "Edit first"
@@ -4935,6 +4966,11 @@ msgstr "לא בשימוש ב-Rakazo"
 msgid "Not working"
 msgstr "לא עובד"
 
+#. placeholder {0}: index + 1
+#: src/components/AnnotateImageDialog.tsx
+msgid "Note for box {0}"
+msgstr "הערה לתיבה {0}"
+
 #: src/pages/KnowledgeSection.tsx
 msgid "Nothing remembered yet"
 msgstr "עדיין אין זיכרונות"
@@ -5685,6 +5721,11 @@ msgstr "להסיר את {secretName}? בוטים לא יוכלו עוד להשת
 msgid "Remove {site}"
 msgstr "הסרת {site}"
 
+#. placeholder {0}: index + 1
+#: src/components/AnnotateImageDialog.tsx
+msgid "Remove box {0}"
+msgstr "הסרת תיבה {0}"
+
 #: src/pages/routine-editor/trigger-cards.tsx
 msgid "Remove change trigger"
 msgstr "הסרת טריגר השינוי"
@@ -6079,6 +6120,7 @@ msgstr "שומר את סביבת העבודה"
 msgid "Saving..."
 msgstr "שומר..."
 
+#: src/components/AnnotateImageDialog.tsx
 #: src/components/SecretAskCard.tsx
 #: src/components/teach/SkillDraftCard.tsx
 #: src/components/vault/VaultItemEditor.tsx
@@ -7414,6 +7456,10 @@ msgstr "השתמשו ב-2 עד 64 תווים"
 msgid "Use a found model"
 msgstr "שימוש במודל שנמצא"
 
+#: src/components/AnnotateImageDialog.tsx
+msgid "Use annotated image"
+msgstr "להשתמש בתמונה המסומנת"
+
 #: src/lib/model-connection-preflight.ts
 msgid "Use Connect to verify the key."
 msgstr "יש ללחוץ על חיבור כדי לאמת את המפתח."
@@ -7613,6 +7659,10 @@ msgstr "במה הכי חשוב לך ש-Rakazo יעזור?"
 #: src/pages/shell/message-cards.tsx
 msgid "What do you want me on first?"
 msgstr "במה להתחיל קודם?"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "What is wrong here?"
+msgstr "מה לא בסדר כאן?"
 
 #: src/components/teach/TeachComputerOverlay.tsx
 msgid "What result will you demonstrate?"

@@ -1,4 +1,12 @@
 export const ZH_MESSAGES: Record<string, string> = {
+  "Annotate image": "标注图片",
+  "Drag over the image to point at what matters.": "在图片上拖动，标出重点。",
+  "This image could not be read": "无法读取此图片",
+  "What is wrong here?": "这里哪里不对？",
+  "Remove box {index}": "删除框 {index}",
+  "Could not annotate this image": "无法标注此图片",
+  "Annotate {name}": "标注 {name}",
+  "Edit annotation on {name}": "编辑 {name} 的标注",
   "No matches": "没有匹配项",
   "Always ask": "始终询问",
   "Search tools": "搜索工具",

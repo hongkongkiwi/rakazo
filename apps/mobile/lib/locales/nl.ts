@@ -1,4 +1,13 @@
 export const NL_MESSAGES: Record<string, string> = {
+  "Annotate image": "Afbeelding markeren",
+  "Drag over the image to point at what matters.":
+    "Sleep over de afbeelding om aan te wijzen wat belangrijk is.",
+  "This image could not be read": "Deze afbeelding kon niet worden gelezen",
+  "What is wrong here?": "Wat klopt hier niet?",
+  "Remove box {index}": "Vak {index} verwijderen",
+  "Could not annotate this image": "Deze afbeelding kon niet worden gemarkeerd",
+  "Annotate {name}": "{name} markeren",
+  "Edit annotation on {name}": "Markering op {name} bewerken",
   "No matches": "Geen resultaten",
   "Always ask": "Altijd vragen",
   "Search tools": "Tools zoeken",

@@ -1,4 +1,13 @@
 export const RU_MESSAGES: Record<string, string> = {
+  "Annotate image": "Добавить пометку на изображение",
+  "Drag over the image to point at what matters.":
+    "Проведите по изображению, чтобы отметить важное.",
+  "This image could not be read": "Не удалось прочитать это изображение",
+  "What is wrong here?": "Что здесь не так?",
+  "Remove box {index}": "Удалить рамку {index}",
+  "Could not annotate this image": "Не удалось добавить пометку на изображение",
+  "Annotate {name}": "Добавить пометку на {name}",
+  "Edit annotation on {name}": "Изменить пометку на {name}",
   "No matches": "Нет совпадений",
   "Always ask": "Всегда спрашивать",
   "Search tools": "Поиск инструментов",

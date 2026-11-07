@@ -26,6 +26,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import { createPortal } from "react-dom";
+import { AnnotateImageDialog } from "../../components/AnnotateImageDialog";
 import { HoldToTalkStrip, useHoldToTalk } from "../../components/composer/HoldToTalk";
 import { recordMessageSent } from "../../components/GitHubStarPrompt";
 import type { ArtifactTarget } from "../../lib/artifact-open";
@@ -87,6 +88,7 @@ const ComposerBody = memo(function Composer({
   fileInputRef,
   onAttachmentPick,
   onRemoveAttachment,
+  onAnnotateAttachment,
   onSend,
   onStop,
   phoneCallsEnabled,
@@ -122,6 +124,10 @@ const ComposerBody = memo(function Composer({
   fileInputRef: RefObject<HTMLInputElement | null>;
   onAttachmentPick: (files: FileList | readonly File[] | null) => boolean;
   onRemoveAttachment: (attachment: PendingAttachment) => void;
+  onAnnotateAttachment: (
+    attachment: PendingAttachment,
+    saved: { artifactId: string; previewUrl: string; mimeType: string },
+  ) => void;
   onSend: (
     text: string,
     mentions: ComposerMention[],
@@ -149,6 +155,7 @@ const ComposerBody = memo(function Composer({
   docked?: boolean;
 }) {
   const { t } = useLingui();
+  const [annotating, setAnnotating] = useState<PendingAttachment | null>(null);
   const [composition, setComposition] = useState(() => ({
     text: readComposerDraft(draftKey),
     bindings: readComposerDraftBindings(draftKey),
@@ -386,7 +393,8 @@ const ComposerBody = memo(function Composer({
   const replyAnnouncementKind = useRef<"reply" | "cancelled" | null>(null);
   const prevReplyTarget = useRef<ThreadMessage | null>(null);
   const { draggingFiles, fileDragActive, dropHandlers } = useComposerFileDrop({
-    disabled,
+    // A drop while the annotation editor is open belongs to the editor, not the composer.
+    disabled: disabled || Boolean(annotating),
     onDropFiles: pickAttachments,
   });
   const canSend =
@@ -638,7 +646,22 @@ const ComposerBody = memo(function Composer({
           markEdited();
           onRemoveAttachment(attachment);
         }}
+        // While a send is in flight its success filters this list; do not replace items under it.
+        onAnnotate={sending ? undefined : setAnnotating}
       />
+      {annotating ? (
+        <AnnotateImageDialog
+          attachmentId={annotating.id}
+          file={annotating.file}
+          target={artifactTarget}
+          onClose={() => setAnnotating(null)}
+          onSaved={(saved) => {
+            markEdited();
+            onAnnotateAttachment(annotating, saved);
+            setAnnotating(null);
+          }}
+        />
+      ) : null}
       {mentionPickerOpen ? (
         <MentionPicker
           listboxId={mentionListboxId}

@@ -941,6 +941,23 @@ msgstr "Não foi possível usar uma chave de API importada. Desmarque-a e tente 
 msgid "An integration tool"
 msgstr "Uma ferramenta de integração"
 
+#: src/pages/shell/composer-parts.tsx
+msgid "Annotate"
+msgstr "Anotar"
+
+#. placeholder {0}: attachment.file.name
+#: src/pages/shell/composer-parts.tsx
+msgid "Annotate {0}"
+msgstr "Anotar {0}"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "Annotate image"
+msgstr "Anotar imagem"
+
+#: src/pages/shell/composer-parts.tsx
+msgid "Annotated"
+msgstr "Anotada"
+
 #: src/lib/activity-list-filters.ts
 msgid "Another agent"
 msgstr "Outro agente"
@@ -1399,6 +1416,7 @@ msgstr "Não é possível acessar o servidor."
 msgid "Can't read images"
 msgstr "Não pode ler imagens"
 
+#: src/components/AnnotateImageDialog.tsx
 #: src/components/AskCard.tsx
 #: src/components/ConfirmDialog.tsx
 #: src/components/integrations/plugin-marketplace.tsx
@@ -2121,6 +2139,10 @@ msgstr "Não foi possível adicionar o servidor MCP"
 #: src/components/integrations/plugin-marketplace.tsx
 msgid "Could not add skills"
 msgstr "Não foi possível adicionar as habilidades"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "Could not annotate this image"
+msgstr "Não foi possível anotar esta imagem"
 
 #: src/pages/PluginSubmissionsPanel.tsx
 msgid "Could not approve plugin"
@@ -3191,6 +3213,10 @@ msgstr "Baixando…"
 msgid "Draft skill"
 msgstr "Habilidade de rascunho"
 
+#: src/components/AnnotateImageDialog.tsx
+msgid "Drag over the image to point at what matters."
+msgstr "Arraste sobre a imagem para apontar o que importa."
+
 #: src/pages/shell/avatar-studio-popover.tsx
 msgid "Drag, drop, or paste an image"
 msgstr "Arraste, solte ou cole uma imagem"
@@ -3210,6 +3236,11 @@ msgstr "Cada nome só pode ser usado uma vez."
 #: src/pages/McpServersOverlay.tsx
 msgid "Edit"
 msgstr "Editar"
+
+#. placeholder {0}: attachment.file.name
+#: src/pages/shell/composer-parts.tsx
+msgid "Edit annotation on {0}"
+msgstr "Editar anotação em {0}"
 
 #: src/components/AskCard.tsx
 msgid "Edit first"
@@ -4935,6 +4966,11 @@ msgstr "Não usado pelo Rakazo"
 msgid "Not working"
 msgstr "Não está funcionando"
 
+#. placeholder {0}: index + 1
+#: src/components/AnnotateImageDialog.tsx
+msgid "Note for box {0}"
+msgstr "Nota da caixa {0}"
+
 #: src/pages/KnowledgeSection.tsx
 msgid "Nothing remembered yet"
 msgstr "Nada memorizado ainda"
@@ -5685,6 +5721,11 @@ msgstr "Remover {secretName}? Os bots não poderão mais usá-lo."
 msgid "Remove {site}"
 msgstr "Remover {site}"
 
+#. placeholder {0}: index + 1
+#: src/components/AnnotateImageDialog.tsx
+msgid "Remove box {0}"
+msgstr "Remover caixa {0}"
+
 #: src/pages/routine-editor/trigger-cards.tsx
 msgid "Remove change trigger"
 msgstr "Remover gatilho de alteração"
@@ -6079,6 +6120,7 @@ msgstr "Salvando seu espaço de trabalho"
 msgid "Saving..."
 msgstr "Salvando..."
 
+#: src/components/AnnotateImageDialog.tsx
 #: src/components/SecretAskCard.tsx
 #: src/components/teach/SkillDraftCard.tsx
 #: src/components/vault/VaultItemEditor.tsx
@@ -7414,6 +7456,10 @@ msgstr "Use de 2 a 64 caracteres"
 msgid "Use a found model"
 msgstr "Usar um modelo encontrado"
 
+#: src/components/AnnotateImageDialog.tsx
+msgid "Use annotated image"
+msgstr "Usar imagem anotada"
+
 #: src/lib/model-connection-preflight.ts
 msgid "Use Connect to verify the key."
 msgstr "Use Conectar para verificar a chave."
@@ -7613,6 +7659,10 @@ msgstr "Com o que você mais quer que o Rakazo ajude?"
 #: src/pages/shell/message-cards.tsx
 msgid "What do you want me on first?"
 msgstr "Com o que você quer que eu comece?"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "What is wrong here?"
+msgstr "O que está errado aqui?"
 
 #: src/components/teach/TeachComputerOverlay.tsx
 msgid "What result will you demonstrate?"

@@ -7,6 +7,9 @@ export type PendingAttachment = {
   threadKey: string;
   file: File;
   previewUrl?: string;
+  /** Set once an annotated copy is stored; the send reuses it instead of uploading. */
+  artifactId?: string;
+  annotated?: boolean;
 };
 
 /** Identity colour for bots the roster no longer knows about. */

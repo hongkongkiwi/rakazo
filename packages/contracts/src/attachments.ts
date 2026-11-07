@@ -1,3 +1,5 @@
+import * as z from "zod";
+
 /** Default for deployments and clients connected to older servers. */
 export const ATTACHMENT_MAX_BYTES = 10 * 1024 * 1024;
 export const ATTACHMENT_MAX_COUNT = 4;
@@ -17,6 +19,32 @@ export const ATTACHMENT_IMAGE_MIME_TYPES = [
   "image/webp",
   "image/gif",
 ] as const;
+
+/** Images the server can mark up; an animated GIF would lose its animation. */
+export const ANNOTATABLE_IMAGE_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
+
+export const IMAGE_ANNOTATION_MAX_MARKS = 20;
+export const IMAGE_ANNOTATION_LABEL_MAX = 200;
+
+/**
+ * One box over an image, in fractions of its width and height so the same mark
+ * fits every rendered size. The server clamps the rectangle to the image.
+ */
+export const ImageAnnotationMarkSchema = z.object({
+  x: z.number().min(0).lt(1),
+  y: z.number().min(0).lt(1),
+  width: z.number().positive().max(1),
+  height: z.number().positive().max(1),
+  /** A short note drawn in the image's legend beside the box number. */
+  label: z.string().trim().max(IMAGE_ANNOTATION_LABEL_MAX).optional(),
+});
+export type ImageAnnotationMark = z.infer<typeof ImageAnnotationMarkSchema>;
+
+export function isAnnotatableImageMimeType(mimeType: string): boolean {
+  return (ANNOTATABLE_IMAGE_MIME_TYPES as readonly string[]).includes(
+    mimeType.split(";")[0]?.trim().toLowerCase() ?? "",
+  );
+}
 
 export const ATTACHMENT_AUDIO_MIME_TYPES = [
   "audio/mpeg",

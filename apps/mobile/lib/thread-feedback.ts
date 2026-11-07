@@ -79,8 +79,12 @@ export async function deliverSend(
     return undefined;
   }
   const artifactIds: string[] = [];
+  const targetKey = groupTarget ?? botTarget!;
   for (const [index, pending] of attachments.entries()) {
-    let id = attempt.artifactIds.get(pending.id);
+    // A stored artifact belongs to the chat it was made for; a reroute uploads afresh.
+    const sameTarget = payload.originThreadKey === targetKey;
+    // A reroute still reuses what this attempt already uploaded for the new target.
+    let id = (sameTarget ? pending.artifactId : undefined) ?? attempt.artifactIds.get(pending.id);
     if (!id) {
       const artifact = await request(
         "artifacts/create",

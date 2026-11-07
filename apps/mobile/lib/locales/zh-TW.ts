@@ -1,4 +1,12 @@
 export const ZH_TW_MESSAGES: Record<string, string> = {
+  "Annotate image": "標註圖片",
+  "Drag over the image to point at what matters.": "在圖片上拖曳，標出重點。",
+  "This image could not be read": "無法讀取此圖片",
+  "What is wrong here?": "這裡哪裡不對？",
+  "Remove box {index}": "移除方框 {index}",
+  "Could not annotate this image": "無法標註此圖片",
+  "Annotate {name}": "標註 {name}",
+  "Edit annotation on {name}": "編輯 {name} 的標註",
   "No matches": "沒有相符的結果",
   "Always ask": "一律詢問",
   "Search tools": "搜尋工具",

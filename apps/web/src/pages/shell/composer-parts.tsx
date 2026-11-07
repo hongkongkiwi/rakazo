@@ -1,7 +1,8 @@
-import { useLingui } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { AgentSkillCatalogEntry } from "@rakazo/contracts";
+import { isAnnotatableImageMimeType } from "@rakazo/contracts";
 import type { ComposerMention, SLASH_ACTIONS, SlashActionId } from "@rakazo/core";
-import { mentionChipKey, truncateSlashDescription } from "@rakazo/core";
+import { inferAttachmentMimeType, mentionChipKey, truncateSlashDescription } from "@rakazo/core";
 import { Button } from "@rakazo/ui-web";
 import { ArrowUp, Box, Paperclip, Settings, Square, X } from "lucide-react";
 import type { CSSProperties, RefObject } from "react";
@@ -14,41 +15,61 @@ import { MentionOptionIcon, slashActionLabel } from "./composer-mentions";
 export function PendingAttachmentChips({
   attachments,
   onRemove,
+  onAnnotate,
 }: {
   attachments: PendingAttachment[];
   onRemove: (attachment: PendingAttachment) => void;
+  onAnnotate?: (attachment: PendingAttachment) => void;
 }) {
   const { t } = useLingui();
   if (!attachments.length) return null;
   return (
     <div className="mb-3 flex flex-wrap gap-2">
-      {attachments.map((attachment) => (
-        <div
-          key={attachment.id}
-          className="flex items-center gap-2 rounded-full border border-border bg-muted px-3 py-1.5 text-body-sm text-foreground/75"
-        >
-          {attachment.previewUrl ? (
-            <img
-              src={attachment.previewUrl}
-              alt={attachment.file.name}
-              className="h-8 w-8 rounded object-cover"
-            />
-          ) : (
-            <Paperclip size={14} strokeWidth={1.8} />
-          )}
-          <span className="max-w-[180px] truncate" dir="auto">
-            {attachment.file.name}
-          </span>
-          <button
-            type="button"
-            aria-label={t`Remove ${attachment.file.name}`}
-            onClick={() => onRemove(attachment)}
-            className="text-muted-foreground hover:text-foreground"
+      {attachments.map((attachment) => {
+        const mimeType = inferAttachmentMimeType(attachment.file.name, attachment.file.type);
+        const annotatable = Boolean(onAnnotate && mimeType && isAnnotatableImageMimeType(mimeType));
+        return (
+          <div
+            key={attachment.id}
+            className="flex items-center gap-2 rounded-full border border-border bg-muted px-3 py-1.5 text-body-sm text-foreground/75"
           >
-            <X size={13} strokeWidth={2} />
-          </button>
-        </div>
-      ))}
+            {attachment.previewUrl ? (
+              <img
+                src={attachment.previewUrl}
+                alt={attachment.file.name}
+                className="h-8 w-8 rounded object-cover"
+              />
+            ) : (
+              <Paperclip size={14} strokeWidth={1.8} />
+            )}
+            <span className="max-w-[180px] truncate" dir="auto">
+              {attachment.file.name}
+            </span>
+            {annotatable ? (
+              <button
+                type="button"
+                aria-label={
+                  attachment.annotated
+                    ? t`Edit annotation on ${attachment.file.name}`
+                    : t`Annotate ${attachment.file.name}`
+                }
+                onClick={() => onAnnotate?.(attachment)}
+                className="shrink-0 text-muted-foreground underline underline-offset-2 hover:text-foreground"
+              >
+                {attachment.annotated ? <Trans>Annotated</Trans> : <Trans>Annotate</Trans>}
+              </button>
+            ) : null}
+            <button
+              type="button"
+              aria-label={t`Remove ${attachment.file.name}`}
+              onClick={() => onRemove(attachment)}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <X size={13} strokeWidth={2} />
+            </button>
+          </div>
+        );
+      })}
     </div>
   );
 }

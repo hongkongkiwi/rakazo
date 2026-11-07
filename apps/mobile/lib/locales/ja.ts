@@ -1,4 +1,12 @@
 export const JA_MESSAGES: Record<string, string> = {
+  "Annotate image": "画像に注釈を付ける",
+  "Drag over the image to point at what matters.": "画像上をドラッグして、重要な箇所を示します。",
+  "This image could not be read": "この画像を読み込めませんでした",
+  "What is wrong here?": "ここは何が問題ですか？",
+  "Remove box {index}": "ボックス {index} を削除",
+  "Could not annotate this image": "この画像に注釈を付けられませんでした",
+  "Annotate {name}": "{name} に注釈を付ける",
+  "Edit annotation on {name}": "{name} の注釈を編集",
   "No matches": "一致するものはありません",
   "Always ask": "常に確認",
   "Search tools": "ツールを検索",

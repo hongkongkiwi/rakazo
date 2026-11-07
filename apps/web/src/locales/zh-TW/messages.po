@@ -942,6 +942,23 @@ msgstr "無法使用匯入的 API 金鑰。請取消勾選後再試一次。"
 msgid "An integration tool"
 msgstr "整合工具"
 
+#: src/pages/shell/composer-parts.tsx
+msgid "Annotate"
+msgstr "標註"
+
+#. placeholder {0}: attachment.file.name
+#: src/pages/shell/composer-parts.tsx
+msgid "Annotate {0}"
+msgstr "標註 {0}"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "Annotate image"
+msgstr "標註圖片"
+
+#: src/pages/shell/composer-parts.tsx
+msgid "Annotated"
+msgstr "已標註"
+
 #: src/lib/activity-list-filters.ts
 msgid "Another agent"
 msgstr "其他代理程式"
@@ -1400,6 +1417,7 @@ msgstr "無法連線伺服器。"
 msgid "Can't read images"
 msgstr "無法讀取影像"
 
+#: src/components/AnnotateImageDialog.tsx
 #: src/components/AskCard.tsx
 #: src/components/ConfirmDialog.tsx
 #: src/components/integrations/plugin-marketplace.tsx
@@ -2122,6 +2140,10 @@ msgstr "無法新增 MCP 伺服器"
 #: src/components/integrations/plugin-marketplace.tsx
 msgid "Could not add skills"
 msgstr "無法新增技能"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "Could not annotate this image"
+msgstr "無法標註此圖片"
 
 #: src/pages/PluginSubmissionsPanel.tsx
 msgid "Could not approve plugin"
@@ -3192,6 +3214,10 @@ msgstr "下載中…"
 msgid "Draft skill"
 msgstr "技能草稿"
 
+#: src/components/AnnotateImageDialog.tsx
+msgid "Drag over the image to point at what matters."
+msgstr "在圖片上拖曳，標出重點。"
+
 #: src/pages/shell/avatar-studio-popover.tsx
 msgid "Drag, drop, or paste an image"
 msgstr "拖放或貼上圖片"
@@ -3211,6 +3237,11 @@ msgstr "每個名稱只能使用一次。"
 #: src/pages/McpServersOverlay.tsx
 msgid "Edit"
 msgstr "編輯"
+
+#. placeholder {0}: attachment.file.name
+#: src/pages/shell/composer-parts.tsx
+msgid "Edit annotation on {0}"
+msgstr "編輯 {0} 的標註"
 
 #: src/components/AskCard.tsx
 msgid "Edit first"
@@ -4936,6 +4967,11 @@ msgstr "Rakazo 不使用"
 msgid "Not working"
 msgstr "無法正常工作"
 
+#. placeholder {0}: index + 1
+#: src/components/AnnotateImageDialog.tsx
+msgid "Note for box {0}"
+msgstr "方框 {0} 的備註"
+
 #: src/pages/KnowledgeSection.tsx
 msgid "Nothing remembered yet"
 msgstr "尚無記憶"
@@ -5686,6 +5722,11 @@ msgstr "要移除 {secretName} 嗎？機器人將無法再使用它。"
 msgid "Remove {site}"
 msgstr "移除 {site}"
 
+#. placeholder {0}: index + 1
+#: src/components/AnnotateImageDialog.tsx
+msgid "Remove box {0}"
+msgstr "移除方框 {0}"
+
 #: src/pages/routine-editor/trigger-cards.tsx
 msgid "Remove change trigger"
 msgstr "移除變化觸發器"
@@ -6080,6 +6121,7 @@ msgstr "正在儲存工作空間"
 msgid "Saving..."
 msgstr "儲存中…"
 
+#: src/components/AnnotateImageDialog.tsx
 #: src/components/SecretAskCard.tsx
 #: src/components/teach/SkillDraftCard.tsx
 #: src/components/vault/VaultItemEditor.tsx
@@ -7415,6 +7457,10 @@ msgstr "請使用 2 到 64 個字元"
 msgid "Use a found model"
 msgstr "使用找到的模型"
 
+#: src/components/AnnotateImageDialog.tsx
+msgid "Use annotated image"
+msgstr "使用已標註圖片"
+
 #: src/lib/model-connection-preflight.ts
 msgid "Use Connect to verify the key."
 msgstr "請使用「連線」驗證金鑰。"
@@ -7614,6 +7660,10 @@ msgstr "你最希望 Rakazo 幫你做什麼？"
 #: src/pages/shell/message-cards.tsx
 msgid "What do you want me on first?"
 msgstr "你想讓我先做什麼？"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "What is wrong here?"
+msgstr "這裡哪裡不對？"
 
 #: src/components/teach/TeachComputerOverlay.tsx
 msgid "What result will you demonstrate?"

@@ -437,6 +437,7 @@ describeWithDatabase("API authorization and resource isolation", () => {
       ["artifacts/listSpace"],
       ["artifacts/listVersions"],
       ["artifacts/create"],
+      ["artifacts/annotate"],
       ["artifacts/get"],
       ["artifacts/getById"],
       ["artifacts/remove"],
@@ -741,6 +742,29 @@ describeWithDatabase("API authorization and resource isolation", () => {
           name: "intruder.txt",
           mimeType: "text/plain",
           contentBase64: Buffer.from("nope").toString("base64"),
+        },
+      ],
+      [
+        "artifacts/annotate",
+        {
+          botId: ownerBot.id,
+          name: "intruder.png",
+          mimeType: "image/png",
+          // A real image, so a regression reaches the ownership check instead of decoding.
+          contentBase64:
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9Z0GQAAAAASUVORK5CYII=",
+          marks: [{ x: 0, y: 0, width: 1, height: 1 }],
+          clientNonce: "intruder-annotate",
+        },
+      ],
+      [
+        "artifacts/annotate",
+        {
+          // Their own bot passes the bot check, so the artifact lookup is what must deny.
+          botId: intruderBot.id,
+          sourceArtifactId: ownerArtifact.id,
+          marks: [{ x: 0, y: 0, width: 1, height: 1 }],
+          clientNonce: "intruder-annotate-source",
         },
       ],
       ["artifacts/get", { botId: ownerBot.id, artifactId: ownerArtifact.id }],

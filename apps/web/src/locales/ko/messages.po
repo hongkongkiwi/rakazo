@@ -941,6 +941,23 @@ msgstr "가져온 API 키를 사용할 수 없습니다. 선택을 해제하고 
 msgid "An integration tool"
 msgstr "연동 도구"
 
+#: src/pages/shell/composer-parts.tsx
+msgid "Annotate"
+msgstr "주석 달기"
+
+#. placeholder {0}: attachment.file.name
+#: src/pages/shell/composer-parts.tsx
+msgid "Annotate {0}"
+msgstr "{0}에 주석 달기"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "Annotate image"
+msgstr "이미지에 주석 달기"
+
+#: src/pages/shell/composer-parts.tsx
+msgid "Annotated"
+msgstr "주석 추가됨"
+
 #: src/lib/activity-list-filters.ts
 msgid "Another agent"
 msgstr "다른 Agent"
@@ -1399,6 +1416,7 @@ msgstr "서버에 연결할 수 없습니다."
 msgid "Can't read images"
 msgstr "이미지를 읽을 수 없음"
 
+#: src/components/AnnotateImageDialog.tsx
 #: src/components/AskCard.tsx
 #: src/components/ConfirmDialog.tsx
 #: src/components/integrations/plugin-marketplace.tsx
@@ -2121,6 +2139,10 @@ msgstr "MCP 서버를 추가하지 못했습니다."
 #: src/components/integrations/plugin-marketplace.tsx
 msgid "Could not add skills"
 msgstr "스킬을 추가하지 못했습니다"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "Could not annotate this image"
+msgstr "이 이미지에 주석을 달 수 없습니다"
 
 #: src/pages/PluginSubmissionsPanel.tsx
 msgid "Could not approve plugin"
@@ -3191,6 +3213,10 @@ msgstr "다운로드 중…"
 msgid "Draft skill"
 msgstr "작업 기술 초안"
 
+#: src/components/AnnotateImageDialog.tsx
+msgid "Drag over the image to point at what matters."
+msgstr "이미지 위를 드래그해 중요한 부분을 표시하세요."
+
 #: src/pages/shell/avatar-studio-popover.tsx
 msgid "Drag, drop, or paste an image"
 msgstr "이미지를 끌어다 놓거나 붙여넣으세요"
@@ -3210,6 +3236,11 @@ msgstr "각 이름은 한 번만 사용할 수 있습니다."
 #: src/pages/McpServersOverlay.tsx
 msgid "Edit"
 msgstr "편집"
+
+#. placeholder {0}: attachment.file.name
+#: src/pages/shell/composer-parts.tsx
+msgid "Edit annotation on {0}"
+msgstr "{0}의 주석 편집"
 
 #: src/components/AskCard.tsx
 msgid "Edit first"
@@ -4935,6 +4966,11 @@ msgstr "Rakazo에서 사용하지 않음"
 msgid "Not working"
 msgstr "작동하지 않음"
 
+#. placeholder {0}: index + 1
+#: src/components/AnnotateImageDialog.tsx
+msgid "Note for box {0}"
+msgstr "상자 {0} 메모"
+
 #: src/pages/KnowledgeSection.tsx
 msgid "Nothing remembered yet"
 msgstr "아직 기억한 내용이 없습니다"
@@ -5685,6 +5721,11 @@ msgstr "{secretName}을(를) 제거할까요? 봇이 더 이상 사용할 수 �
 msgid "Remove {site}"
 msgstr "{site} 삭제"
 
+#. placeholder {0}: index + 1
+#: src/components/AnnotateImageDialog.tsx
+msgid "Remove box {0}"
+msgstr "상자 {0} 삭제"
+
 #: src/pages/routine-editor/trigger-cards.tsx
 msgid "Remove change trigger"
 msgstr "변경 트리거 제거"
@@ -6079,6 +6120,7 @@ msgstr "워크스페이스 저장 중"
 msgid "Saving..."
 msgstr "저장 중..."
 
+#: src/components/AnnotateImageDialog.tsx
 #: src/components/SecretAskCard.tsx
 #: src/components/teach/SkillDraftCard.tsx
 #: src/components/vault/VaultItemEditor.tsx
@@ -7414,6 +7456,10 @@ msgstr "2~64자를 사용하세요"
 msgid "Use a found model"
 msgstr "찾은 모델 중에서 선택"
 
+#: src/components/AnnotateImageDialog.tsx
+msgid "Use annotated image"
+msgstr "주석이 추가된 이미지 사용"
+
 #: src/lib/model-connection-preflight.ts
 msgid "Use Connect to verify the key."
 msgstr "키를 확인하려면 연결을 사용하세요."
@@ -7613,6 +7659,10 @@ msgstr "Rakazo가 가장 도와주었으면 하는 일은 무엇인가요?"
 #: src/pages/shell/message-cards.tsx
 msgid "What do you want me on first?"
 msgstr "무엇부터 시작할까요?"
+
+#: src/components/AnnotateImageDialog.tsx
+msgid "What is wrong here?"
+msgstr "여기서 무엇이 잘못되었나요?"
 
 #: src/components/teach/TeachComputerOverlay.tsx
 msgid "What result will you demonstrate?"

@@ -1,3 +1,4 @@
+import { isAnnotatableImageMimeType } from "@rakazo/contracts";
 import { replyAttachment } from "@rakazo/core";
 import type { ReactNode } from "react";
 import { useEffect, useRef } from "react";
@@ -34,6 +35,7 @@ export function ThreadComposerDock({
   attachmentNotice,
   attachments,
   onRemoveAttachment,
+  onAnnotateAttachment,
   children,
 }: {
   hidden: boolean;
@@ -50,6 +52,7 @@ export function ThreadComposerDock({
   attachmentNotice: string | null;
   attachments: readonly PendingAttachment[];
   onRemoveAttachment: (id: string) => void;
+  onAnnotateAttachment?: (attachment: PendingAttachment) => void;
   children: ReactNode;
 }) {
   const tokens = mobileTokens();
@@ -195,6 +198,24 @@ export function ThreadComposerDock({
                   <Text style={{ color: tokens.foreground, maxWidth: 140 }} numberOfLines={1}>
                     {attachment.name}
                   </Text>
+                  {onAnnotateAttachment && isAnnotatableImageMimeType(attachment.mimeType) ? (
+                    <Pressable
+                      accessibilityLabel={
+                        attachment.annotated
+                          ? t("Edit annotation on {name}", { name: attachment.name })
+                          : t("Annotate {name}", { name: attachment.name })
+                      }
+                      hitSlop={8}
+                      onPress={() => onAnnotateAttachment(attachment)}
+                    >
+                      <NativeSymbol
+                        ios={attachment.annotated ? "checkmark.circle.fill" : "pencil"}
+                        android={attachment.annotated ? "checkmark-circle" : "pencil"}
+                        size={15}
+                        color={attachment.annotated ? tokens.foreground : tokens.mutedForeground}
+                      />
+                    </Pressable>
+                  ) : null}
                   <Pressable
                     accessibilityLabel={t("Remove {name}", { name: attachment.name })}
                     onPress={() => onRemoveAttachment(attachment.id)}
