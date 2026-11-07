@@ -1,4 +1,10 @@
 export const ZH_MESSAGES: Record<string, string> = {
+  "Review last result": "审查上次结果",
+  "Could not review the last result": "无法审查上次结果",
+  Review: "审查",
+  Pass: "通过",
+  Concerns: "有问题",
+  Unclear: "不清楚",
   "No matches": "没有匹配项",
   "Always ask": "始终询问",
   "Search tools": "搜索工具",

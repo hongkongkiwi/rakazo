@@ -1871,6 +1871,10 @@ msgstr "Les ordinateurs sont disponibles. Rechargez ou ouvrez un bot pour contin
 msgid "Computers are off on this server."
 msgstr "Les ordinateurs sont désactivés sur ce serveur."
 
+#: src/components/ReviewCard.tsx
+msgid "Concerns"
+msgstr "Réserves"
+
 #: src/pages/plugins/plugin-browse.tsx
 msgid "Configure a plugin catalog on the server to connect apps."
 msgstr "Configurez un catalogue de plugins sur le serveur pour connecter des applications."
@@ -2526,6 +2530,10 @@ msgstr "Impossible d'afficher le graphique"
 #: src/pages/Auth.tsx
 msgid "Could not reset password"
 msgstr "Impossible de réinitialiser le mot de passe"
+
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Could not review this result"
+msgstr "Impossible de réviser ce résultat"
 
 #: src/pages/plugins/use-plugin-connections.ts
 msgid "Could not revoke connection"
@@ -5199,6 +5207,10 @@ msgstr "Les pages que ce bot crée pour vous apparaissent ici. Demandez un table
 msgid "Pages this group builds for you appear here. Ask for a dashboard, tracker or plan to make one."
 msgstr "Les pages que ce groupe crée pour vous apparaissent ici. Demandez un tableau de bord, un suivi ou un plan pour en créer une."
 
+#: src/components/ReviewCard.tsx
+msgid "Pass"
+msgstr "Conforme"
+
 #: src/components/PasskeySettings.tsx
 msgid "Passkey"
 msgstr "Clé d’accès"
@@ -5920,9 +5932,18 @@ msgstr "Revenir à l’appel avec {0}"
 msgid "Return to Rakazo"
 msgstr "Retour à Rakazo"
 
+#: src/components/ReviewCard.tsx
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Review"
+msgstr "Réviser"
+
 #: src/lib/model-connection-preflight.ts
 msgid "Review provider settings and test again."
 msgstr "Vérifiez les paramètres du fournisseur et testez à nouveau."
+
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Reviewing…"
+msgstr "Révision…"
 
 #: src/components/bot-templates/bot-template-copy.ts
 msgid "Reviews pull requests waiting on you"
@@ -7286,6 +7307,10 @@ msgstr "Saisissez votre réponse"
 #: src/pages/Shell.tsx
 msgid "Unassigned"
 msgstr "Non assigné"
+
+#: src/components/ReviewCard.tsx
+msgid "Unclear"
+msgstr "Peu clair"
 
 #: src/components/AskCard.tsx
 msgid "Undo"

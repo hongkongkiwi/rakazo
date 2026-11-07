@@ -1871,6 +1871,10 @@ msgstr "コンピューターが利用可能になりました。再読み込み
 msgid "Computers are off on this server."
 msgstr "このサーバーではコンピューターは無効です。"
 
+#: src/components/ReviewCard.tsx
+msgid "Concerns"
+msgstr "懸念"
+
 #: src/pages/plugins/plugin-browse.tsx
 msgid "Configure a plugin catalog on the server to connect apps."
 msgstr "アプリを接続するには、サーバーでプラグインカタログを設定してください。"
@@ -2526,6 +2530,10 @@ msgstr "チャートを表示できませんでした"
 #: src/pages/Auth.tsx
 msgid "Could not reset password"
 msgstr "パスワードをリセットできませんでした"
+
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Could not review this result"
+msgstr "この結果をレビューできませんでした"
 
 #: src/pages/plugins/use-plugin-connections.ts
 msgid "Could not revoke connection"
@@ -5199,6 +5207,10 @@ msgstr "このボットが作成したページがここに表示されます。
 msgid "Pages this group builds for you appear here. Ask for a dashboard, tracker or plan to make one."
 msgstr "このグループが作成したページがここに表示されます。ダッシュボード、トラッカー、計画などを頼むと作成されます。"
 
+#: src/components/ReviewCard.tsx
+msgid "Pass"
+msgstr "合格"
+
 #: src/components/PasskeySettings.tsx
 msgid "Passkey"
 msgstr "パスキー"
@@ -5920,9 +5932,18 @@ msgstr "{0}との通話に戻る"
 msgid "Return to Rakazo"
 msgstr "Rakazoに戻る"
 
+#: src/components/ReviewCard.tsx
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Review"
+msgstr "レビュー"
+
 #: src/lib/model-connection-preflight.ts
 msgid "Review provider settings and test again."
 msgstr "プロバイダー設定を確認して、もう一度テストしてください。"
+
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Reviewing…"
+msgstr "レビュー中…"
 
 #: src/components/bot-templates/bot-template-copy.ts
 msgid "Reviews pull requests waiting on you"
@@ -7286,6 +7307,10 @@ msgstr "回答を入力"
 #: src/pages/Shell.tsx
 msgid "Unassigned"
 msgstr "未割り当て"
+
+#: src/components/ReviewCard.tsx
+msgid "Unclear"
+msgstr "不明"
 
 #: src/components/AskCard.tsx
 msgid "Undo"

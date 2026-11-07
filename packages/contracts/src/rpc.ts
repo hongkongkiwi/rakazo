@@ -702,6 +702,10 @@ export const appContract = {
     stopHelper: oc
       .input(threadTarget.safeExtend({ messageId: Id }))
       .output(z.object({ ok: z.literal(true) })),
+    /** An advisory review of one finished bot message, posted as its own message. */
+    reviewResult: oc
+      .input(z.object({ botId: Id, messageId: Id.optional() }))
+      .output(z.object({ messageId: Id })),
     followUp: oc
       .input(
         threadTarget.safeExtend({

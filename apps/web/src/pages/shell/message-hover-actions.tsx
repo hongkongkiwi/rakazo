@@ -11,11 +11,23 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
+  toast,
   useCopyText,
 } from "@rakazo/ui-web";
-import { Check, Copy, MessageSquareDot, MoreHorizontal, Reply, Smile } from "lucide-react";
+import {
+  Check,
+  Copy,
+  Loader2,
+  MessageSquareDot,
+  MoreHorizontal,
+  Reply,
+  ScanSearch,
+  Smile,
+} from "lucide-react";
 import { useState } from "react";
 import { MessageHoverMetadata } from "../../components/MessageHoverMetadata";
+import { rpc } from "../../lib/rpc";
+import { errorText } from "../../lib/user-error";
 
 export function MessageHoverActions({
   message,
@@ -24,6 +36,7 @@ export function MessageHoverActions({
   onMarkUnread,
   markedUnread = false,
   onReact,
+  reviewBotId,
 }: {
   message: ThreadMessage;
   side: "start" | "end";
@@ -31,6 +44,8 @@ export function MessageHoverActions({
   onMarkUnread: (message: ThreadMessage) => void;
   markedUnread?: boolean;
   onReact: (message: ThreadMessage, reaction: MessageReaction) => Promise<void>;
+  /** Set only in a bot's own thread: that bot reviews the message. */
+  reviewBotId?: string;
 }) {
   const { t } = useLingui();
   const [copiedNow, copy, copyFailed, resetCopy, copyFailedText] = useCopyText();
@@ -39,6 +54,7 @@ export function MessageHoverActions({
   const [copiedText, setCopiedText] = useState("");
   const [moreOpen, setMoreOpen] = useState(false);
   const [reactionsOpen, setReactionsOpen] = useState(false);
+  const [reviewing, setReviewing] = useState(false);
 
   // Streaming progress bubbles keep hover free for selection / stop clicks.
   if (message.id.startsWith("progress:")) return null;
@@ -115,6 +131,29 @@ export function MessageHoverActions({
               <Reply size={14} strokeWidth={1.7} />
               <Trans>Reply</Trans>
             </DropdownMenuItem>
+            {reviewBotId &&
+            message.role === "bot" &&
+            !/^(progress|subagent):/.test(message.id) &&
+            message.blocks.some((block) => block.kind === "text") ? (
+              <DropdownMenuItem
+                disabled={reviewing}
+                onClick={() => {
+                  setMoreOpen(false);
+                  setReviewing(true);
+                  void rpc.threads
+                    .reviewResult({ botId: reviewBotId, messageId: message.id })
+                    .catch((error) => toast(errorText(error, t`Could not review this result`)))
+                    .finally(() => setReviewing(false));
+                }}
+              >
+                {reviewing ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <ScanSearch size={14} strokeWidth={1.7} />
+                )}
+                {reviewing ? <Trans>Reviewing…</Trans> : <Trans>Review</Trans>}
+              </DropdownMenuItem>
+            ) : null}
             {canMarkMessageUnread(message) && !markedUnread ? (
               <DropdownMenuItem
                 onClick={() => {

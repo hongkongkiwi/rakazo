@@ -313,6 +313,41 @@ export function threadsRoutes(ctx: RouterContext) {
         await stopThreadRuns(deps, context.actor, target, input.messageId);
         return { ok: true as const };
       }),
+      reviewResult: authed.threads.reviewResult.handler(async ({ context, input }) => {
+        const bot = await repos.getBot(context.actor, input.botId);
+        if (!bot.thread) throw new IsolationError();
+        const threadId = bot.thread.id;
+        if (!deps.resultReview)
+          throw new ORPCError("NOT_IMPLEMENTED", { message: "Result review is unavailable." });
+        const review = await deps.resultReview(context.actor, {
+          botId: bot.id,
+          threadId,
+          messageId: input.messageId,
+        });
+        const blocks = [{ kind: "review" as const, ...review }];
+        const committed = await deps.prisma.$transaction(async (tx) => {
+          const message = await createThreadMessageInTransaction(tx, {
+            threadId,
+            role: "bot",
+            botId: bot.id,
+            blocks,
+            // The user asked for this review, so it does not mark the chat unread.
+            markUnread: false,
+          });
+          const event = await appendEventInTransaction(tx, {
+            spaceId: context.actor.spaceId,
+            threadId,
+            botId: bot.id,
+            type: "thread.message.created",
+            payload: { messageId: message.id, role: "bot", blocks },
+          });
+          return { messageId: message.id, seq: event.seq };
+        });
+        await deps.events.notify(threadId, committed.seq).catch((error) => {
+          getLogger().error("result review notification", error);
+        });
+        return { messageId: committed.messageId };
+      }),
       clear: authed.threads.clear.handler(async ({ context, input }) => {
         const target = await resolveThreadTarget(deps.prisma, context.actor, input);
         const contextBotId = target.kind === "bot" ? target.botId : target.memberBotIds[0];

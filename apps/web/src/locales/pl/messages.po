@@ -1871,6 +1871,10 @@ msgstr "Komputery są dostępne. Odśwież stronę lub otwórz bota, aby kontynu
 msgid "Computers are off on this server."
 msgstr "Komputery są wyłączone na tym serwerze."
 
+#: src/components/ReviewCard.tsx
+msgid "Concerns"
+msgstr "Zastrzeżenia"
+
 #: src/pages/plugins/plugin-browse.tsx
 msgid "Configure a plugin catalog on the server to connect apps."
 msgstr "Skonfiguruj katalog wtyczek na serwerze, aby łączyć aplikacje."
@@ -2526,6 +2530,10 @@ msgstr "Nie udało się wyświetlić wykresu"
 #: src/pages/Auth.tsx
 msgid "Could not reset password"
 msgstr "Nie udało się zresetować hasła"
+
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Could not review this result"
+msgstr "Nie udało się sprawdzić tego wyniku"
 
 #: src/pages/plugins/use-plugin-connections.ts
 msgid "Could not revoke connection"
@@ -5199,6 +5207,10 @@ msgstr "Tutaj pojawią się strony tworzone dla Ciebie przez tego bota. Poproś 
 msgid "Pages this group builds for you appear here. Ask for a dashboard, tracker or plan to make one."
 msgstr "Tutaj pojawią się strony tworzone dla Ciebie przez tę grupę. Poproś o panel, rejestr lub plan."
 
+#: src/components/ReviewCard.tsx
+msgid "Pass"
+msgstr "Zaliczone"
+
 #: src/components/PasskeySettings.tsx
 msgid "Passkey"
 msgstr "Klucz dostępu"
@@ -5920,9 +5932,18 @@ msgstr "Wróć do rozmowy z {0}"
 msgid "Return to Rakazo"
 msgstr "Wróć do Rakazo"
 
+#: src/components/ReviewCard.tsx
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Review"
+msgstr "Sprawdź"
+
 #: src/lib/model-connection-preflight.ts
 msgid "Review provider settings and test again."
 msgstr "Sprawdź ustawienia dostawcy i ponów test."
+
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Reviewing…"
+msgstr "Sprawdzanie…"
 
 #: src/components/bot-templates/bot-template-copy.ts
 msgid "Reviews pull requests waiting on you"
@@ -7286,6 +7307,10 @@ msgstr "Wpisz odpowiedź"
 #: src/pages/Shell.tsx
 msgid "Unassigned"
 msgstr "Nieprzypisane"
+
+#: src/components/ReviewCard.tsx
+msgid "Unclear"
+msgstr "Nie jest jasne"
 
 #: src/components/AskCard.tsx
 msgid "Undo"

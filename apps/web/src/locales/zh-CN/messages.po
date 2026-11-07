@@ -1871,6 +1871,10 @@ msgstr "电脑已经可用。重新加载，或打开一个 Bot 继续。"
 msgid "Computers are off on this server."
 msgstr "此服务器未开启电脑。"
 
+#: src/components/ReviewCard.tsx
+msgid "Concerns"
+msgstr "有问题"
+
 #: src/pages/plugins/plugin-browse.tsx
 msgid "Configure a plugin catalog on the server to connect apps."
 msgstr "要连接应用，请先在服务器上配置插件目录。"
@@ -2526,6 +2530,10 @@ msgstr "无法渲染图表"
 #: src/pages/Auth.tsx
 msgid "Could not reset password"
 msgstr "无法重置密码"
+
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Could not review this result"
+msgstr "无法审查此结果"
 
 #: src/pages/plugins/use-plugin-connections.ts
 msgid "Could not revoke connection"
@@ -5199,6 +5207,10 @@ msgstr "此机器人为你创建的页面会显示在这里。请它做一个仪
 msgid "Pages this group builds for you appear here. Ask for a dashboard, tracker or plan to make one."
 msgstr "此群组为你创建的页面会显示在这里。请它做一个仪表板、跟踪表或计划即可创建。"
 
+#: src/components/ReviewCard.tsx
+msgid "Pass"
+msgstr "通过"
+
 #: src/components/PasskeySettings.tsx
 msgid "Passkey"
 msgstr "通行密钥"
@@ -5920,9 +5932,18 @@ msgstr "返回与 {0} 的通话"
 msgid "Return to Rakazo"
 msgstr "返回 Rakazo"
 
+#: src/components/ReviewCard.tsx
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Review"
+msgstr "审查"
+
 #: src/lib/model-connection-preflight.ts
 msgid "Review provider settings and test again."
 msgstr "请检查提供方设置并重新测试。"
+
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Reviewing…"
+msgstr "正在审查…"
 
 #: src/components/bot-templates/bot-template-copy.ts
 msgid "Reviews pull requests waiting on you"
@@ -7286,6 +7307,10 @@ msgstr "输入你的回答"
 #: src/pages/Shell.tsx
 msgid "Unassigned"
 msgstr "未分配"
+
+#: src/components/ReviewCard.tsx
+msgid "Unclear"
+msgstr "不清楚"
 
 #: src/components/AskCard.tsx
 msgid "Undo"

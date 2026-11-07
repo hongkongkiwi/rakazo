@@ -1871,6 +1871,10 @@ msgstr "Bilgisayarlar hazır. Devam etmek için sayfayı yenile veya bir bot aç
 msgid "Computers are off on this server."
 msgstr "Bu sunucuda bilgisayarlar kapalı."
 
+#: src/components/ReviewCard.tsx
+msgid "Concerns"
+msgstr "Endişeler"
+
 #: src/pages/plugins/plugin-browse.tsx
 msgid "Configure a plugin catalog on the server to connect apps."
 msgstr "Uygulamaları bağlamak için sunucuda bir eklenti kataloğu yapılandır."
@@ -2526,6 +2530,10 @@ msgstr "Grafik çizilemedi"
 #: src/pages/Auth.tsx
 msgid "Could not reset password"
 msgstr "Parola sıfırlanamadı"
+
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Could not review this result"
+msgstr "Bu sonuç incelenemedi"
 
 #: src/pages/plugins/use-plugin-connections.ts
 msgid "Could not revoke connection"
@@ -5199,6 +5207,10 @@ msgstr "Bu botun sizin için oluşturduğu sayfalar burada görünür. Bir pano,
 msgid "Pages this group builds for you appear here. Ask for a dashboard, tracker or plan to make one."
 msgstr "Bu grubun sizin için oluşturduğu sayfalar burada görünür. Bir pano, takip listesi veya plan isteyerek oluşturun."
 
+#: src/components/ReviewCard.tsx
+msgid "Pass"
+msgstr "Geçti"
+
 #: src/components/PasskeySettings.tsx
 msgid "Passkey"
 msgstr "Geçiş anahtarı"
@@ -5920,9 +5932,18 @@ msgstr "{0} aramasına dön"
 msgid "Return to Rakazo"
 msgstr "Rakazo'ya dön"
 
+#: src/components/ReviewCard.tsx
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Review"
+msgstr "İncele"
+
 #: src/lib/model-connection-preflight.ts
 msgid "Review provider settings and test again."
 msgstr "Sağlayıcı ayarlarını gözden geçir ve yeniden test et."
+
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Reviewing…"
+msgstr "İnceleniyor…"
 
 #: src/components/bot-templates/bot-template-copy.ts
 msgid "Reviews pull requests waiting on you"
@@ -7286,6 +7307,10 @@ msgstr "Yanıtını yaz"
 #: src/pages/Shell.tsx
 msgid "Unassigned"
 msgstr "Atanmamış"
+
+#: src/components/ReviewCard.tsx
+msgid "Unclear"
+msgstr "Belirsiz"
 
 #: src/components/AskCard.tsx
 msgid "Undo"

@@ -1871,6 +1871,10 @@ msgstr "Computers are available. Reload or open a bot to continue."
 msgid "Computers are off on this server."
 msgstr "Computers are off on this server."
 
+#: src/components/ReviewCard.tsx
+msgid "Concerns"
+msgstr "Concerns"
+
 #: src/pages/plugins/plugin-browse.tsx
 msgid "Configure a plugin catalog on the server to connect apps."
 msgstr "Configure a plugin catalog on the server to connect apps."
@@ -2526,6 +2530,10 @@ msgstr "Could not render chart"
 #: src/pages/Auth.tsx
 msgid "Could not reset password"
 msgstr "Could not reset password"
+
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Could not review this result"
+msgstr "Could not review this result"
 
 #: src/pages/plugins/use-plugin-connections.ts
 msgid "Could not revoke connection"
@@ -5199,6 +5207,10 @@ msgstr "Pages this bot builds for you appear here. Ask for a dashboard, tracker 
 msgid "Pages this group builds for you appear here. Ask for a dashboard, tracker or plan to make one."
 msgstr "Pages this group builds for you appear here. Ask for a dashboard, tracker or plan to make one."
 
+#: src/components/ReviewCard.tsx
+msgid "Pass"
+msgstr "Pass"
+
 #: src/components/PasskeySettings.tsx
 msgid "Passkey"
 msgstr "Passkey"
@@ -5920,9 +5932,18 @@ msgstr "Return to call with {0}"
 msgid "Return to Rakazo"
 msgstr "Return to Rakazo"
 
+#: src/components/ReviewCard.tsx
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Review"
+msgstr "Review"
+
 #: src/lib/model-connection-preflight.ts
 msgid "Review provider settings and test again."
 msgstr "Review provider settings and test again."
+
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Reviewing…"
+msgstr "Reviewing…"
 
 #: src/components/bot-templates/bot-template-copy.ts
 msgid "Reviews pull requests waiting on you"
@@ -7286,6 +7307,10 @@ msgstr "Type your answer"
 #: src/pages/Shell.tsx
 msgid "Unassigned"
 msgstr "Unassigned"
+
+#: src/components/ReviewCard.tsx
+msgid "Unclear"
+msgstr "Unclear"
 
 #: src/components/AskCard.tsx
 msgid "Undo"

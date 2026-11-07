@@ -1871,6 +1871,10 @@ msgstr "Las computadoras están disponibles. Recarga o abre un bot para continua
 msgid "Computers are off on this server."
 msgstr "Las computadoras están apagadas en este servidor."
 
+#: src/components/ReviewCard.tsx
+msgid "Concerns"
+msgstr "Objeciones"
+
 #: src/pages/plugins/plugin-browse.tsx
 msgid "Configure a plugin catalog on the server to connect apps."
 msgstr "Configura un catálogo de plugins en el servidor para conectar apps."
@@ -2526,6 +2530,10 @@ msgstr "No se pudo renderizar el gráfico"
 #: src/pages/Auth.tsx
 msgid "Could not reset password"
 msgstr "No se pudo restablecer la contraseña"
+
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Could not review this result"
+msgstr "No se pudo revisar este resultado"
 
 #: src/pages/plugins/use-plugin-connections.ts
 msgid "Could not revoke connection"
@@ -5199,6 +5207,10 @@ msgstr "Las páginas que este bot crea para ti aparecen aquí. Pide un panel, un
 msgid "Pages this group builds for you appear here. Ask for a dashboard, tracker or plan to make one."
 msgstr "Las páginas que este grupo crea para ti aparecen aquí. Pide un panel, un seguimiento o un plan para crear una."
 
+#: src/components/ReviewCard.tsx
+msgid "Pass"
+msgstr "Aprobado"
+
 #: src/components/PasskeySettings.tsx
 msgid "Passkey"
 msgstr "Llave de acceso"
@@ -5920,9 +5932,18 @@ msgstr "Volver a la llamada con {0}"
 msgid "Return to Rakazo"
 msgstr "Volver a Rakazo"
 
+#: src/components/ReviewCard.tsx
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Review"
+msgstr "Revisar"
+
 #: src/lib/model-connection-preflight.ts
 msgid "Review provider settings and test again."
 msgstr "Revisa la configuración del proveedor y vuelve a probar."
+
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Reviewing…"
+msgstr "Revisando…"
 
 #: src/components/bot-templates/bot-template-copy.ts
 msgid "Reviews pull requests waiting on you"
@@ -7286,6 +7307,10 @@ msgstr "Escribe tu respuesta"
 #: src/pages/Shell.tsx
 msgid "Unassigned"
 msgstr "Sin asignar"
+
+#: src/components/ReviewCard.tsx
+msgid "Unclear"
+msgstr "Poco claro"
 
 #: src/components/AskCard.tsx
 msgid "Undo"

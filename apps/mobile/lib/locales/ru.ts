@@ -1,4 +1,10 @@
 export const RU_MESSAGES: Record<string, string> = {
+  "Review last result": "Проверить последний результат",
+  "Could not review the last result": "Не удалось проверить последний результат",
+  Review: "Проверить",
+  Pass: "Пройдено",
+  Concerns: "Замечания",
+  Unclear: "Неясно",
   "No matches": "Нет совпадений",
   "Always ask": "Всегда спрашивать",
   "Search tools": "Поиск инструментов",

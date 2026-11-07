@@ -1871,6 +1871,10 @@ msgstr "המחשבים זמינים. אפשר לטעון מחדש או לפתו�
 msgid "Computers are off on this server."
 msgstr "המחשבים כבויים בשרת הזה."
 
+#: src/components/ReviewCard.tsx
+msgid "Concerns"
+msgstr "הסתייגויות"
+
 #: src/pages/plugins/plugin-browse.tsx
 msgid "Configure a plugin catalog on the server to connect apps."
 msgstr "כדי לחבר אפליקציות, יש להגדיר קטלוג תוספים בשרת."
@@ -2526,6 +2530,10 @@ msgstr "לא ניתן להציג את התרשים"
 #: src/pages/Auth.tsx
 msgid "Could not reset password"
 msgstr "לא ניתן לאפס את הסיסמה"
+
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Could not review this result"
+msgstr "לא ניתן היה לבדוק את התוצאה"
 
 #: src/pages/plugins/use-plugin-connections.ts
 msgid "Could not revoke connection"
@@ -5199,6 +5207,10 @@ msgstr "דפים שהבוט הזה בונה בשבילכם מופיעים כאן
 msgid "Pages this group builds for you appear here. Ask for a dashboard, tracker or plan to make one."
 msgstr "דפים שהקבוצה הזו בונה בשבילכם מופיעים כאן. בקשו לוח מחוונים, מעקב או תוכנית כדי ליצור אחד."
 
+#: src/components/ReviewCard.tsx
+msgid "Pass"
+msgstr "עבר"
+
 #: src/components/PasskeySettings.tsx
 msgid "Passkey"
 msgstr "מפתח גישה"
@@ -5920,9 +5932,18 @@ msgstr "חזרה לשיחה עם {0}"
 msgid "Return to Rakazo"
 msgstr "חזרה ל-Rakazo"
 
+#: src/components/ReviewCard.tsx
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Review"
+msgstr "לבדוק"
+
 #: src/lib/model-connection-preflight.ts
 msgid "Review provider settings and test again."
 msgstr "יש לבדוק את הגדרות הספק ולבדוק שוב."
+
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Reviewing…"
+msgstr "בודק…"
 
 #: src/components/bot-templates/bot-template-copy.ts
 msgid "Reviews pull requests waiting on you"
@@ -7286,6 +7307,10 @@ msgstr "יש להקליד תשובה"
 #: src/pages/Shell.tsx
 msgid "Unassigned"
 msgstr "ללא שיוך"
+
+#: src/components/ReviewCard.tsx
+msgid "Unclear"
+msgstr "לא ברור"
 
 #: src/components/AskCard.tsx
 msgid "Undo"

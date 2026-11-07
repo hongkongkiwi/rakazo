@@ -256,6 +256,18 @@ export const MessageBlock = z.discriminatedUnion("kind", [
     durationMs: z.number().int().nonnegative().optional(),
   }),
   z.object({
+    /** An advisory second look at one finished result. It never changes the reviewed work. */
+    kind: z.literal("review"),
+    verdict: z.enum(["pass", "concerns", "unclear"]),
+    summary: z.string().max(1000),
+    findings: z.array(z.string().max(500)).max(8),
+    /** The model that produced this review, and the model whose work it reviewed. */
+    model: z.string().max(200),
+    reviewedModel: z.string().max(200).optional(),
+    /** The rubric version the review used, so an old judgment stays identifiable. */
+    rubric: z.string().max(40),
+  }),
+  z.object({
     kind: z.literal("subagent"),
     agentId: z.string(),
     name: z.string(),

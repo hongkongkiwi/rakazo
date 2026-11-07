@@ -1,4 +1,10 @@
 export const DE_MESSAGES: Record<string, string> = {
+  "Review last result": "Letztes Ergebnis prüfen",
+  "Could not review the last result": "Das letzte Ergebnis konnte nicht geprüft werden",
+  Review: "Prüfen",
+  Pass: "Bestanden",
+  Concerns: "Bedenken",
+  Unclear: "Unklar",
   "No matches": "Keine Treffer",
   "Always ask": "Immer fragen",
   "Search tools": "Tools durchsuchen",

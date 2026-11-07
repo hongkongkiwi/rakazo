@@ -151,6 +151,7 @@ import { monitoringRoutes } from "./monitoring.js";
 import { pluginSubmissionRoutes } from "./plugin-submissions.js";
 import { sendReferralEmails } from "./referral-email.js";
 import { mountApiRequestBodyLimits, rpcBodyLimit } from "./request-body-limit.js";
+import { createResultReviewer } from "./result-review.js";
 import { createRouter } from "./router.js";
 import { handleRpcError } from "./rpc-errors.js";
 import { mountScreenTarget } from "./screen-proxy.js";
@@ -684,6 +685,11 @@ async function buildApp(overrides: CreateAppOverrides): Promise<AppHandles> {
   );
 
   const router = createRouter({
+    resultReview: createResultReviewer({
+      prisma,
+      runtime,
+      resolveModel: executor.resolveModel,
+    }),
     speechSummary:
       env.voiceSummaryMinChars === undefined
         ? undefined

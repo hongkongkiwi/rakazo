@@ -1,4 +1,10 @@
 export const NL_MESSAGES: Record<string, string> = {
+  "Review last result": "Laatste resultaat beoordelen",
+  "Could not review the last result": "Het laatste resultaat kon niet worden beoordeeld",
+  Review: "Beoordelen",
+  Pass: "Geslaagd",
+  Concerns: "Bezwaren",
+  Unclear: "Onbekend",
   "No matches": "Geen resultaten",
   "Always ask": "Altijd vragen",
   "Search tools": "Tools zoeken",

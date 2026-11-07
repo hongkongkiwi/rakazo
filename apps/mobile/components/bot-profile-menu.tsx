@@ -2,6 +2,7 @@ import { MenuView } from "@expo/ui/community/menu";
 import type { NativeStackNavigationOptions } from "expo-router";
 import { useRouter } from "expo-router";
 import { Alert, View } from "react-native";
+import { rpc } from "../lib/api";
 import { notifyArchivedChatsChanged } from "../lib/archived-chats";
 import { archiveBot, confirmClearConversation, confirmDeleteBot } from "../lib/bot-lifecycle";
 import { useI18n } from "../lib/i18n";
@@ -26,6 +27,14 @@ export function useBotProfileActions(botId: string, name: string): BotProfileAct
     router.replace("/");
   }
   return [
+    {
+      id: "review",
+      text: t("Review last result"),
+      onPress: () =>
+        void rpc("threads/reviewResult", { botId }).catch((error) =>
+          Alert.alert(t("Could not review the last result"), errorText(error, t("Try again."))),
+        ),
+    },
     {
       id: "clear",
       text: t("Clear conversation"),
