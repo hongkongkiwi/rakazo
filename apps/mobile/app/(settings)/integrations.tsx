@@ -577,9 +577,14 @@ export default function Integrations() {
     return (
       <View key={server.id} testID="registered-mcp-server" style={styles.row}>
         <ConnectorIcon name={server.name} size={LOGO_SIZE} />
-        <Text numberOfLines={1} style={[styles.title, styles.grow]}>
-          {server.name}
-        </Text>
+        <View style={styles.grow}>
+          <Text numberOfLines={1} style={styles.title}>
+            {server.name}
+          </Text>
+          {state === "needs_client" ? (
+            <Text style={styles.secondary}>{t("Finish MCP authorization in the web app.")}</Text>
+          ) : null}
+        </View>
         <View style={styles.connectionStatus}>
           {symbol ? (
             <View
@@ -844,6 +849,10 @@ export default function Integrations() {
         await refresh();
       }
     } catch (reason) {
+      if (!isCurrent()) return;
+      // The server records why the flow stopped, so re-read it before showing the failure;
+      // a stale Connect button would otherwise send the person straight back into the error.
+      await refresh().catch(() => undefined);
       if (isCurrent()) setMcpError(errorText(reason, t("Could not start MCP OAuth")));
     } finally {
       if (isCurrent()) setPending(null);

@@ -721,7 +721,7 @@ it("shows registered MCP servers with connector initials and sentence case statu
   expect([...rows].map((row) => row.textContent)).toEqual([
     "SSaved serverConnected",
     "OOpen serverNot connected",
-    "CClient serverNeeds an OAuth client ID",
+    "CClient serverFinish MCP authorization in the web app.Needs an OAuth client ID",
     "BBroken serverNot working",
     "EExpired serverNeeds sign-inReconnect",
   ]);
@@ -1067,4 +1067,57 @@ it("registers an OAuth MCP server and starts the existing browser callback flow"
     state.rpc.mock.calls.filter(([proc]) => proc === "mcp/servers/list").length,
   ).toBeGreaterThan(initialReads);
   expect(row()?.textContent).toBe("TTestConnected");
+});
+
+it("re-reads a server that needs an OAuth client and says where to add one", async () => {
+  const fallback = state.rpc.getMockImplementation();
+  let clientRequired = false;
+  state.rpc.mockImplementation((proc: string, args: unknown) => {
+    if (proc === "mcp/servers/create")
+      return Promise.resolve({ id: "client-server", name: "Test", enabled: true });
+    if (proc === "mcp/oauth/begin") {
+      clientRequired = true;
+      return Promise.reject(
+        Object.assign(new Error("Incompatible auth server"), {
+          code: MCP_OAUTH_CLIENT_REQUIRED,
+        }),
+      );
+    }
+    if (proc === "mcp/servers/list")
+      return Promise.resolve(
+        clientRequired
+          ? [
+              {
+                id: "client-server",
+                name: "Test",
+                enabled: true,
+                oauthStatus: "reconnect",
+                oauthClientId: null,
+                health: { status: "error", code: MCP_OAUTH_CLIENT_REQUIRED },
+              },
+            ]
+          : [],
+      );
+    return fallback?.(proc, args);
+  });
+  await openMcpSource();
+  await act(async () => {
+    [...container.querySelectorAll("button")]
+      .find((button) => button.textContent === "OAuth")
+      ?.click();
+  });
+  await act(async () => {
+    [...container.querySelectorAll("button")]
+      .find((button) => button.textContent === "Verify and add")
+      ?.click();
+  });
+  expect(state.rpc).toHaveBeenCalledWith("mcp/oauth/begin", { serverId: "client-server" });
+  const row = container.querySelector('[data-testid="registered-mcp-server"]');
+  expect(row?.textContent).toBe(
+    "TTestFinish MCP authorization in the web app.Needs an OAuth client ID",
+  );
+  expect(row?.querySelector("button")).toBeNull();
+  expect(
+    [...container.querySelectorAll("button")].some((button) => button.textContent === "Retry"),
+  ).toBe(true);
 });
