@@ -255,6 +255,11 @@ test("takeover, routine, plugins, and export are reachable", async ({ page }, te
     "Quackr",
     "DigitalOcean",
     "Instabox",
+    "AgentMail",
+    "Slack",
+    "PlanetScale",
+    "ElevenLabs",
+    "Aiven",
     "Browse MCP servers",
     "Search by domain",
     "Manage MCP servers",
@@ -295,6 +300,19 @@ test("takeover, routine, plugins, and export are reachable", async ({ page }, te
     await page.getByRole("menuitem", { name: item, exact: true }).click();
   };
   const toolSources = page.getByTestId("tool-sources");
+
+  // An API-key service pins its header and prompts for the key, not a bearer token.
+  await addSource("AgentMail");
+  await expect(form.getByLabel("Name", { exact: true })).toHaveValue("AgentMail");
+  await expect(form.getByLabel("Header name", { exact: true })).toHaveValue("x-api-key");
+  await expect(form.getByLabel("API key", { exact: true })).toBeVisible();
+  await form.getByRole("button", { name: "Back", exact: true }).click();
+
+  // An OAuth service saves the server first and then signs in, so it never installs a bearer token.
+  await addSource("Slack");
+  await expect(form.getByLabel("Name", { exact: true })).toHaveValue("Slack");
+  await expect(form.getByRole("button", { name: "Save and sign in", exact: true })).toBeVisible();
+  await form.getByRole("button", { name: "Back", exact: true }).click();
 
   await addSource("Treg");
   await form.getByLabel("Bearer token", { exact: true }).fill("fake-treg-browser-credential");

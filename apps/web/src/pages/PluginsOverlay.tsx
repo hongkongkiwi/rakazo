@@ -419,7 +419,7 @@ export function PluginsOverlay({
             ) : null}
             {browsing || view === "manage" ? (
               <AddMenu
-                presets={sourcePresets.filter((preset) => preset.auth !== "oauth")}
+                presets={sourcePresets}
                 onGithub={() => openAddView("github")}
                 onSource={beginSource}
                 onBrowseMcp={() => {
