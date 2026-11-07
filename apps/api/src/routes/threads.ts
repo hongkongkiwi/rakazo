@@ -26,6 +26,7 @@ import {
 } from "@rakazo/db";
 import { getLogger } from "@rakazo/logging";
 import { releaseComputerControl } from "../computer-control.js";
+import { ResultReviewBusyError } from "../result-review.js";
 import type { RouterDeps } from "../router.js";
 import { createRoutineTestRun, routineTestRunNonce, routineTestTarget } from "../routines.js";
 import { assertTeachingSendAllowed } from "../taught-skills.js";
@@ -312,6 +313,70 @@ export function threadsRoutes(ctx: RouterContext) {
         const target = await resolveThreadTarget(deps.prisma, context.actor, input);
         await stopThreadRuns(deps, context.actor, target, input.messageId);
         return { ok: true as const };
+      }),
+      reviewResult: authed.threads.reviewResult.handler(async ({ context, input }) => {
+        const bot = await repos.getBot(context.actor, input.botId);
+        if (!bot.thread) throw new IsolationError();
+        const threadId = bot.thread.id;
+        if (!deps.resultReview)
+          throw new ORPCError("NOT_IMPLEMENTED", { message: "Result review is unavailable." });
+        const clientNonce = input.clientNonce ? `result-review:${input.clientNonce}` : undefined;
+        if (clientNonce) {
+          const existing = await deps.prisma.message.findFirst({
+            where: { threadId, clientNonce },
+            select: { id: true },
+          });
+          if (existing) return { messageId: existing.id };
+        }
+        let review: Awaited<ReturnType<NonNullable<typeof deps.resultReview>>>;
+        try {
+          review = await deps.resultReview(context.actor, {
+            botId: bot.id,
+            threadId,
+            messageId: input.messageId,
+          });
+        } catch (error) {
+          if (error instanceof ResultReviewBusyError)
+            throw new ORPCError("CONFLICT", { message: error.message });
+          throw error;
+        }
+        const blocks = [{ kind: "review" as const, ...review }];
+        let committed: { messageId: string; seq: number };
+        try {
+          committed = await deps.prisma.$transaction(async (tx) => {
+            const message = await createThreadMessageInTransaction(tx, {
+              threadId,
+              role: "bot",
+              botId: bot.id,
+              blocks,
+              ...(clientNonce ? { clientNonce } : {}),
+              // The user asked for this review, so it does not mark the chat unread.
+              markUnread: false,
+            });
+            const event = await appendEventInTransaction(tx, {
+              spaceId: context.actor.spaceId,
+              threadId,
+              botId: bot.id,
+              type: "thread.message.created",
+              payload: { messageId: message.id, role: "bot", blocks },
+            });
+            return { messageId: message.id, seq: event.seq };
+          });
+        } catch (error) {
+          // Two taps can pass the check together; the unique nonce picks one.
+          if (clientNonce && isUniqueViolation(error)) {
+            const raced = await deps.prisma.message.findFirst({
+              where: { threadId, clientNonce },
+              select: { id: true },
+            });
+            if (raced) return { messageId: raced.id };
+          }
+          throw error;
+        }
+        await deps.events.notify(threadId, committed.seq).catch((error) => {
+          getLogger().error("result review notification", error);
+        });
+        return { messageId: committed.messageId };
       }),
       clear: authed.threads.clear.handler(async ({ context, input }) => {
         const target = await resolveThreadTarget(deps.prisma, context.actor, input);

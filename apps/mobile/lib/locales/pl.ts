@@ -1,4 +1,11 @@
 export const PL_MESSAGES: Record<string, string> = {
+  "Advisory review": "Ocena doradcza",
+  "Review last result": "Sprawdź ostatni wynik",
+  "Could not review the last result": "Nie udało się sprawdzić ostatniego wyniku",
+  Review: "Sprawdź",
+  Pass: "Zaliczone",
+  Concerns: "Zastrzeżenia",
+  Unclear: "Nie jest jasne",
   "No matches": "Brak wyników",
   "Always ask": "Zawsze pytaj",
   "Search tools": "Szukaj narzędzi",

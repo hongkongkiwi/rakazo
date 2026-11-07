@@ -1,4 +1,11 @@
 export const JA_MESSAGES: Record<string, string> = {
+  "Advisory review": "参考レビュー",
+  "Review last result": "最後の結果をレビュー",
+  "Could not review the last result": "最後の結果をレビューできませんでした",
+  Review: "レビュー",
+  Pass: "合格",
+  Concerns: "懸念",
+  Unclear: "不明",
   "No matches": "一致するものはありません",
   "Always ask": "常に確認",
   "Search tools": "ツールを検索",

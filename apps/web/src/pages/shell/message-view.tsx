@@ -18,6 +18,7 @@ import { CollaborationMarker } from "../../components/ai/CollaborationMarker";
 import { CloudAgentCard } from "../../components/CloudAgentCard";
 import { McpAppCard } from "../../components/McpAppCard";
 import { PageBlockCard } from "../../components/pages/PageBlockCard";
+import { ReviewCard } from "../../components/ReviewCard";
 import { SubagentCard } from "../../components/SubagentCard";
 import {
   LIVE_TOOL_STEP_WINDOW,
@@ -245,6 +246,7 @@ export const MessageView = memo(function MessageView({
       onMarkUnread={onMarkUnread}
       markedUnread={markedUnread}
       onReact={onReact}
+      reviewBotId={"botId" in artifactTarget ? artifactTarget.botId : undefined}
     />
   );
   if (isNarration) {
@@ -416,6 +418,13 @@ export const MessageView = memo(function MessageView({
               >
                 <span className="text-warning">◷</span>
                 <span>{block.text}</span>
+              </div>
+            );
+          }
+          if (block.kind === "review") {
+            return (
+              <div key={i} className="flex justify-start">
+                <ReviewCard block={block} />
               </div>
             );
           }

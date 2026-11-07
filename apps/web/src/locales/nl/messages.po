@@ -818,6 +818,10 @@ msgstr "Geavanceerd"
 msgid "Advanced..."
 msgstr "Geavanceerd..."
 
+#: src/components/ReviewCard.tsx
+msgid "Advisory review"
+msgstr "Adviserende beoordeling"
+
 #: src/components/AccountDataSettings.tsx
 msgid "Agent from another app"
 msgstr "Agent uit een andere app"
@@ -1871,6 +1875,10 @@ msgstr "Computers zijn beschikbaar. Herlaad of open een bot om verder te gaan."
 msgid "Computers are off on this server."
 msgstr "Computers staan uit op deze server."
 
+#: src/components/ReviewCard.tsx
+msgid "Concerns"
+msgstr "Bezwaren"
+
 #: src/pages/plugins/plugin-browse.tsx
 msgid "Configure a plugin catalog on the server to connect apps."
 msgstr "Configureer een plugincatalogus op de server om apps te koppelen."
@@ -2526,6 +2534,10 @@ msgstr "Grafiek weergeven mislukt"
 #: src/pages/Auth.tsx
 msgid "Could not reset password"
 msgstr "Wachtwoord opnieuw instellen mislukt"
+
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Could not review this result"
+msgstr "Dit resultaat kon niet worden beoordeeld"
 
 #: src/pages/plugins/use-plugin-connections.ts
 msgid "Could not revoke connection"
@@ -5199,6 +5211,10 @@ msgstr "Pagina's die deze bot voor je maakt, verschijnen hier. Vraag om een dash
 msgid "Pages this group builds for you appear here. Ask for a dashboard, tracker or plan to make one."
 msgstr "Pagina's die deze groep voor je maakt, verschijnen hier. Vraag om een dashboard, tracker of plan om er een te maken."
 
+#: src/components/ReviewCard.tsx
+msgid "Pass"
+msgstr "Geslaagd"
+
 #: src/components/PasskeySettings.tsx
 msgid "Passkey"
 msgstr "Passkey"
@@ -5920,9 +5936,17 @@ msgstr "Terug naar het gesprek met {0}"
 msgid "Return to Rakazo"
 msgstr "Terug naar Rakazo"
 
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Review"
+msgstr "Beoordelen"
+
 #: src/lib/model-connection-preflight.ts
 msgid "Review provider settings and test again."
 msgstr "Controleer de aanbiedersinstellingen en test daarna opnieuw."
+
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Reviewing…"
+msgstr "Beoordelen…"
 
 #: src/components/bot-templates/bot-template-copy.ts
 msgid "Reviews pull requests waiting on you"
@@ -7286,6 +7310,10 @@ msgstr "Typ je antwoord"
 #: src/pages/Shell.tsx
 msgid "Unassigned"
 msgstr "Niet toegewezen"
+
+#: src/components/ReviewCard.tsx
+msgid "Unclear"
+msgstr "Onduidelijk"
 
 #: src/components/AskCard.tsx
 msgid "Undo"

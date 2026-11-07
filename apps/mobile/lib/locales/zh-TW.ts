@@ -1,4 +1,11 @@
 export const ZH_TW_MESSAGES: Record<string, string> = {
+  "Advisory review": "參考審查",
+  "Review last result": "審查上次結果",
+  "Could not review the last result": "無法審查上次結果",
+  Review: "審查",
+  Pass: "通過",
+  Concerns: "有疑慮",
+  Unclear: "不清楚",
   "No matches": "沒有相符的結果",
   "Always ask": "一律詢問",
   "Search tools": "搜尋工具",

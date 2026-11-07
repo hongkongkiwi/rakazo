@@ -224,6 +224,20 @@ describe("contracts", () => {
     expect(MessageBlock.parse({ kind: "steps", steps })).toEqual({ kind: "steps", steps });
   });
 
+  it("accepts an advisory review block and rejects an unknown verdict", () => {
+    const review = {
+      kind: "review" as const,
+      verdict: "concerns" as const,
+      summary: "The reply claims an email that was not sent.",
+      findings: ["No send effect was recorded."],
+      model: "test/review-model",
+      reviewedModel: "test/worker-model",
+      rubric: "result-review/v1",
+    };
+    expect(MessageBlock.parse(review)).toEqual(review);
+    expect(MessageBlock.safeParse({ ...review, verdict: "maybe" }).success).toBe(false);
+  });
+
   it("limits reactions to persisted non-channel messages", () => {
     expect(
       canReactToThreadMessage({ id: "message-1", blocks: [{ kind: "text", text: "hi" }] }),

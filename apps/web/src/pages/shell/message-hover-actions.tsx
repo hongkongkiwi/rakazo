@@ -11,11 +11,23 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
+  toast,
   useCopyText,
 } from "@rakazo/ui-web";
-import { Check, Copy, MessageSquareDot, MoreHorizontal, Reply, Smile } from "lucide-react";
+import {
+  Check,
+  Copy,
+  Loader2,
+  MessageSquareDot,
+  MoreHorizontal,
+  Reply,
+  ScanSearch,
+  Smile,
+} from "lucide-react";
 import { useState } from "react";
 import { MessageHoverMetadata } from "../../components/MessageHoverMetadata";
+import { rpc } from "../../lib/rpc";
+import { errorText } from "../../lib/user-error";
 
 export function MessageHoverActions({
   message,
@@ -24,6 +36,7 @@ export function MessageHoverActions({
   onMarkUnread,
   markedUnread = false,
   onReact,
+  reviewBotId,
 }: {
   message: ThreadMessage;
   side: "start" | "end";
@@ -31,6 +44,8 @@ export function MessageHoverActions({
   onMarkUnread: (message: ThreadMessage) => void;
   markedUnread?: boolean;
   onReact: (message: ThreadMessage, reaction: MessageReaction) => Promise<void>;
+  /** Set only in a bot's own thread: that bot reviews the message. */
+  reviewBotId?: string;
 }) {
   const { t } = useLingui();
   const [copiedNow, copy, copyFailed, resetCopy, copyFailedText] = useCopyText();
@@ -39,6 +54,7 @@ export function MessageHoverActions({
   const [copiedText, setCopiedText] = useState("");
   const [moreOpen, setMoreOpen] = useState(false);
   const [reactionsOpen, setReactionsOpen] = useState(false);
+  const [reviewing, setReviewing] = useState(false);
 
   // Streaming progress bubbles keep hover free for selection / stop clicks.
   if (message.id.startsWith("progress:")) return null;
@@ -57,7 +73,7 @@ export function MessageHoverActions({
     "grid h-11 w-11 place-items-center text-muted-foreground transition-colors hover:text-foreground [@media(hover:hover)_and_(pointer:fine)]:h-7 [@media(hover:hover)_and_(pointer:fine)]:w-7";
 
   return (
-    <MessageHoverMetadata pinned={moreOpen || reactionsOpen || copied} side={side}>
+    <MessageHoverMetadata pinned={moreOpen || reactionsOpen || copied || reviewing} side={side}>
       <div data-testid="message-hover-actions" className="flex items-center gap-0.5">
         {canReactToThreadMessage(message) ? (
           <Popover open={reactionsOpen} onOpenChange={setReactionsOpen}>
@@ -96,10 +112,12 @@ export function MessageHoverActions({
         </button>
         <DropdownMenu open={moreOpen} onOpenChange={setMoreOpen}>
           <DropdownMenuTrigger
-            aria-label={copied ? t`Copied` : t`More`}
+            aria-label={reviewing ? t`Reviewing…` : copied ? t`Copied` : t`More`}
             className={iconButtonClass}
           >
-            {copied ? (
+            {reviewing ? (
+              <Loader2 size={15} className="animate-spin" />
+            ) : copied ? (
               <Check size={15} strokeWidth={1.7} />
             ) : (
               <MoreHorizontal size={15} strokeWidth={1.7} />
@@ -115,6 +133,35 @@ export function MessageHoverActions({
               <Reply size={14} strokeWidth={1.7} />
               <Trans>Reply</Trans>
             </DropdownMenuItem>
+            {reviewBotId &&
+            message.role === "bot" &&
+            !/^(progress|subagent):/.test(message.id) &&
+            message.blocks.some((block) => block.kind === "text") ? (
+              <DropdownMenuItem
+                disabled={reviewing}
+                onClick={() => {
+                  setMoreOpen(false);
+                  setReviewing(true);
+                  void rpc.threads
+                    .reviewResult({
+                      botId: reviewBotId,
+                      messageId: message.id,
+                      clientNonce: `${message.id}:${Date.now()}:${Math.random().toString(36).slice(2)}`,
+                    })
+                    .catch((error) =>
+                      toast.error(errorText(error, t`Could not review this result`)),
+                    )
+                    .finally(() => setReviewing(false));
+                }}
+              >
+                {reviewing ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <ScanSearch size={14} strokeWidth={1.7} />
+                )}
+                {reviewing ? <Trans>Reviewing…</Trans> : <Trans>Review</Trans>}
+              </DropdownMenuItem>
+            ) : null}
             {canMarkMessageUnread(message) && !markedUnread ? (
               <DropdownMenuItem
                 onClick={() => {

@@ -213,6 +213,17 @@ const visibleBlocks: Array<[MessageBlock, string]> = [
   [{ kind: "progress", text: "Working" }, "Working"],
   [{ kind: "steps", steps: [{ label: "Search", count: 1 }] }, "Search"],
   [
+    {
+      kind: "review",
+      verdict: "concerns",
+      summary: "The claim has no record.",
+      findings: [],
+      model: "test/model",
+      rubric: "result-review/v1",
+    },
+    "The claim has no record.",
+  ],
+  [
     { kind: "subagent", agentId: "agent", name: "Research", task: "Search", status: "running" },
     "Research",
   ],

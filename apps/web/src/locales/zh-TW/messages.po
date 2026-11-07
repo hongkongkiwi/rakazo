@@ -819,6 +819,10 @@ msgstr "進階"
 msgid "Advanced..."
 msgstr "進階..."
 
+#: src/components/ReviewCard.tsx
+msgid "Advisory review"
+msgstr "參考審查"
+
 #: src/components/AccountDataSettings.tsx
 msgid "Agent from another app"
 msgstr "其他應用程式中的代理"
@@ -1872,6 +1876,10 @@ msgstr "電腦已可使用。請重新載入或開啟機器人以繼續。"
 msgid "Computers are off on this server."
 msgstr "此伺服器未開啟電腦。"
 
+#: src/components/ReviewCard.tsx
+msgid "Concerns"
+msgstr "有疑慮"
+
 #: src/pages/plugins/plugin-browse.tsx
 msgid "Configure a plugin catalog on the server to connect apps."
 msgstr "請在伺服器上設定外掛程式目錄，以連接應用程式。"
@@ -2527,6 +2535,10 @@ msgstr "無法渲染圖表"
 #: src/pages/Auth.tsx
 msgid "Could not reset password"
 msgstr "無法重設密碼"
+
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Could not review this result"
+msgstr "無法審查此結果"
 
 #: src/pages/plugins/use-plugin-connections.ts
 msgid "Could not revoke connection"
@@ -5200,6 +5212,10 @@ msgstr "此機器人為你建立的頁面會顯示在這裡。請它做一個儀
 msgid "Pages this group builds for you appear here. Ask for a dashboard, tracker or plan to make one."
 msgstr "此群組為你建立的頁面會顯示在這裡。請它做一個儀表板、追蹤表或計畫即可建立。"
 
+#: src/components/ReviewCard.tsx
+msgid "Pass"
+msgstr "通過"
+
 #: src/components/PasskeySettings.tsx
 msgid "Passkey"
 msgstr "通行金鑰"
@@ -5921,9 +5937,17 @@ msgstr "返回與 {0} 的通話"
 msgid "Return to Rakazo"
 msgstr "返回 Rakazo"
 
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Review"
+msgstr "審查"
+
 #: src/lib/model-connection-preflight.ts
 msgid "Review provider settings and test again."
 msgstr "請檢查供應商設定並重新測試。"
+
+#: src/pages/shell/message-hover-actions.tsx
+msgid "Reviewing…"
+msgstr "正在審查…"
 
 #: src/components/bot-templates/bot-template-copy.ts
 msgid "Reviews pull requests waiting on you"
@@ -7287,6 +7311,10 @@ msgstr "輸入你的回答"
 #: src/pages/Shell.tsx
 msgid "Unassigned"
 msgstr "未分配"
+
+#: src/components/ReviewCard.tsx
+msgid "Unclear"
+msgstr "不清楚"
 
 #: src/components/AskCard.tsx
 msgid "Undo"
