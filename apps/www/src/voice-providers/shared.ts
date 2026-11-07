@@ -334,7 +334,7 @@ const PRICE_ROWS = {
       perHourOfSpeech(RATES.deepgram),
       `${usd(RATES.deepgramBatchHour)} batch, ${usd(RATES.deepgramStreamHour)} streaming`,
       `${usd(RATES.deepgramCredit)} credit`,
-      "Not available",
+      "Built in, speaks and transcribes",
     ],
   },
   google: {
@@ -563,7 +563,7 @@ const WORKLOAD_ROWS = {
     cells: ["$0", "$0, your device listens", "$0"],
   },
   deepgram: {
-    topic: "Deepgram (not in Rakazo)",
+    topic: "Deepgram",
     cells: [usd(cost.deepgram.speech), usd(cost.deepgram.transcription), aboutTotal("deepgram")],
   },
   google: {

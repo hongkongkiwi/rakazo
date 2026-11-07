@@ -51,6 +51,7 @@ describe("createVoiceProvider", () => {
     vi.stubEnv("RAKAZO_OPENAI_COMPAT_ALLOW_PUBLIC", "0");
     expect(VOICE_CATALOG.map((entry) => entry.id)).toEqual([
       "elevenlabs",
+      "deepgram",
       "openai",
       "cartesia",
       "fish-audio",
@@ -58,16 +59,19 @@ describe("createVoiceProvider", () => {
     ]);
     expect(listVoiceCatalog().map((entry) => entry.id)).toEqual([
       "elevenlabs",
+      "deepgram",
       "openai",
       "cartesia",
       "fish-audio",
     ]);
     expect(createVoiceProvider("elevenlabs").describe().id).toBe("elevenlabs");
+    expect(createVoiceProvider("deepgram").describe().capabilities.transcribe).toBe(true);
     expect(createVoiceProvider("openai").describe().capabilities.transcribe).toBe(true);
     expect(createVoiceProvider("cartesia").describe().capabilities.transcribe).toBe(false);
     expect(createVoiceProvider("fish-audio").describe().capabilities.transcribe).toBe(true);
     expect(createVoiceProvider("openai-compatible").describe().capabilities.transcribe).toBe(true);
     expect(isVoiceProviderId("elevenlabs")).toBe(true);
+    expect(isVoiceProviderId("deepgram")).toBe(true);
     expect(isVoiceProviderId("scripted")).toBe(false);
     expect(isVoiceProviderId("piper")).toBe(false);
     expect(() => createVoiceProvider("piper")).toThrow(/unknown voice provider/i);

@@ -165,7 +165,7 @@ export const selfHosted: VoiceProvider = {
       heading: "Hosted servers that copy OpenAI's audio API",
       paragraphs: [
         `**Self-hosted** isn't limited to your own machine. It accepts any public HTTPS address with an API key, so a hosted service that serves OpenAI's audio endpoints can work there too: DeepInfra and Together AI host Kokoro for ${usd(RATES.deepinfraKokoro)} and ${usd(RATES.togetherKokoro)} per million characters, and Groq serves Whisper for ${usd(RATES.groqWhisperHour)} an hour. We haven't tested these with Rakazo, and two details matter. Rakazo sends speech and transcription to the same address, so the service needs to do both. And the voice list comes from the server; when a server doesn't publish one, Rakazo offers Kokoro's voice names, which only work if the service runs Kokoro.`,
-        "Deepgram, Google, Azure and Amazon use their own API shapes, so **Self-hosted** can't reach them directly.",
+        "Deepgram, Google, Azure and Amazon use their own API shapes, so **Self-hosted** can't reach them. Deepgram is a **Provider** choice of its own in Rakazo, with a Deepgram API key; Google, Azure and Amazon have no built-in connection.",
       ],
       table: voicePriceTable("Self-hosted and hosted open models compared", COMPARED),
     },
@@ -186,7 +186,7 @@ export const selfHosted: VoiceProvider = {
       heading: "When to choose self-hosted voice",
       paragraphs: [
         "Choose it when you don't want a hosted vendor to process your voice, when you want voice with no vendor account or usage bill, or when you already run local models. It pairs naturally with a [self-hosted Rakazo](/self-hosted-ai-agent/) and a local model, so the whole assistant can work offline.",
-        "Hosted providers are less work and usually sound more polished. [ElevenLabs](/voice-providers/elevenlabs/) and [Fish Audio](/voice-providers/fish-audio/) offer cloning, [OpenAI](/voice-providers/openai/) reuses a key you may already have, and [Cartesia](/voice-providers/cartesia/) is tuned for low latency. If Rakazo runs directly on a Mac, [Server (Mac)](/voice-providers/macos/) speaks with nothing to install, but doesn't transcribe. See the [comparison](/voice-providers/) for all six.",
+        "Hosted providers are less work and usually sound more polished. [ElevenLabs](/voice-providers/elevenlabs/) and [Fish Audio](/voice-providers/fish-audio/) offer cloning, [OpenAI](/voice-providers/openai/) reuses a key you may already have, and [Cartesia](/voice-providers/cartesia/) is tuned for low latency. If Rakazo runs directly on a Mac, [Server (Mac)](/voice-providers/macos/) speaks with nothing to install, but doesn't transcribe. See the [comparison](/voice-providers/) for every option.",
       ],
     },
     {

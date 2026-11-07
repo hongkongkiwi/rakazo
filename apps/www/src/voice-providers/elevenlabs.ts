@@ -191,7 +191,7 @@ export const elevenlabs: VoiceProvider = {
       heading: "ElevenLabs alternatives",
       paragraphs: [
         `The best alternative depends on why you're leaving. If it's price, [Fish Audio](/voice-providers/fish-audio/) costs ${shareOf(RATES.fish, FLASH)} the per-character price, with cloning and a big voice library, and a [self-hosted](/voice-providers/self-hosted/) Kokoro server costs only hardware. If it's latency on calls, [Cartesia](/voice-providers/cartesia/) is built for it, though in Rakazo it only speaks. If you already pay OpenAI, [OpenAI](/voice-providers/openai/) is the quickest start, but its speech model shuts down on January 6, 2027.`,
-        `Outside Rakazo, Deepgram is strong at transcription (Nova-3 from ${usd(RATES.deepgramBatchHour)} an hour) with Aura-2 voices that are ${priceVersus(RATES.deepgram, FLASH)} Flash v2.5 but plainer; Google, Azure and Amazon Polly are cheap at scale and come with cloud compliance paperwork; Hume and Inworld focus on expressive or low-cost voices for agents. PlayHT, once a common alternative, shut down at the end of 2025. Rakazo has no built-in connection for any of these.`,
+        `Deepgram is strong at transcription (Nova-3 from ${usd(RATES.deepgramBatchHour)} an hour) with Aura-2 voices that are ${priceVersus(RATES.deepgram, FLASH)} Flash v2.5 but plainer, and Rakazo connects to it with a Deepgram key; Google, Azure and Amazon Polly are cheap at scale and come with cloud compliance paperwork; Hume and Inworld focus on expressive or low-cost voices for agents. PlayHT, once a common alternative, shut down at the end of 2025. Rakazo has no built-in connection for the others.`,
       ],
     },
     {
@@ -279,12 +279,12 @@ export const elevenlabs: VoiceProvider = {
     {
       question: "What is the best ElevenLabs alternative?",
       answer:
-        "For price, [Fish Audio](/voice-providers/fish-audio/) or a [self-hosted](/voice-providers/self-hosted/) Kokoro server. For fast calls, [Cartesia](/voice-providers/cartesia/). For a quick start with a key you have, [OpenAI](/voice-providers/openai/), until its speech model shuts down in January 2027. For transcription at scale outside Rakazo, Deepgram.",
+        "For price, [Fish Audio](/voice-providers/fish-audio/) or a [self-hosted](/voice-providers/self-hosted/) Kokoro server. For fast calls, [Cartesia](/voice-providers/cartesia/). For a quick start with a key you have, [OpenAI](/voice-providers/openai/), until its speech model shuts down in January 2027. For transcription at scale, Deepgram, which Rakazo also connects to.",
     },
     {
       question: "Deepgram vs ElevenLabs: which is better?",
       answer:
-        `Deepgram specializes in transcription and is a common choice for the listening side of voice agents, but per hour it is ${priceVersus(RATES.deepgramStreamHour, RATES.elevenlabsScribeRealtimeHour)} ElevenLabs: streaming Nova-3 costs ${usd(RATES.deepgramStreamHour)} against ${usd(RATES.elevenlabsScribeRealtimeHour)} for Scribe v2 Realtime, and batch ${usd(RATES.deepgramBatchHour)} against ${usd(RATES.elevenlabsScribeHour)}. ElevenLabs sounds more natural and clones voices; Deepgram's Aura-2 voices are ${priceVersus(RATES.deepgram, FLASH)} Flash v2.5. Many voice-agent builders use Deepgram to listen and ElevenLabs to speak. Rakazo connects to ElevenLabs but not Deepgram.`,
+        `Deepgram specializes in transcription and is a common choice for the listening side of voice agents, but per hour it is ${priceVersus(RATES.deepgramStreamHour, RATES.elevenlabsScribeRealtimeHour)} ElevenLabs: streaming Nova-3 costs ${usd(RATES.deepgramStreamHour)} against ${usd(RATES.elevenlabsScribeRealtimeHour)} for Scribe v2 Realtime, and batch ${usd(RATES.deepgramBatchHour)} against ${usd(RATES.elevenlabsScribeHour)}. ElevenLabs sounds more natural and clones voices; Deepgram's Aura-2 voices are ${priceVersus(RATES.deepgram, FLASH)} Flash v2.5. Many voice-agent builders use Deepgram to listen and ElevenLabs to speak. Rakazo connects to both, with a separate key for each.`,
     },
     {
       question: "Do I need ElevenLabs to use Rakazo?",
