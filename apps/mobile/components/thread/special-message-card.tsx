@@ -29,11 +29,16 @@ const openHelpers = new Set<string>();
 
 export type SpecialMessageBlock = Extract<
   MessageBlock,
-  { kind: "subagent" | "child_bot" | "cloud_agent" }
+  { kind: "subagent" | "child_bot" | "cloud_agent" | "outcome" }
 >;
 
 export function isSpecialMessageBlock(block: MessageBlock): block is SpecialMessageBlock {
-  return block.kind === "subagent" || block.kind === "child_bot" || block.kind === "cloud_agent";
+  return (
+    block.kind === "subagent" ||
+    block.kind === "child_bot" ||
+    block.kind === "cloud_agent" ||
+    block.kind === "outcome"
+  );
 }
 
 type SpecialMessageCardProps = {
@@ -199,11 +204,78 @@ function HelperMessageCard({
   );
 }
 
+function outcomeStatusLabel(
+  status: Extract<MessageBlock, { kind: "outcome" }>["entries"][number]["status"],
+  t: (message: string) => string,
+): string {
+  if (status === "failed") return t("Couldn't confirm");
+  if (status === "unchecked") return t("Not checked");
+  return t("Reported");
+}
+
+function OutcomeCard({
+  block,
+  userBubble,
+}: {
+  block: Extract<MessageBlock, { kind: "outcome" }>;
+  userBubble?: UserBubble;
+}) {
+  const tokens = withUserBubble(mobileTokens(), userBubble);
+  const { t } = useI18n();
+  return (
+    <View
+      testID="outcome-card"
+      style={{
+        width: "90%",
+        borderRadius: 18,
+        backgroundColor: tokens.card,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        gap: 6,
+      }}
+    >
+      <Text style={{ color: tokens.mutedForeground, ...typeScale.caption }}>
+        {t("What changed")}
+      </Text>
+      {block.entries.map((entry, index) => (
+        <View
+          key={`${entry.kind}-${entry.label}-${index}`}
+          style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "baseline", gap: 4 }}
+        >
+          <Text
+            style={{
+              color: entry.status === "failed" ? tokens.destructive : tokens.foreground,
+              ...typeScale.secondary,
+            }}
+          >
+            {entry.label}
+            {entry.count && entry.count > 1 ? ` ×${entry.count}` : ""}
+          </Text>
+          {entry.detail ? (
+            <Text style={{ color: tokens.mutedForeground, ...typeScale.secondary }}>
+              {entry.detail}
+            </Text>
+          ) : null}
+          <Text
+            style={{
+              color: entry.status === "failed" ? tokens.destructive : tokens.mutedForeground,
+              ...typeScale.caption,
+            }}
+          >
+            · {outcomeStatusLabel(entry.status, t)}
+          </Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
 export function SpecialMessageCard(props: SpecialMessageCardProps) {
   const { special, actionProps, bots, members, onOpenBot, userBubble } = props;
   const tokens = withUserBubble(mobileTokens(), userBubble);
   const { t } = useI18n();
   if (special.kind === "subagent") return <HelperMessageCard {...props} special={special} />;
+  if (special.kind === "outcome") return <OutcomeCard block={special} userBubble={userBubble} />;
   if (special.kind === "cloud_agent") {
     const title = special.title || t("Cloud agent");
     const statusLabel =

@@ -1,4 +1,8 @@
 export const RU_MESSAGES: Record<string, string> = {
+  "What changed": "Что изменилось",
+  "Couldn't confirm": "Не удалось подтвердить",
+  "Not checked": "Не проверено",
+  "Reported": "Сообщено",
   "No matches": "Нет совпадений",
   "Always ask": "Всегда спрашивать",
   "Search tools": "Поиск инструментов",

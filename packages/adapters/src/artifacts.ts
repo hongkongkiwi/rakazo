@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { constants } from "node:fs";
 import type { FileHandle } from "node:fs/promises";
-import { mkdir, open, readdir, rename, rm, stat } from "node:fs/promises";
+import { lstat, mkdir, open, readdir, rename, rm, stat } from "node:fs/promises";
 import path from "node:path";
 import type {
   AdapterContext,
@@ -122,6 +122,17 @@ export class LocalArtifactStore implements ArtifactStore {
 
   async remove(id: string, context: AdapterContext) {
     await rm(this.file(context.spaceId, id), { force: true });
+  }
+
+  async has(id: string, context: AdapterContext) {
+    try {
+      // A replacement symlink or directory is not the artifact bytes `get` would read.
+      return (await lstat(this.file(context.spaceId, id))).isFile();
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") return false;
+      // Permission and I/O errors mean the store could not answer.
+      return null;
+    }
   }
 
   /** False when the artifact directory is missing, for example when the volume is not mounted. */

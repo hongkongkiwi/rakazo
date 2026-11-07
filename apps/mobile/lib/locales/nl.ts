@@ -1,4 +1,8 @@
 export const NL_MESSAGES: Record<string, string> = {
+  "What changed": "Wat er is veranderd",
+  "Couldn't confirm": "Niet bevestigd",
+  "Not checked": "Niet gecontroleerd",
+  "Reported": "Gemeld",
   "No matches": "Geen resultaten",
   "Always ask": "Altijd vragen",
   "Search tools": "Tools zoeken",

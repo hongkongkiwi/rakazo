@@ -1,4 +1,8 @@
 export const PL_MESSAGES: Record<string, string> = {
+  "What changed": "Co się zmieniło",
+  "Couldn't confirm": "Nie udało się potwierdzić",
+  "Not checked": "Nie sprawdzono",
+  "Reported": "Zgłoszono",
   "No matches": "Brak wyników",
   "Always ask": "Zawsze pytaj",
   "Search tools": "Szukaj narzędzi",

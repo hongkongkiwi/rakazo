@@ -156,6 +156,8 @@ function replyBlockText(block: MessageBlock): string {
       return block.text;
     case "choice":
       return block.question;
+    case "outcome":
+      return block.entries.map((entry) => entry.label).join(", ");
     case "card":
       return block.lines.map((line) => `${line.k}: ${line.v}`).join(", ");
     case "steps":

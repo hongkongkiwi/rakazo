@@ -2687,6 +2687,10 @@ msgstr "Varsayılan hafıza kapsamı güncellenemedi"
 msgid "Could not verify computer setup ({failureMessage}). Fix the connection, then check again."
 msgstr "Bilgisayar kurulumu doğrulanamadı ({failureMessage}). Bağlantıyı düzeltip tekrar kontrol et."
 
+#: src/components/OutcomeCard.tsx
+msgid "Couldn't confirm"
+msgstr "Doğrulanamadı"
+
 #: src/components/pages/SharePopover.tsx
 msgid "Couldn't copy. Select the link and copy it."
 msgstr "Kopyalanamadı. Bağlantıyı seçip kopyalayın."
@@ -4896,6 +4900,10 @@ msgstr "Geçerli bir beceri değil"
 msgid "Not added: {0}"
 msgstr "Eklenmedi: {0}"
 
+#: src/components/OutcomeCard.tsx
+msgid "Not checked"
+msgstr "Kontrol edilmedi"
+
 #: src/components/McpServerHealthLine.tsx
 msgid "Not checked yet"
 msgstr "Henüz kontrol edilmedi"
@@ -5800,6 +5808,10 @@ msgstr "Yanıt iptal edildi"
 #: src/pages/shell/composer.tsx
 msgid "Replying to {0}"
 msgstr "{0} kişisine yanıt veriliyor"
+
+#: src/components/OutcomeCard.tsx
+msgid "Reported"
+msgstr "Bildirildi"
 
 #: src/lib/user-error.ts
 msgid "Request a new code"
@@ -7605,6 +7617,10 @@ msgstr "Hafızası ne olsun?"
 #: src/pages/shell/dialogs.tsx
 msgid "What can this space use?"
 msgstr "Bu alan neleri kullanabilir?"
+
+#: src/components/OutcomeCard.tsx
+msgid "What changed"
+msgstr "Neler değişti"
 
 #: src/components/SignupSurvey.tsx
 msgid "What do you most want Rakazo to help with?"

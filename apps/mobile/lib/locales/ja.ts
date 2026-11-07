@@ -1,4 +1,8 @@
 export const JA_MESSAGES: Record<string, string> = {
+  "What changed": "変更内容",
+  "Couldn't confirm": "確認できませんでした",
+  "Not checked": "未確認",
+  "Reported": "報告済み",
   "No matches": "一致するものはありません",
   "Always ask": "常に確認",
   "Search tools": "ツールを検索",

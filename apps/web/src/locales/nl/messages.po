@@ -2687,6 +2687,10 @@ msgstr "Het standaardgeheugenbereik bijwerken mislukt"
 msgid "Could not verify computer setup ({failureMessage}). Fix the connection, then check again."
 msgstr "De computerinstallatie kon niet worden geverifieerd ({failureMessage}). Herstel de verbinding en controleer het daarna opnieuw."
 
+#: src/components/OutcomeCard.tsx
+msgid "Couldn't confirm"
+msgstr "Niet bevestigd"
+
 #: src/components/pages/SharePopover.tsx
 msgid "Couldn't copy. Select the link and copy it."
 msgstr "Kopiëren lukte niet. Selecteer de link en kopieer hem."
@@ -4896,6 +4900,10 @@ msgstr "Geen geldige skill"
 msgid "Not added: {0}"
 msgstr "Niet toegevoegd: {0}"
 
+#: src/components/OutcomeCard.tsx
+msgid "Not checked"
+msgstr "Niet gecontroleerd"
+
 #: src/components/McpServerHealthLine.tsx
 msgid "Not checked yet"
 msgstr "Nog niet gecontroleerd"
@@ -5800,6 +5808,10 @@ msgstr "Antwoord geannuleerd"
 #: src/pages/shell/composer.tsx
 msgid "Replying to {0}"
 msgstr "Antwoordt op {0}"
+
+#: src/components/OutcomeCard.tsx
+msgid "Reported"
+msgstr "Gemeld"
 
 #: src/lib/user-error.ts
 msgid "Request a new code"
@@ -7605,6 +7617,10 @@ msgstr "En zijn herinneringen?"
 #: src/pages/shell/dialogs.tsx
 msgid "What can this space use?"
 msgstr "Wat kan deze space gebruiken?"
+
+#: src/components/OutcomeCard.tsx
+msgid "What changed"
+msgstr "Wat er is veranderd"
 
 #: src/components/SignupSurvey.tsx
 msgid "What do you most want Rakazo to help with?"

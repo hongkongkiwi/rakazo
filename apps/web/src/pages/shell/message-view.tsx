@@ -17,6 +17,7 @@ import { AskCard } from "../../components/AskCard";
 import { CollaborationMarker } from "../../components/ai/CollaborationMarker";
 import { CloudAgentCard } from "../../components/CloudAgentCard";
 import { McpAppCard } from "../../components/McpAppCard";
+import { OutcomeCard } from "../../components/OutcomeCard";
 import { PageBlockCard } from "../../components/pages/PageBlockCard";
 import { SubagentCard } from "../../components/SubagentCard";
 import {
@@ -416,6 +417,13 @@ export const MessageView = memo(function MessageView({
               >
                 <span className="text-warning">◷</span>
                 <span>{block.text}</span>
+              </div>
+            );
+          }
+          if (block.kind === "outcome") {
+            return (
+              <div key={i} className="flex justify-start">
+                <OutcomeCard block={block} />
               </div>
             );
           }

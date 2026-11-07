@@ -2687,6 +2687,10 @@ msgstr "डिफ़ॉल्ट मेमोरी स्कोप अपडे
 msgid "Could not verify computer setup ({failureMessage}). Fix the connection, then check again."
 msgstr "कंप्यूटर सेटअप की जांच नहीं हो सकी ({failureMessage})। कनेक्शन ठीक करें, फिर से जांचें।"
 
+#: src/components/OutcomeCard.tsx
+msgid "Couldn't confirm"
+msgstr "पुष्टि नहीं हो सकी"
+
 #: src/components/pages/SharePopover.tsx
 msgid "Couldn't copy. Select the link and copy it."
 msgstr "कॉपी नहीं हो सका। लिंक चुनें और उसे कॉपी करें।"
@@ -4896,6 +4900,10 @@ msgstr "मान्य स्किल नहीं"
 msgid "Not added: {0}"
 msgstr "नहीं जोड़े गए: {0}"
 
+#: src/components/OutcomeCard.tsx
+msgid "Not checked"
+msgstr "जाँच नहीं की गई"
+
 #: src/components/McpServerHealthLine.tsx
 msgid "Not checked yet"
 msgstr "अभी तक जाँच नहीं हुई"
@@ -5800,6 +5808,10 @@ msgstr "जवाब रद्द किया गया"
 #: src/pages/shell/composer.tsx
 msgid "Replying to {0}"
 msgstr "{0} को जवाब दे रहे हैं"
+
+#: src/components/OutcomeCard.tsx
+msgid "Reported"
+msgstr "रिपोर्ट किया गया"
 
 #: src/lib/user-error.ts
 msgid "Request a new code"
@@ -7605,6 +7617,10 @@ msgstr "इसकी मेमोरी का क्या करें?"
 #: src/pages/shell/dialogs.tsx
 msgid "What can this space use?"
 msgstr "यह स्पेस क्या उपयोग कर सकता है?"
+
+#: src/components/OutcomeCard.tsx
+msgid "What changed"
+msgstr "क्या बदला"
 
 #: src/components/SignupSurvey.tsx
 msgid "What do you most want Rakazo to help with?"
