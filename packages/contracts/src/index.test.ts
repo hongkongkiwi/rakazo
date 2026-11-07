@@ -242,6 +242,10 @@ describe("contracts", () => {
     expect(ImageAnnotationMarkSchema.safeParse({ x: 0, y: 0, width: 0, height: 0.5 }).success).toBe(
       false,
     );
+    // An origin on the far edge would clip the box to nothing.
+    expect(
+      ImageAnnotationMarkSchema.safeParse({ x: 1, y: 0, width: 0.5, height: 0.5 }).success,
+    ).toBe(false);
     expect(isAnnotatableImageMimeType("image/png")).toBe(true);
     expect(isAnnotatableImageMimeType("image/webp")).toBe(true);
     expect(isAnnotatableImageMimeType("image/gif")).toBe(false);

@@ -13,7 +13,7 @@ async function whitePng(width: number, height: number): Promise<Uint8Array> {
 }
 
 describe("annotateImage", () => {
-  it("adds a legend below the image and keeps the boxes inside it", async () => {
+  it("adds a labeled legend below the image", async () => {
     const { default: sharp } = await import("sharp");
     const result = await annotateImage({
       bytes: await whitePng(200, 100),

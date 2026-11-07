@@ -1,10 +1,8 @@
 import type { ImageAnnotationMark } from "@rakazo/contracts";
+import { IMAGE_ANNOTATION_MAX_MARKS } from "@rakazo/contracts";
 
 const MAX_INPUT_PIXELS = 40_000_000;
 const MAX_EDGE = 6_000;
-const LEGEND_LINE_HEIGHT = 22;
-const LEGEND_PADDING = 12;
-const LEGEND_MAX_LINES = 10;
 const MARK_COLOR = "#e11d48";
 const MARK_HALO = "#ffffff";
 
@@ -61,9 +59,13 @@ export async function annotateImage(input: {
   const labels = input.marks
     .map((mark, index) => ({ index: index + 1, label: mark.label?.trim() }))
     .filter((entry): entry is { index: number; label: string } => Boolean(entry.label));
-  const legendLines = labels.slice(0, LEGEND_MAX_LINES);
+  // Every labeled box gets a line; the schema already bounds the count.
+  const legendLines = labels.slice(0, IMAGE_ANNOTATION_MAX_MARKS);
+  const legendFont = Math.min(28, Math.max(16, Math.round(Math.min(width, height) / 60)));
+  const legendLineHeight = Math.round(legendFont * 1.375);
+  const legendPadding = Math.round(legendFont * 0.75);
   const legendHeight =
-    legendLines.length > 0 ? LEGEND_PADDING * 2 + legendLines.length * LEGEND_LINE_HEIGHT : 0;
+    legendLines.length > 0 ? legendPadding * 2 + legendLines.length * legendLineHeight : 0;
   const outHeight = height + legendHeight;
   const stroke = Math.max(2, Math.round(Math.min(width, height) / 320));
   const badgeRadius = Math.max(10, Math.round(Math.min(width, height) / 60));
@@ -86,30 +88,27 @@ export async function annotateImage(input: {
     })
     .join("");
 
-  // Roughly eight pixels per character at this size; long notes end at the edge.
-  const maxLabelChars = Math.max(20, Math.floor((width - LEGEND_PADDING * 2) / 8));
+  // A rough half-font per character; long notes end at the image's edge.
+  const maxLabelChars = Math.max(20, Math.floor((width - legendPadding * 2) / (legendFont * 0.5)));
   const legend =
     legendLines.length > 0
       ? [
           `<rect x="0" y="${height}" width="${width}" height="${legendHeight}" fill="${MARK_HALO}" />`,
           ...legendLines.map(
             (entry, index) =>
-              `<text x="${LEGEND_PADDING}" y="${height + LEGEND_PADDING + (index + 1) * LEGEND_LINE_HEIGHT - 6}" font-family="sans-serif" font-size="16" fill="#111111">${escapeXml(`${entry.index}. ${entry.label.slice(0, maxLabelChars)}`)}</text>`,
+              `<text x="${legendPadding}" y="${height + legendPadding + (index + 1) * legendLineHeight - Math.round(legendFont * 0.375)}" font-family="sans-serif" font-size="${legendFont}" fill="#111111">${escapeXml(`${entry.index}. ${entry.label.slice(0, maxLabelChars)}`)}</text>`,
           ),
         ].join("")
       : "";
 
   const overlay = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${outHeight}">${boxes}${legend}</svg>`;
-  const extended = await sharp(oriented.data)
-    .extend({
-      bottom: legendHeight,
-      background: { r: 255, g: 255, b: 255, alpha: 1 },
-    })
-    .png()
-    .toBuffer();
   let png: Buffer;
   try {
-    png = await sharp(extended)
+    png = await sharp(oriented.data)
+      .extend({
+        bottom: legendHeight,
+        background: { r: 255, g: 255, b: 255, alpha: 1 },
+      })
       .composite([{ input: Buffer.from(overlay), top: 0, left: 0 }])
       .png()
       .toBuffer();
@@ -124,7 +123,7 @@ export async function annotateImage(input: {
       height: outHeight,
     };
   }
-  const jpeg = await sharp(png).jpeg({ quality: 85 }).toBuffer();
+  const jpeg = await sharp(png).flatten({ background: "#ffffff" }).jpeg({ quality: 85 }).toBuffer();
   if (jpeg.byteLength > input.maxBytes)
     throw new AnnotateImageError("The annotated image is too large to send");
   return {

@@ -92,8 +92,8 @@ export function AnnotateImageModal({
   const responder = useMemo(
     () =>
       PanResponder.create({
-        onStartShouldSetPanResponder: () => marks.length < IMAGE_ANNOTATION_MAX_MARKS,
-        onMoveShouldSetPanResponder: () => true,
+        onStartShouldSetPanResponder: () => !saving && marks.length < IMAGE_ANNOTATION_MAX_MARKS,
+        onMoveShouldSetPanResponder: () => !saving && marks.length < IMAGE_ANNOTATION_MAX_MARKS,
         onPanResponderGrant: (event) => {
           const from = point(event.nativeEvent.locationX, event.nativeEvent.locationY);
           start.current = from;
@@ -116,8 +116,8 @@ export function AnnotateImageModal({
         onPanResponderRelease: finish,
         onPanResponderTerminate: finish,
       }),
-    // The handlers read the current marks and displayed size.
-    [marks, display],
+    // The handlers read the current marks, displayed size, and save state.
+    [marks, display, saving],
   );
 
   const save = async () => {
@@ -144,7 +144,14 @@ export function AnnotateImageModal({
   };
 
   return (
-    <Modal visible animationType="slide" presentationStyle="fullScreen" onRequestClose={onClose}>
+    <Modal
+      visible
+      animationType="slide"
+      presentationStyle="fullScreen"
+      onRequestClose={() => {
+        if (!saving) onClose();
+      }}
+    >
       <View style={{ flex: 1, backgroundColor: tokens.background }}>
         <View
           style={{
@@ -272,6 +279,7 @@ export function AnnotateImageModal({
               </View>
               <TextInput
                 value={mark.label ?? ""}
+                editable={!saving}
                 onChangeText={(text) =>
                   changeMarks(
                     marks.map((candidate, candidateIndex) =>
@@ -297,6 +305,8 @@ export function AnnotateImageModal({
               />
               <Pressable
                 accessibilityLabel={t("Remove box {index}", { index: index + 1 })}
+                disabled={saving}
+                hitSlop={8}
                 onPress={() => changeMarks(marks.filter((_, i) => i !== index))}
               >
                 <Text style={{ color: tokens.mutedForeground, fontSize: 20 }}>×</Text>

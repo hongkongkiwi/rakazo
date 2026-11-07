@@ -205,6 +205,7 @@ export function ThreadComposerDock({
                           ? t("Edit annotation on {name}", { name: attachment.name })
                           : t("Annotate {name}", { name: attachment.name })
                       }
+                      hitSlop={8}
                       onPress={() => onAnnotateAttachment(attachment)}
                     >
                       <NativeSymbol

@@ -31,8 +31,8 @@ export const IMAGE_ANNOTATION_LABEL_MAX = 200;
  * fits every rendered size. The server clamps the rectangle to the image.
  */
 export const ImageAnnotationMarkSchema = z.object({
-  x: z.number().min(0).max(1),
-  y: z.number().min(0).max(1),
+  x: z.number().min(0).lt(1),
+  y: z.number().min(0).lt(1),
   width: z.number().positive().max(1),
   height: z.number().positive().max(1),
   /** A short note drawn in the image's legend beside the box number. */
