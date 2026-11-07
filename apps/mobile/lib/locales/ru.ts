@@ -1,4 +1,5 @@
 export const RU_MESSAGES: Record<string, string> = {
+  "Continued on a different model": "Продолжено на другой модели",
   "No matches": "Нет совпадений",
   "Always ask": "Всегда спрашивать",
   "Search tools": "Поиск инструментов",

@@ -415,7 +415,13 @@ export const MessageView = memo(function MessageView({
                 className="flex items-center justify-center gap-2 py-1 text-body text-muted-foreground"
               >
                 <span className="text-warning">◷</span>
-                <span>{block.text}</span>
+                <span>
+                  {block.code === "model_switch" ? (
+                    <Trans>Continued on a different model</Trans>
+                  ) : (
+                    block.text
+                  )}
+                </span>
               </div>
             );
           }

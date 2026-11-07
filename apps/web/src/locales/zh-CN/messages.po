@@ -2050,6 +2050,10 @@ msgstr "继续结账"
 msgid "Continue with {0}"
 msgstr "通过 {0} 继续"
 
+#: src/pages/shell/message-view.tsx
+msgid "Continued on a different model"
+msgstr "已在其他模型上继续"
+
 #: src/pages/MessagingSettingsPanel.tsx
 msgid "Conversations"
 msgstr "对话"

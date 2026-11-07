@@ -1,4 +1,5 @@
 export const ZH_MESSAGES: Record<string, string> = {
+  "Continued on a different model": "已在其他模型上继续",
   "No matches": "没有匹配项",
   "Always ask": "始终询问",
   "Search tools": "搜索工具",

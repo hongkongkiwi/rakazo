@@ -40,6 +40,42 @@ export function serializeTurnCheckpoint(checkpoint: TurnCheckpoint): string {
   return JSON.stringify(checkpoint);
 }
 
+/** The provider and model a saved turn last ran on, when the blob names them. */
+export function checkpointProviderModel(
+  blob: string,
+): { provider: string; model: string } | undefined {
+  try {
+    const checkpoint = JSON.parse(blob) as { provider?: unknown; model?: unknown };
+    return typeof checkpoint.provider === "string" && typeof checkpoint.model === "string"
+      ? { provider: checkpoint.provider, model: checkpoint.model }
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Added to a resumed checkpoint's system prompt when the model changed mid-task. */
+export const MODEL_SWITCH_INSTRUCTION =
+  "This run continues after a model change. The transcript is the same task, not new instructions. Before repeating a tool call whose outcome is uncertain, verify the destination first.";
+
+/** The runtime resumes from the checkpoint's own prompt, so the reminder travels inside it. */
+export function withModelSwitchInstruction(blob: string): string {
+  try {
+    const checkpoint = JSON.parse(blob) as { systemPrompt?: unknown };
+    if (
+      typeof checkpoint.systemPrompt !== "string" ||
+      checkpoint.systemPrompt.includes(MODEL_SWITCH_INSTRUCTION)
+    )
+      return blob;
+    return JSON.stringify({
+      ...checkpoint,
+      systemPrompt: `${checkpoint.systemPrompt}\n\n${MODEL_SWITCH_INSTRUCTION}`,
+    });
+  } catch {
+    return blob;
+  }
+}
+
 export function restoreTurnCheckpoint(
   blob: string,
   model: Pick<AgentRunModel, "provider" | "id">,

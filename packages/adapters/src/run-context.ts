@@ -169,6 +169,8 @@ export interface RunState {
   toolCallStreak: LoopGuardStreak;
   /** Result fingerprints of finished calls, read when the next call is tracked. */
   toolResults: Map<string, string>;
+  /** This attempt resumed a saved turn on a different provider or model. */
+  modelSwitched: boolean;
   /** Consecutive `computer_act`/`browser_act` batches over the action limit, this one included. */
   overLimitActionCalls: number;
   /**

@@ -222,7 +222,11 @@ import {
 import { loadAgentTicketContext } from "./ticket-context.js";
 import { appendToolCompletionAudit } from "./tool-completion-audit.js";
 import { toolResultFingerprint } from "./tool-loop.js";
-import { restoreTurnCheckpoint } from "./turn-checkpoint.js";
+import {
+  checkpointProviderModel,
+  restoreTurnCheckpoint,
+  withModelSwitchInstruction,
+} from "./turn-checkpoint.js";
 import { createWebProvider } from "./web-provider-factory.js";
 
 /** Same reach as the MCP connector: usable servers assigned to the bot or shared with every bot. */
@@ -1413,6 +1417,7 @@ export function createRunExecutor(executorDeps: ExecutorDeps) {
           toolCallStreak: { key: undefined, count: 0 },
           overLimitActionCalls: 0,
           toolResults: new Map(),
+          modelSwitched: false,
           tainted: initiallyTainted,
           ownerSettingsRefused: false,
           // A resumed turn replaces this with the baseline its saved prompt was built from.
@@ -1548,6 +1553,23 @@ export function createRunExecutor(executorDeps: ExecutorDeps) {
             )}\n\n${taskPrompt}`
           : taskPrompt;
         if (turnCheckpoint) {
+          const savedTurn = checkpointProviderModel(turnCheckpoint);
+          // A computer-mode turn saved the computer model, not the main model.
+          const activeProvider =
+            savedComputerMode?.mode === "computer"
+              ? savedComputerMode.computer.provider
+              : runModelProvider;
+          const activeModel =
+            savedComputerMode?.mode === "computer" ? savedComputerMode.computer.id : runModelId;
+          if (
+            savedTurn &&
+            (savedTurn.provider !== activeProvider || savedTurn.model !== activeModel)
+          ) {
+            ctx.state.modelSwitched = true;
+            // The runtime resumes from the checkpoint's own system prompt, not this request's
+            // instructions, so the reminder has to travel inside the checkpoint.
+            turnCheckpoint = withModelSwitchInstruction(turnCheckpoint);
+          }
           turnCheckpoint = restoreTurnCheckpointEffects(
             ctx,
             turnCheckpoint,

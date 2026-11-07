@@ -2,7 +2,12 @@ import type { Api, Message, Model } from "@earendil-works/pi-ai";
 import type { AgentRunRequest } from "@rakazo/adapter-kit";
 import { describe, expect, it } from "vitest";
 import { createRuntimeContextPolicy } from "./runtime-context.js";
-import { restoreTurnCheckpoint, serializeTurnCheckpoint } from "./turn-checkpoint.js";
+import {
+  checkpointProviderModel,
+  restoreTurnCheckpoint,
+  serializeTurnCheckpoint,
+  withModelSwitchInstruction,
+} from "./turn-checkpoint.js";
 
 const assistant = {
   role: "assistant",
@@ -180,5 +185,20 @@ describe("turn checkpoint", () => {
     );
     expect(screenshots).toHaveLength(1);
     expect(screenshots[0]).toMatchObject({ toolCallId: "shot-2" });
+  });
+
+  it("reads the provider and model a saved turn last ran on", () => {
+    expect(checkpointProviderModel(serializeTurnCheckpoint(checkpoint))).toEqual({
+      provider: "fixture",
+      model: "first",
+    });
+    expect(checkpointProviderModel("not json")).toBeUndefined();
+    expect(checkpointProviderModel(JSON.stringify({ provider: "fixture" }))).toBeUndefined();
+  });
+
+  it("adds the model-switch reminder to a resumed prompt exactly once", () => {
+    const once = withModelSwitchInstruction(serializeTurnCheckpoint(checkpoint));
+    expect(JSON.parse(once).systemPrompt).toContain("model change");
+    expect(withModelSwitchInstruction(once)).toBe(once);
   });
 });

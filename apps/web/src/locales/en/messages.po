@@ -2050,6 +2050,10 @@ msgstr "Continue to checkout"
 msgid "Continue with {0}"
 msgstr "Continue with {0}"
 
+#: src/pages/shell/message-view.tsx
+msgid "Continued on a different model"
+msgstr "Continued on a different model"
+
 #: src/pages/MessagingSettingsPanel.tsx
 msgid "Conversations"
 msgstr "Conversations"

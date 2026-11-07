@@ -1,4 +1,5 @@
 export const ES_MESSAGES: Record<string, string> = {
+  "Continued on a different model": "Continuado en otro modelo",
   "No matches": "Sin resultados",
   "Always ask": "Preguntar siempre",
   "Search tools": "Buscar herramientas",

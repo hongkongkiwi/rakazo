@@ -850,6 +850,18 @@ export async function completeRun(ctx: RunContext) {
         redactBlocks(completionBlocks, ctx.secrets),
         reply.publishedMidTurnUserMessage || runAllowsSilentEmpty(run.trigger),
       );
+  // A resumed turn says which model continued it, so the change is visible in the thread.
+  const replyBlocks =
+    ctx.state.modelSwitched && blocks.length > 0
+      ? [
+          {
+            kind: "meta" as const,
+            text: "Continued on a different model",
+            code: "model_switch" as const,
+          },
+          ...blocks,
+        ]
+      : blocks;
   const text = ctx.state.handedOff
     ? ""
     : redactSecrets(completionNotificationBody(silentReply.assembled, blocks), ctx.secrets);
@@ -882,7 +894,7 @@ export async function completeRun(ctx: RunContext) {
     leaseOwner: ctx.workerId,
     leaseFence: ctx.fence,
     outcome: "completed",
-    blocks,
+    blocks: replyBlocks,
     markUnread:
       !groupSilentEnd &&
       completionMarksUnread(run.trigger, text, ctx.source.peerMessage?.repliesToRequest === true),

@@ -2050,6 +2050,10 @@ msgstr "결제 계속하기"
 msgid "Continue with {0}"
 msgstr "{0}(으)로 계속"
 
+#: src/pages/shell/message-view.tsx
+msgid "Continued on a different model"
+msgstr "다른 모델에서 계속됨"
+
 #: src/pages/MessagingSettingsPanel.tsx
 msgid "Conversations"
 msgstr "대화"
