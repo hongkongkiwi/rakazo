@@ -14,7 +14,7 @@ type EffectRow = {
 type Fixture = {
   effects?: EffectRow[];
   artifacts?: Array<{ id: string; name: string; storageKey: string; runId?: string }>;
-  messages?: Array<{ blocks: unknown; runId?: string }>;
+  messages?: Array<{ blocks: unknown; runId?: string; role?: string }>;
   pages?: Record<string, { id: string }>;
   versions?: Record<string, { id: string }>;
   has?: (id: string) => boolean | null | Promise<boolean | null>;
@@ -46,8 +46,11 @@ function fixture(rows: Fixture = {}) {
       ),
     },
     message: {
-      findMany: vi.fn(async ({ where }: { where: { runId: string } }) =>
-        (rows.messages ?? []).filter((row) => (row.runId ?? scope.runId) === where.runId),
+      findMany: vi.fn(async ({ where }: { where: { runId: string; role: string } }) =>
+        (rows.messages ?? []).filter(
+          (row) =>
+            (row.runId ?? scope.runId) === where.runId && (row.role ?? where.role) === where.role,
+        ),
       ),
     },
     page: {
@@ -69,8 +72,8 @@ function fixture(rows: Fixture = {}) {
   return { deps, has, prisma };
 }
 
-function pageBlock(pageId: string, version: number, title: string) {
-  return { blocks: [{ kind: "page", pageId, version, title }] };
+function pageBlock(pageId: string, version: number, title: string, role = "bot") {
+  return { blocks: [{ kind: "page", pageId, version, title }], role };
 }
 
 describe("buildOutcomeBlock", () => {
@@ -198,14 +201,24 @@ describe("buildOutcomeBlock", () => {
 
   it("reports a page whose saved version cannot be found", async () => {
     const { deps, prisma } = fixture({
-      messages: [pageBlock("page-1", 2, "Launch plan")],
+      messages: [
+        pageBlock("page-1", 2, "Launch plan"),
+        // A person's page card is not a bot result and must not be checked.
+        pageBlock("page-user", 1, "User page", "user"),
+      ],
       pages: { "page-1": { id: "page-1" } },
       // An older version exists, so a check that asks for the wrong one would pass.
       versions: { "page-1:1": { id: "version-1" } },
     });
     const block = await buildOutcomeBlock(deps, scope);
+    expect(prisma.message.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { runId: "run-1", role: "bot" } }),
+    );
     expect(prisma.page.findFirst).toHaveBeenCalledWith(
       expect.objectContaining({ where: { id: "page-1", spaceId: "space-1" } }),
+    );
+    expect(prisma.page.findFirst).not.toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ id: "page-user" }) }),
     );
     expect(prisma.pageVersion.findUnique).toHaveBeenCalledWith(
       expect.objectContaining({
