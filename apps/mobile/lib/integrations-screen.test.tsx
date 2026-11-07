@@ -94,6 +94,28 @@ vi.mock("./i18n", () => ({
   useI18n: () => ({ t: (text: string) => text }),
 }));
 vi.mock("../components/row-accessories", () => ({ Chevron: () => null }));
+vi.mock("../components/native-switch", () => ({
+  NativeSwitch: ({
+    value,
+    onValueChange,
+    disabled,
+    accessibilityLabel,
+  }: {
+    value: boolean;
+    onValueChange: (value: boolean) => void;
+    disabled?: boolean;
+    accessibilityLabel: string;
+  }) => (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={value}
+      aria-label={accessibilityLabel}
+      disabled={disabled}
+      onClick={() => onValueChange(!value)}
+    />
+  ),
+}));
 vi.mock("react-native-safe-area-context", () => ({
   SafeAreaView: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
@@ -725,7 +747,8 @@ it("shows registered MCP servers with connector initials and sentence case statu
     "BBroken serverNot working",
     "EExpired serverNeeds sign-inReconnect",
   ]);
-  for (const row of [...rows].slice(0, 4)) expect(row.querySelector("button")).toBeNull();
+  for (const row of [...rows].slice(0, 4))
+    expect(row.querySelector('button:not([role="switch"])')).toBeNull();
   expect(rows[0]?.querySelector('[data-symbol="checkmark"]')?.getAttribute("data-color")).toBe(
     "green",
   );
@@ -751,6 +774,41 @@ it("shows registered MCP servers with connector initials and sentence case statu
   const matches = container.querySelectorAll('[data-testid="registered-mcp-server"]');
   expect([...matches].map((row) => row.textContent)).toEqual(["SSaved serverConnected"]);
   expect(container.textContent).not.toContain("No apps match your search.");
+});
+
+it("switches a saved server off and back on without removing it", async () => {
+  const fallback = state.rpc.getMockImplementation();
+  let enabled = true;
+  state.rpc.mockImplementation((proc: string, ...args: unknown[]) => {
+    if (proc === "mcp/servers/list")
+      return Promise.resolve([
+        { id: "saved", name: "Saved server", enabled, hasSecret: false, health: { status: "ok" } },
+      ]);
+    if (proc === "mcp/servers/setEnabled") {
+      enabled = (args[0] as { enabled: boolean }).enabled;
+      return Promise.resolve({
+        id: "saved",
+        name: "Saved server",
+        enabled,
+        hasSecret: false,
+        health: { status: "ok" },
+      });
+    }
+    return fallback?.(proc, ...args);
+  });
+  await render();
+  const row = () => container.querySelector('[data-testid="registered-mcp-server"]');
+  const toggle = () => row()?.querySelector<HTMLButtonElement>('button[role="switch"]');
+  expect(toggle()?.getAttribute("aria-checked")).toBe("true");
+
+  await act(async () => toggle()?.click());
+  expect(state.rpc).toHaveBeenCalledWith("mcp/servers/setEnabled", { id: "saved", enabled: false });
+  expect(toggle()?.getAttribute("aria-checked")).toBe("false");
+  expect(row()?.textContent).toContain("Disabled");
+
+  await act(async () => toggle()?.click());
+  expect(toggle()?.getAttribute("aria-checked")).toBe("true");
+  expect(row()?.textContent).toContain("Connected");
 });
 
 const plugin = {

@@ -181,7 +181,8 @@ const McpServerBaseInput = z.object({
   slug: z.string().regex(/^[a-z0-9][a-z0-9_-]{0,63}$/),
   name: z.string().trim().min(1).max(120),
   description: z.string().max(2000).default(""),
-  enabled: z.boolean().default(true),
+  /** Omitted keeps the stored value on update and starts enabled on create. */
+  enabled: z.boolean().optional(),
   /** Keep this server's tool results whole instead of cutting them to fit context. Omitted keeps the stored value. */
   verbatimResults: z.boolean().optional(),
   /** Update-only: drop the stored static credential (secret/env/headers).

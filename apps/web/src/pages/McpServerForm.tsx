@@ -167,7 +167,8 @@ export function mcpServerConfig(draft: McpServerDraft, editing: McpServer | null
               authorizationServer: draft.oauthAuthorizationServer.trim(),
             }
           : undefined,
-        enabled: true,
+        // An edit leaves the switch alone; only a new server starts enabled.
+        ...(editing ? {} : { enabled: true }),
         verbatimResults: draft.verbatimResults,
       }
     : {
@@ -178,7 +179,7 @@ export function mcpServerConfig(draft: McpServerDraft, editing: McpServer | null
         headers,
         secret: draft.secret || undefined,
         oauthClient: oauthBase,
-        enabled: true,
+        ...(editing ? {} : { enabled: true }),
         verbatimResults: draft.verbatimResults,
       };
 }

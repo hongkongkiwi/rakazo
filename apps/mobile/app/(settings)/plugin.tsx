@@ -34,6 +34,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { NativeActionButton } from "../../components/native-action-button";
+import { NativeSwitch } from "../../components/native-switch";
 import { NativeSymbol } from "../../components/native-symbol";
 import { PluginIcon } from "../../components/plugin-icon";
 import { SkillSymbol } from "../../components/skill-symbol";
@@ -267,6 +268,19 @@ function PluginScreen() {
       t("Could not enable tools"),
     );
 
+  const setServerEnabled = (server: McpServer, enabled: boolean) =>
+    run(
+      server.id,
+      async () => {
+        const updated = await rpc("mcp/servers/setEnabled", { id: server.id, enabled });
+        if (!live.current) return;
+        setAllServers((current) =>
+          current.map((item) => (item.id === updated.id ? updated : item)),
+        );
+      },
+      t("Could not change the server"),
+    );
+
   const busy = Boolean(pending);
   const parsed = install ? PluginPreviewSchema.safeParse(install.config) : null;
   const detail = parsed?.success ? parsed.data : preview;
@@ -486,7 +500,7 @@ function PluginScreen() {
                           prominence="secondary"
                         />
                       )}
-                      {botId ? (
+                      {botId && server.enabled ? (
                         assigned.has(server.id) ? (
                           <Text style={styles.secondary}>{t("In this bot")}</Text>
                         ) : (
@@ -499,6 +513,16 @@ function PluginScreen() {
                           />
                         )
                       ) : null}
+                      <NativeSwitch
+                        value={server.enabled}
+                        disabled={busy}
+                        accessibilityLabel={
+                          server.enabled
+                            ? t("Disable {name}", { name: server.name })
+                            : t("Enable {name}", { name: server.name })
+                        }
+                        onValueChange={(enabled) => void setServerEnabled(server, enabled)}
+                      />
                     </View>
                   </View>
                 ))

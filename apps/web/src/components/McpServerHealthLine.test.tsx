@@ -67,6 +67,17 @@ describe("McpServerHealthLine", () => {
     expect(render({ status: "error" })).not.toContain('data-testid="mcp-health-details"');
   });
 
+  it("says a switched-off server is disabled, whatever its last check found", () => {
+    for (const status of ["ok", "error"] as const) {
+      const html = renderToStaticMarkup(
+        <McpServerHealthLine health={{ ...base, status }} enabled={false} />,
+      );
+      expect(html).toContain('data-status="disabled"');
+      expect(html).toContain("Disabled");
+      expect(html).not.toContain("Not working");
+    }
+  });
+
   it("says so when the server was never checked", () => {
     expect(render({ status: "unknown" })).toContain("Not checked yet");
   });

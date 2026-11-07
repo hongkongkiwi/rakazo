@@ -1139,6 +1139,8 @@ export const appContract = {
           ]),
         )
         .output(McpServerSchema),
+      /** Switch a server off without deleting it; bots stop seeing it until it is switched on. */
+      setEnabled: oc.input(z.object({ id: Id, enabled: z.boolean() })).output(McpServerSchema),
       remove: oc.input(z.object({ id: Id })).output(z.object({ ok: z.literal(true) })),
       /** Launch the server once (installing a stdio package if needed), list its tools, close it. */
       test: oc.input(z.object({ id: Id })).output(McpServerSchema),

@@ -15,6 +15,7 @@ const mocks = vi.hoisted(() => ({
   test: vi.fn(),
   update: vi.fn(),
   agents: vi.fn(),
+  setEnabled: vi.fn(),
 }));
 const access = vi.hoisted(() => ({ all: vi.fn(), bots: vi.fn() }));
 const api = vi.hoisted(() => ({
@@ -161,6 +162,28 @@ vi.mock("@rakazo/ui-web", async () => {
           onClick: () => onCheckedChange?.(!checked),
         }),
     ],
+    [
+      "Switch",
+      ({
+        checked,
+        disabled,
+        onCheckedChange,
+        "aria-label": label,
+      }: {
+        checked?: boolean;
+        disabled?: boolean;
+        onCheckedChange?: (checked: boolean) => void;
+        "aria-label"?: string;
+      }) =>
+        createElement("button", {
+          type: "button",
+          role: "switch",
+          "aria-checked": String(checked === true),
+          "aria-label": label,
+          disabled,
+          onClick: () => onCheckedChange?.(checked !== true),
+        }),
+    ],
     ["toast", { success: vi.fn(), error: vi.fn() }],
   ]);
 });
@@ -207,6 +230,31 @@ function oauthServer(id: string) {
     enabled: true,
   } as McpServer;
 }
+
+it("switches a server off without deleting it", async () => {
+  const on = oauthServer("Mobbin");
+  mocks.list.mockReset().mockResolvedValue([on]);
+  mocks.setEnabled.mockReset().mockResolvedValue({ ...on, enabled: false });
+  const host = document.createElement("div");
+  const root = createRoot(host);
+  try {
+    await act(async () => root.render(overlay()));
+    const toggle = await vi.waitFor(() => {
+      const button = host.querySelector<HTMLButtonElement>('button[role="switch"]');
+      expect(button).not.toBeNull();
+      return button!;
+    });
+    expect(toggle.getAttribute("aria-checked")).toBe("true");
+    expect(toggle.getAttribute("aria-label")).toBe("Disable Mobbin");
+
+    await act(async () => toggle.click());
+    expect(mocks.setEnabled).toHaveBeenCalledWith({ id: "Mobbin", enabled: false });
+    await vi.waitFor(() => expect(host.textContent).toContain("Disabled"));
+    expect(host.querySelector('button[role="switch"]')?.getAttribute("aria-checked")).toBe("false");
+  } finally {
+    await act(async () => root.unmount());
+  }
+});
 
 it("clears a server's own browser sign-in and its stored grant", async () => {
   const clear = vi.fn().mockResolvedValue(undefined);

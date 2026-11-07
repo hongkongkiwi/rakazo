@@ -51,6 +51,15 @@ describe.skipIf(!enabled).sequential("MCP server agents (PostgreSQL)", () => {
           createdAt: new Date(),
         },
       });
+      await prisma.member.create({
+        data: {
+          id: `${userId}-member`,
+          organizationId,
+          userId,
+          role: "owner",
+          createdAt: new Date(),
+        },
+      });
       await prisma.space.create({
         data: {
           id: spaceId,
@@ -58,6 +67,15 @@ describe.skipIf(!enabled).sequential("MCP server agents (PostgreSQL)", () => {
           name: "General",
           isDefault: true,
           createdByUserId: userId,
+        },
+      });
+      await prisma.spaceMember.create({
+        data: {
+          id: `${userId}-${spaceId}`,
+          organizationId,
+          spaceId,
+          userId,
+          createdAt: new Date(),
         },
       });
       for (const [name, id] of Object.entries(botIds))
@@ -113,16 +131,122 @@ describe.skipIf(!enabled).sequential("MCP server agents (PostgreSQL)", () => {
   );
 
   it(
+    "switches a server off and on without changing its configuration",
+    asActor(async () => {
+      const created = await client().mcp.servers.create({
+        transport: "streamable_http",
+        slug: "toggle-server",
+        name: "Toggle",
+        endpoint: "https://mcp.search-console.test/mcp",
+        headers: {},
+        enabled: true,
+      });
+      const off = await client().mcp.servers.setEnabled({ id: created.id, enabled: false });
+      expect(off.enabled).toBe(false);
+      expect(off.revision).toBeGreaterThan(created.revision);
+      expect(off.endpoint).toBe(created.endpoint);
+
+      const listed = (await client().mcp.servers.list()).find((row) => row.id === created.id);
+      expect(listed?.enabled).toBe(false);
+
+      // A config edit that leaves the switch out keeps it off.
+      const edited = await client().mcp.servers.update({
+        id: created.id,
+        config: {
+          transport: "streamable_http",
+          slug: "toggle-server",
+          name: "Toggle renamed",
+          endpoint: "https://mcp.search-console.test/mcp",
+          headers: {},
+        },
+      });
+      expect(edited.enabled).toBe(false);
+      expect(edited.name).toBe("Toggle renamed");
+
+      const on = await client().mcp.servers.setEnabled({ id: created.id, enabled: true });
+      expect(on.enabled).toBe(true);
+      // Repeating the current state changes nothing.
+      expect(
+        (await client().mcp.servers.setEnabled({ id: created.id, enabled: true })).revision,
+      ).toBe(on.revision);
+
+      // Two identical requests race: one transition and one revision bump.
+      const [first, second] = await Promise.all([
+        client().mcp.servers.setEnabled({ id: created.id, enabled: false }),
+        client().mcp.servers.setEnabled({ id: created.id, enabled: false }),
+      ]);
+      expect(first.revision).toBe(on.revision + 1);
+      expect(second.revision).toBe(first.revision);
+    }),
+  );
+
+  it(
+    "keeps a server available in no space while its settings still list it",
+    asActor(async () => {
+      const created = await client().mcp.servers.create({
+        transport: "streamable_http",
+        slug: "parked-server",
+        name: "Parked",
+        endpoint: "https://mcp.search-console.test/mcp",
+        headers: {},
+        enabled: true,
+      });
+      expect(
+        await client().availability.set({
+          kind: "mcpServer",
+          id: created.id,
+          allSpaces: false,
+          spaceIds: [],
+        }),
+      ).toEqual({ allSpaces: false, spaceIds: [] });
+
+      const listed = (await client().mcp.servers.list()).find((row) => row.id === created.id);
+      expect(listed?.availability).toEqual({ allSpaces: false, spaceIds: [] });
+
+      // The parked server still holds its name in the space that keeps it.
+      await client().mcp.servers.create({
+        transport: "streamable_http",
+        slug: "taken-server",
+        name: "Taken",
+        endpoint: "https://mcp.search-console.test/mcp",
+        headers: {},
+      });
+      await expect(
+        client().mcp.servers.update({
+          id: created.id,
+          config: {
+            transport: "streamable_http",
+            slug: "taken-server",
+            name: "Parked",
+            endpoint: "https://mcp.search-console.test/mcp",
+            headers: {},
+            enabled: false,
+          },
+        }),
+      ).rejects.toMatchObject({ code: "CONFLICT" });
+
+      await client().availability.set({
+        kind: "mcpServer",
+        id: created.id,
+        allSpaces: false,
+        spaceIds: [actor.spaceId],
+      });
+    }),
+  );
+
+  it(
     "refuses agents and servers the user does not own",
     asActor(async () => {
-      const [server] = await client().mcp.servers.list();
+      const server = (await client().mcp.servers.list()).find(
+        (row) => row.slug === "search-console",
+      );
       await expect(
         client().mcp.servers.agents({ id: server!.id, allBots: false, botIds: ["other-bot"] }),
       ).rejects.toThrow();
       await expect(
         client().mcp.servers.agents({ id: "other-server", allBots: true }),
       ).rejects.toThrow();
-      expect((await client().mcp.servers.list())[0]?.allBots).toBe(true);
+      expect(server?.allBots).toBe(true);
     }),
   );
 });

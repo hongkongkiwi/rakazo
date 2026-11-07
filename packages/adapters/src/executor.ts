@@ -25,7 +25,6 @@ import type { ThreadEvents } from "@rakazo/db";
 import {
   accountDeactivated,
   appendEventInTransaction,
-  availableInSpace,
   cancelDeactivatedAccountRuns,
   cancelRunsInTransaction,
   createPendingSteeringRun,
@@ -33,6 +32,7 @@ import {
   isPartialReplyClientNonce,
   loadRunHistoryMessages,
   loadRunTurnCheckpoint,
+  mcpServerAvailableInSpace,
   parseComputerMode,
   RunHistoryWriteError,
   readRunTimingFields,
@@ -235,7 +235,7 @@ async function verbatimMcpServersForRun(
     where: {
       verbatimResults: true,
       enabled: true,
-      ...availableInSpace(scope),
+      ...mcpServerAvailableInSpace(scope),
       AND: [{ OR: [{ allBots: true }, { assignments: { some: { botId: scope.botId } } }] }],
     },
     select: { id: true, slug: true },

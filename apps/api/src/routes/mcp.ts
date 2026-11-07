@@ -14,6 +14,7 @@ import {
   IsolationError,
   isUniqueViolation,
   itemSecretIn,
+  mcpServerAvailableInSpace,
 } from "@rakazo/db";
 import { getLogger } from "@rakazo/logging";
 import {
@@ -268,7 +269,8 @@ export function mcpRoutes(ctx: RouterContext) {
                       headers: ("headers" in config
                         ? Object.fromEntries(Object.keys(config.headers).map((key) => [key, true]))
                         : {}) as Prisma.InputJsonValue,
-                      enabled: config.enabled,
+                      // A config edit that leaves the switch out keeps whatever it is now.
+                      enabled: config.enabled ?? current.enabled,
                       verbatimResults: config.verbatimResults,
                       revision: { increment: 1 },
                       // The old verdict is about the old config.
@@ -295,6 +297,32 @@ export function mcpRoutes(ctx: RouterContext) {
             }
           }
           throw new ORPCError("CONFLICT", { message: "MCP credentials changed; retry" });
+        }),
+        setEnabled: authed.mcp.servers.setEnabled.handler(async ({ context, input }) => {
+          const { row, changed } = await deps.prisma.$transaction(async (tx) => {
+            // Config saves take this lock too, so neither can overwrite the other's state.
+            await lockMcpOAuthMaterial(tx, input.id);
+            const server = await tx.mcpServer.findFirst({
+              where: { id: input.id, ...availableInSpace(context.actor) },
+              include: { availableIn: AVAILABILITY_SELECT },
+            });
+            if (!server) throw new IsolationError();
+            if (server.enabled === input.enabled) return { row: server, changed: false };
+            // A new revision drops live MCP sessions and checks made for the old state.
+            return {
+              row: await tx.mcpServer.update({
+                where: { id: server.id },
+                data: { enabled: input.enabled, revision: { increment: 1 } },
+                include: { availableIn: AVAILABILITY_SELECT },
+              }),
+              changed: true,
+            };
+          });
+          const oauth = await mcpOAuth.summaryFor(row, context.actor);
+          return mcpServerDto(
+            changed && input.enabled ? await beginMcpProbe(row, context.actor, oauth) : row,
+            oauth,
+          );
         }),
         test: authed.mcp.servers.test.handler(async ({ context, input }) => {
           const scope = { id: input.id, ...availableInSpace(context.actor) };
@@ -410,7 +438,7 @@ export function mcpRoutes(ctx: RouterContext) {
               spaceId: context.actor.spaceId,
               userId: context.actor.userId,
               bot: { archivedAt: null },
-              server: availableInSpace(context.actor),
+              server: mcpServerAvailableInSpace(context.actor),
             },
             orderBy: { createdAt: "asc" },
           });
@@ -430,7 +458,7 @@ export function mcpRoutes(ctx: RouterContext) {
               botId: bot.id,
               spaceId: context.actor.spaceId,
               userId: context.actor.userId,
-              server: availableInSpace(context.actor),
+              server: mcpServerAvailableInSpace(context.actor),
             },
             orderBy: { createdAt: "asc" },
           });
@@ -459,7 +487,7 @@ export function mcpRoutes(ctx: RouterContext) {
                 tx.mcpServer.findFirst({
                   where: {
                     id: input.serverId,
-                    ...availableInSpace(context.actor),
+                    ...mcpServerAvailableInSpace(context.actor),
                     enabled: true,
                   },
                   select: { id: true },
@@ -523,7 +551,7 @@ export function mcpRoutes(ctx: RouterContext) {
             const servers = await tx.mcpServer.findMany({
               where: {
                 id: { in: input.assignments.map((assignment) => assignment.serverId) },
-                ...availableInSpace(context.actor),
+                ...mcpServerAvailableInSpace(context.actor),
               },
               select: { id: true },
             });

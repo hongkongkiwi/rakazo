@@ -2154,6 +2154,10 @@ msgstr "無法變更"
 msgid "Could not change password"
 msgstr "無法修改密碼"
 
+#: src/pages/McpServersOverlay.tsx
+msgid "Could not change the server"
+msgstr ""
+
 #: src/components/integrations/space-availability.tsx
 msgid "Could not change where this is available"
 msgstr "無法變更可用範圍"
@@ -3072,10 +3076,16 @@ msgstr "你是指 <0>{emailSuggestion}</0> 嗎？"
 msgid "Didn't catch that."
 msgstr "沒聽清楚。"
 
+#. placeholder {0}: server.name
+#: src/pages/McpServersOverlay.tsx
+msgid "Disable {0}"
+msgstr ""
+
 #: src/pages/shell/bot-settings-sections.tsx
 msgid "Disable a tool"
 msgstr "停用工具"
 
+#: src/components/McpServerHealthLine.tsx
 #: src/pages/plugins/parts.tsx
 msgid "Disabled"
 msgstr "已停用"
@@ -3265,6 +3275,8 @@ msgid "Email verification required"
 msgstr "需要驗證電子信箱"
 
 #. placeholder {0}: humanizeTool(toolName)
+#. placeholder {0}: server.name
+#: src/pages/McpServersOverlay.tsx
 #: src/pages/shell/bot-settings-sections.tsx
 msgid "Enable {0}"
 msgstr "啟用 {0}"
@@ -4877,6 +4889,10 @@ msgstr "還沒有執行紀錄"
 #: src/pages/KnowledgeSection.tsx
 msgid "No skills yet"
 msgstr "尚無技能"
+
+#: src/components/integrations/space-availability.tsx
+msgid "No spaces"
+msgstr ""
 
 #: src/pages/PluginSubmissionsPanel.tsx
 msgid "No submissions"

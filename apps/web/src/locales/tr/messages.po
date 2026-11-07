@@ -2153,6 +2153,10 @@ msgstr "Değiştirilemedi"
 msgid "Could not change password"
 msgstr "Parola değiştirilemedi"
 
+#: src/pages/McpServersOverlay.tsx
+msgid "Could not change the server"
+msgstr ""
+
 #: src/components/integrations/space-availability.tsx
 msgid "Could not change where this is available"
 msgstr "Kullanılabilir alanlar değiştirilemedi"
@@ -3071,10 +3075,16 @@ msgstr "<0>{emailSuggestion}</0> mi demek istediniz?"
 msgid "Didn't catch that."
 msgstr "Anlaşılamadı."
 
+#. placeholder {0}: server.name
+#: src/pages/McpServersOverlay.tsx
+msgid "Disable {0}"
+msgstr ""
+
 #: src/pages/shell/bot-settings-sections.tsx
 msgid "Disable a tool"
 msgstr "Bir aracı devre dışı bırak"
 
+#: src/components/McpServerHealthLine.tsx
 #: src/pages/plugins/parts.tsx
 msgid "Disabled"
 msgstr "Devre dışı"
@@ -3264,6 +3274,8 @@ msgid "Email verification required"
 msgstr "E-posta doğrulaması gerekiyor"
 
 #. placeholder {0}: humanizeTool(toolName)
+#. placeholder {0}: server.name
+#: src/pages/McpServersOverlay.tsx
 #: src/pages/shell/bot-settings-sections.tsx
 msgid "Enable {0}"
 msgstr "{0} etkinleştir"
@@ -4876,6 +4888,10 @@ msgstr "Henüz çalıştırma yok"
 #: src/pages/KnowledgeSection.tsx
 msgid "No skills yet"
 msgstr "Henüz beceri yok"
+
+#: src/components/integrations/space-availability.tsx
+msgid "No spaces"
+msgstr ""
 
 #: src/pages/PluginSubmissionsPanel.tsx
 msgid "No submissions"

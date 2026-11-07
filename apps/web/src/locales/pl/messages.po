@@ -2153,6 +2153,10 @@ msgstr "Nie udało się zmienić"
 msgid "Could not change password"
 msgstr "Nie udało się zmienić hasła"
 
+#: src/pages/McpServersOverlay.tsx
+msgid "Could not change the server"
+msgstr "Nie udało się zmienić serwera"
+
 #: src/components/integrations/space-availability.tsx
 msgid "Could not change where this is available"
 msgstr "Nie udało się zmienić dostępności"
@@ -3071,10 +3075,16 @@ msgstr "Czy chodziło o <0>{emailSuggestion}</0>?"
 msgid "Didn't catch that."
 msgstr "Nie udało się tego rozpoznać."
 
+#. placeholder {0}: server.name
+#: src/pages/McpServersOverlay.tsx
+msgid "Disable {0}"
+msgstr "Wyłącz {0}"
+
 #: src/pages/shell/bot-settings-sections.tsx
 msgid "Disable a tool"
 msgstr "Wyłącz narzędzie"
 
+#: src/components/McpServerHealthLine.tsx
 #: src/pages/plugins/parts.tsx
 msgid "Disabled"
 msgstr "Wyłączone"
@@ -3264,6 +3274,8 @@ msgid "Email verification required"
 msgstr "Wymagana weryfikacja adresu e-mail"
 
 #. placeholder {0}: humanizeTool(toolName)
+#. placeholder {0}: server.name
+#: src/pages/McpServersOverlay.tsx
 #: src/pages/shell/bot-settings-sections.tsx
 msgid "Enable {0}"
 msgstr "Włącz {0}"
@@ -4876,6 +4888,10 @@ msgstr "Brak uruchomień"
 #: src/pages/KnowledgeSection.tsx
 msgid "No skills yet"
 msgstr "Brak umiejętności"
+
+#: src/components/integrations/space-availability.tsx
+msgid "No spaces"
+msgstr "Brak przestrzeni"
 
 #: src/pages/PluginSubmissionsPanel.tsx
 msgid "No submissions"

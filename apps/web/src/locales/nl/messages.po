@@ -2153,6 +2153,10 @@ msgstr "Wijzigen mislukt"
 msgid "Could not change password"
 msgstr "Wachtwoord wijzigen mislukt"
 
+#: src/pages/McpServersOverlay.tsx
+msgid "Could not change the server"
+msgstr ""
+
 #: src/components/integrations/space-availability.tsx
 msgid "Could not change where this is available"
 msgstr "Wijzigen waar dit beschikbaar is mislukt"
@@ -3071,10 +3075,16 @@ msgstr "Bedoelde je <0>{emailSuggestion}</0>?"
 msgid "Didn't catch that."
 msgstr "Dat heb ik niet verstaan."
 
+#. placeholder {0}: server.name
+#: src/pages/McpServersOverlay.tsx
+msgid "Disable {0}"
+msgstr ""
+
 #: src/pages/shell/bot-settings-sections.tsx
 msgid "Disable a tool"
 msgstr "Een tool uitschakelen"
 
+#: src/components/McpServerHealthLine.tsx
 #: src/pages/plugins/parts.tsx
 msgid "Disabled"
 msgstr "Uitgeschakeld"
@@ -3264,6 +3274,8 @@ msgid "Email verification required"
 msgstr "E-mailverificatie vereist"
 
 #. placeholder {0}: humanizeTool(toolName)
+#. placeholder {0}: server.name
+#: src/pages/McpServersOverlay.tsx
 #: src/pages/shell/bot-settings-sections.tsx
 msgid "Enable {0}"
 msgstr "{0} inschakelen"
@@ -4876,6 +4888,10 @@ msgstr "Nog geen runs"
 #: src/pages/KnowledgeSection.tsx
 msgid "No skills yet"
 msgstr "Nog geen skills"
+
+#: src/components/integrations/space-availability.tsx
+msgid "No spaces"
+msgstr ""
 
 #: src/pages/PluginSubmissionsPanel.tsx
 msgid "No submissions"

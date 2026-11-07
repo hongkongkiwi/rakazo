@@ -16,6 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  Switch,
   toast,
 } from "@rakazo/ui-web";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -84,6 +85,7 @@ export function McpServersOverlay({
   const [saving, setSaving] = useState(false);
   const [oauthPending, setOauthPending] = useState<string | null>(null);
   const [testingIds, setTestingIds] = useState<Set<string>>(() => new Set());
+  const [togglingIds, setTogglingIds] = useState<Set<string>>(() => new Set());
   const queries = useSpaceQueries();
   const queryClient = useQueryClient();
   const serversOptions = queries.mcp.servers.list.queryOptions();
@@ -201,7 +203,6 @@ export function McpServersOverlay({
             ...config,
             slug: editing.slug,
             description: editing.description,
-            enabled: editing.enabled,
           },
         });
         if (!sameAccess(draft.access, accessOf(editing)))
@@ -273,6 +274,26 @@ export function McpServersOverlay({
       ]);
     } catch (err) {
       setError(errorDetails(err, t`Could not update bot access`));
+    }
+  }
+
+  async function setServerEnabled(server: McpServer, enabled: boolean) {
+    if (togglingIds.has(server.id)) return;
+    setError(null);
+    setTogglingIds((current) => new Set(current).add(server.id));
+    try {
+      const updated = await rpc.mcp.servers.setEnabled({ id: server.id, enabled });
+      await writeSaved(queryClient, serversOptions.queryKey, (current) =>
+        (current ?? []).map((item) => (item.id === updated.id ? updated : item)),
+      );
+    } catch (err) {
+      setError(errorDetails(err, t`Could not change the server`));
+    } finally {
+      setTogglingIds((current) => {
+        const next = new Set(current);
+        next.delete(server.id);
+        return next;
+      });
     }
   }
 
@@ -370,10 +391,12 @@ export function McpServersOverlay({
     // A working server does not need signing in up front, so the action waits in its menu.
     const signInFirst =
       oauth &&
+      server.enabled &&
       (server.oauthStatus === "reconnect" ||
         (server.oauthStatus === "none" && server.health.status !== "ok"));
     const pending = oauthPending === server.id;
     const testing = testingIds.has(server.id);
+    const toggling = togglingIds.has(server.id);
     const working = server.health.status === "ok" && !testing;
     return (
       <li
@@ -393,7 +416,7 @@ export function McpServersOverlay({
           <p className="truncate text-label text-muted-foreground">
             {server.endpoint ?? server.command ?? server.slug}
           </p>
-          <McpServerHealthLine health={server.health} checking={testing} />
+          <McpServerHealthLine health={server.health} enabled={server.enabled} checking={testing} />
         </div>
         <div className="flex shrink-0 items-center gap-1">
           {server.installId ? null : (
@@ -409,6 +432,12 @@ export function McpServersOverlay({
             access={accessOf(server)}
             disabled={!assignmentsReady}
             onChange={(access) => void setServerAgents(server, access)}
+          />
+          <Switch
+            checked={server.enabled}
+            disabled={toggling}
+            aria-label={server.enabled ? t`Disable ${server.name}` : t`Enable ${server.name}`}
+            onCheckedChange={(enabled) => void setServerEnabled(server, enabled)}
           />
           {signInFirst ? (
             <Button
@@ -434,7 +463,7 @@ export function McpServersOverlay({
                 <Trans>Edit</Trans>
               </DropdownMenuItem>
               <DropdownMenuItem
-                disabled={testing || server.health.status === "installing"}
+                disabled={!server.enabled || testing || server.health.status === "installing"}
                 onClick={() => void testServer(server)}
               >
                 <Trans>Test connection</Trans>

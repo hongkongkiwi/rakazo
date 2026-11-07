@@ -2,7 +2,7 @@ import { Trans } from "@lingui/react/macro";
 import type { McpServerHealth } from "@rakazo/contracts";
 import { MCP_OAUTH_CLIENT_REQUIRED } from "@rakazo/contracts";
 import { Disclosure } from "@rakazo/ui-web";
-import { CircleDashed, LoaderCircle, TriangleAlert } from "lucide-react";
+import { CircleDashed, CircleOff, LoaderCircle, TriangleAlert } from "lucide-react";
 
 /**
  * What needs attention on a configured MCP server; a working one shows nothing. Never
@@ -11,12 +11,31 @@ import { CircleDashed, LoaderCircle, TriangleAlert } from "lucide-react";
  */
 export function McpServerHealthLine({
   health,
+  enabled = true,
   checking = false,
 }: {
   health: McpServerHealth;
+  /** A switched-off server is not checked, so its last outcome says nothing. */
+  enabled?: boolean;
   /** A Test connection run is in flight; shown until the server reports installing. */
   checking?: boolean;
 }) {
+  if (!enabled) {
+    return (
+      <p
+        role="status"
+        data-testid="mcp-health"
+        data-status="disabled"
+        className="flex items-center gap-1.5 text-label text-muted-foreground"
+      >
+        <CircleOff aria-hidden="true" className="size-3.5 shrink-0" />
+        <span>
+          <Trans>Disabled</Trans>
+        </span>
+      </p>
+    );
+  }
+
   if (checking && health.status !== "installing") {
     return (
       <p

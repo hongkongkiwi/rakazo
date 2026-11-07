@@ -27,7 +27,7 @@ import {
   resolveMcpOAuthFileTemplate,
 } from "@rakazo/contracts";
 import type { McpServer, PrismaClient, ThreadEvents } from "@rakazo/db";
-import { availableInSpace, itemSecretIn } from "@rakazo/db";
+import { itemSecretIn, mcpServerAvailableInSpace } from "@rakazo/db";
 import { getLogger } from "@rakazo/logging";
 import { sanitizedError } from "@rakazo/logging/monitoring";
 import { catalogToolPrefix } from "./approval-effect.js";
@@ -441,7 +441,7 @@ export class McpConnector implements ConnectorProvider {
 
   private async authorizedTools(context: AdapterContext): Promise<ConnectorTool[]> {
     if (!context.botId) return [];
-    const usable = { enabled: true, ...availableInSpace(context) };
+    const usable = { enabled: true, ...mcpServerAvailableInSpace(context) };
     const [assigned, shared] = await Promise.all([
       this.prisma.botMcpServer.findMany({
         where: {
@@ -654,7 +654,7 @@ export class McpConnector implements ConnectorProvider {
       yield { type: "error", message: "MCP tools require a bot context" };
       return;
     }
-    const usable = { enabled: true, ...availableInSpace(context) };
+    const usable = { enabled: true, ...mcpServerAvailableInSpace(context) };
     const assignment =
       (await this.prisma.botMcpServer.findFirst({
         where: {
@@ -1059,7 +1059,11 @@ export class McpConnector implements ConnectorProvider {
       if (server.secretId && !secret) {
         // OAuth refresh replaces the secret without updating this run's server snapshot.
         const current = await this.prisma.mcpServer.findFirst({
-          where: { id: server.id, revision: server.revision, ...availableInSpace(context) },
+          where: {
+            id: server.id,
+            revision: server.revision,
+            ...mcpServerAvailableInSpace(context),
+          },
           select: { secretId: true },
         });
         if (current?.secretId) {

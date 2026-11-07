@@ -2,7 +2,14 @@ import { randomUUID } from "node:crypto";
 import { skillCreateFromTool } from "@rakazo/adapters";
 import type { Actor } from "@rakazo/contracts";
 import type { PrismaClient } from "@rakazo/db";
-import { createDb, itemSecretIn, runAsSystem, runAsTenant } from "@rakazo/db";
+import {
+  availableInSpace,
+  createDb,
+  itemSecretIn,
+  mcpServerAvailableInSpace,
+  runAsSystem,
+  runAsTenant,
+} from "@rakazo/db";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createAgentSkillsService } from "./agent-skills.js";
 import {
@@ -229,6 +236,63 @@ describe.skipIf(!enabled).sequential("items available across a user's spaces (Po
         prisma.mcpServer.findMany({ where: { id: serverId } }),
       ),
     ).toEqual([]);
+  });
+
+  it("keeps a server out of every space without hiding it from its settings", async () => {
+    const serverId = `avail-parked-${suffix}`;
+    await runAsSystem("availability fixture", () =>
+      prisma.mcpServer.create({
+        data: {
+          id: serverId,
+          spaceId: work,
+          userId: owner,
+          slug: `parked-${suffix}`,
+          name: "Parked",
+          transport: "streamable_http",
+          endpoint: "https://tools.example.test/mcp",
+        },
+      }),
+    );
+    const reach = async (spaceId: string) =>
+      runAsTenant(actorIn(spaceId), async () => ({
+        settings: (
+          await prisma.mcpServer.findMany({
+            where: { id: serverId, ...availableInSpace(actorIn(spaceId)) },
+          })
+        ).length,
+        runs: (
+          await prisma.mcpServer.findMany({
+            where: { id: serverId, ...mcpServerAvailableInSpace(actorIn(spaceId)) },
+          })
+        ).length,
+      }));
+    expect(await reach(work)).toEqual({ settings: 1, runs: 1 });
+
+    await runAsTenant(actorIn(work), () =>
+      setAvailability(prisma, actorIn(work), {
+        kind: "mcpServer",
+        id: serverId,
+        allSpaces: false,
+        spaceIds: [],
+      }),
+    );
+    const row = await runAsTenant(actorIn(work), () =>
+      prisma.mcpServer.findUnique({ where: { id: serverId } }),
+    );
+    expect(row?.availableNowhere).toBe(true);
+    // The settings list still shows it where it was parked; no run sees it anywhere.
+    expect(await reach(work)).toEqual({ settings: 1, runs: 0 });
+    expect(await reach(home)).toEqual({ settings: 0, runs: 0 });
+
+    await runAsTenant(actorIn(work), () =>
+      setAvailability(prisma, actorIn(work), {
+        kind: "mcpServer",
+        id: serverId,
+        allSpaces: false,
+        spaceIds: [work],
+      }),
+    );
+    expect(await reach(work)).toEqual({ settings: 1, runs: 1 });
   });
 
   it("keeps items other spaces use when the space they were added in is deleted", async () => {

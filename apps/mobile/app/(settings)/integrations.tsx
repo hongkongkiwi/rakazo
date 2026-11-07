@@ -52,6 +52,7 @@ import { PLUGIN_PAGE_SIZE, PluginSection } from "../../components/integration-pl
 import { createIntegrationsStyles, LOGO_SIZE } from "../../components/integrations-styles";
 import { MenuPicker } from "../../components/menu-picker";
 import { NativeActionButton } from "../../components/native-action-button";
+import { NativeSwitch } from "../../components/native-switch";
 import { NativeSymbol } from "../../components/native-symbol";
 import { PluginIcon } from "../../components/plugin-icon";
 import { Chevron } from "../../components/row-accessories";
@@ -129,6 +130,7 @@ export default function Integrations() {
   const [authHeader, setAuthHeader] = useState("x-api-key");
   const [oauthServerId, setOauthServerId] = useState<string | null>(null);
   const [pending, setPending] = useState<string | null>(null);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
   const [catalogError, setCatalogError] = useState<string | null>(null);
   const [sourceError, setSourceError] = useState<string | null>(null);
   const [lastBotId, setLastBotId] = useState("");
@@ -521,6 +523,19 @@ export default function Integrations() {
     }
   }
 
+  async function setServerEnabled(server: McpServer, enabled: boolean) {
+    setMcpError(null);
+    setTogglingId(server.id);
+    try {
+      const updated = await rpc("mcp/servers/setEnabled", { id: server.id, enabled });
+      setMcpServers((current) => current.map((item) => (item.id === updated.id ? updated : item)));
+    } catch (reason) {
+      setMcpError(errorText(reason, t("Could not change the server")));
+    } finally {
+      setTogglingId(null);
+    }
+  }
+
   function renderInstalledPlugin(install: CapabilityInstall, summary: string, signIn: boolean) {
     const params = installedParams(install);
     return (
@@ -604,6 +619,16 @@ export default function Integrations() {
             prominence="secondary"
           />
         ) : null}
+        <NativeSwitch
+          value={server.enabled}
+          disabled={togglingId === server.id}
+          accessibilityLabel={
+            server.enabled
+              ? t("Disable {name}", { name: server.name })
+              : t("Enable {name}", { name: server.name })
+          }
+          onValueChange={(enabled) => void setServerEnabled(server, enabled)}
+        />
       </View>
     );
   }

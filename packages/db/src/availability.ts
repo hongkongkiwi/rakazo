@@ -15,6 +15,14 @@ export function availableInSpace(scope: { spaceId: string; userId: string }) {
   };
 }
 
+/**
+ * An MCP server bots can use here: available in this space and not kept out of every space.
+ * A server with no spaces stays in its home space's settings but no run sees it.
+ */
+export function mcpServerAvailableInSpace(scope: { spaceId: string; userId: string }) {
+  return { ...availableInSpace(scope), availableNowhere: false };
+}
+
 /** An item's secret is this space's or, once the item reaches further spaces, the account's. */
 export function itemSecretIn(scope: { spaceId: string; userId: string }) {
   return { userId: scope.userId, OR: [{ spaceId: scope.spaceId }, { spaceId: null }] };
@@ -29,8 +37,11 @@ export type SpaceAvailability = { allSpaces: boolean; spaceIds: string[] };
 export function spaceAvailability(row: {
   spaceId: string;
   allSpaces: boolean;
+  /** MCP servers only: true keeps the server out of every space. */
+  availableNowhere?: boolean;
   availableIn?: Array<{ spaceId: string }>;
 }): SpaceAvailability {
+  if (row.availableNowhere) return { allSpaces: false, spaceIds: [] };
   return {
     allSpaces: row.allSpaces,
     spaceIds: [

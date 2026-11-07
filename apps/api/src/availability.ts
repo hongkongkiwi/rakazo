@@ -124,7 +124,12 @@ async function applyToServer(
 ) {
   await tx.mcpServer.update({
     where: { id: server.id },
-    data: { spaceId: home, allSpaces: availability.allSpaces },
+    data: {
+      spaceId: home,
+      allSpaces: availability.allSpaces,
+      // A server kept out of every space still lives in its home space's settings.
+      availableNowhere: availability.spaceIds.length === 0,
+    },
   });
   await tx.mcpServerSpace.deleteMany({ where: { serverId: server.id } });
   await tx.mcpServerSpace.createMany({
@@ -144,17 +149,23 @@ async function place(
   requested: SpaceAvailability,
 ): Promise<SpaceAvailability> {
   const spaceIds = [...new Set(requested.spaceIds)];
-  const home = requested.allSpaces
-    ? item.spaceId
-    : spaceIds.includes(item.spaceId)
+  // Only a server can be kept out of every space; it stays where the choice was made.
+  const parked = kind === "mcpServer" && !requested.allSpaces && spaceIds.length === 0;
+  const home = parked
+    ? actor.spaceId
+    : requested.allSpaces
       ? item.spaceId
-      : spaceIds.includes(actor.spaceId)
-        ? actor.spaceId
-        : spaceIds[0]!;
+      : spaceIds.includes(item.spaceId)
+        ? item.spaceId
+        : spaceIds.includes(actor.spaceId)
+          ? actor.spaceId
+          : spaceIds[0]!;
   const availability: SpaceAvailability = {
     allSpaces: requested.allSpaces,
-    spaceIds: [home, ...spaceIds.filter((id) => id !== home)],
+    spaceIds: parked ? [] : [home, ...spaceIds.filter((id) => id !== home)],
   };
+  // A parked server holds its name in the space that keeps it, so a re-enable cannot collide.
+  const nameAvailability = parked ? { allSpaces: false, spaceIds: [home] } : availability;
   // The item may move to a space other than this one, which this tenant cannot write; the
   // caller checked it is the actor's.
   await runAsSystemInTransaction(tx, "change where an owner's item is available", async () => {
@@ -171,7 +182,7 @@ async function place(
         "mcpServer",
         actor,
         server.slug,
-        availability,
+        nameAvailability,
         server.id,
       );
       await applyToServer(tx, actor, server, home, availability);
@@ -189,7 +200,7 @@ async function place(
         "mcpServer",
         actor,
         server.slug,
-        availability,
+        nameAvailability,
         server.id,
       );
     await tx.capabilityInstall.update({
@@ -219,7 +230,9 @@ export async function setAvailability(
   actor: Actor,
   input: { kind: AvailabilityKind; id: string } & SpaceAvailability,
 ): Promise<SpaceAvailability> {
-  if (!input.spaceIds.length) throw new ORPCError("BAD_REQUEST", { message: "Choose a space" });
+  // A server may be kept out of every space; anything else is removed instead.
+  if (!input.spaceIds.length && input.kind !== "mcpServer")
+    throw new ORPCError("BAD_REQUEST", { message: "Choose a space" });
   return prisma.$transaction(async (tx) => {
     // Plugin parts changes hold this lock while adding parts where the install is placed.
     if (input.kind === "install") await lockOwner(tx, actor.userId, "plugin");
@@ -388,21 +401,25 @@ export async function rehomeItemsLeaving(prisma: PrismaClient, spaceId: string):
   });
 }
 
+/** A server's name and secret stay in its home space even when it is kept out of every space. */
 export async function serverAvailability(
   tx: Prisma.TransactionClient,
-  server: { id: string; spaceId: string; allSpaces: boolean },
+  server: { id: string; spaceId: string; allSpaces: boolean; availableNowhere?: boolean },
 ): Promise<SpaceAvailability> {
   const availableIn = await tx.mcpServerSpace.findMany({
     where: { serverId: server.id },
     select: { spaceId: true },
   });
-  return spaceAvailability({ ...server, availableIn });
+  const availability = spaceAvailability({ ...server, availableIn });
+  return availability.spaceIds.length
+    ? availability
+    : { allSpaces: false, spaceIds: [server.spaceId] };
 }
 
 /** A server's new secret goes where every space it is available in can read it. */
 export async function serverSecretSpace(
   tx: Prisma.TransactionClient,
-  server: { id: string; spaceId: string; allSpaces: boolean },
+  server: { id: string; spaceId: string; allSpaces: boolean; availableNowhere?: boolean },
 ): Promise<string | null> {
   const { allSpaces, spaceIds } = await serverAvailability(tx, server);
   return allSpaces || spaceIds.length > 1 ? null : server.spaceId;

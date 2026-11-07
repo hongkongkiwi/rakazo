@@ -44,6 +44,8 @@ export function AvailabilityLabel({ availability }: { availability?: SpaceAvaila
     <span className="shrink-0 text-body-sm text-muted-foreground">
       {only ? (
         only.name
+      ) : availability.spaceIds.length === 0 ? (
+        <Trans>No spaces</Trans>
       ) : (
         <Plural value={availability.spaceIds.length} one="# space" other="# spaces" />
       )}
@@ -67,7 +69,9 @@ export function AvailabilityControl({
   const spaces = useOwnSpaces();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  if (spaces.length < 2 || !availability) return null;
+  const parked = !availability?.allSpaces && availability?.spaceIds.length === 0;
+  // A server can be kept out of every space, so its control is useful even with one space.
+  if (!availability || (spaces.length < 2 && !parked && kind !== "mcpServer")) return null;
 
   async function save(next: SpaceAvailability) {
     setSaving(true);
@@ -85,6 +89,8 @@ export function AvailabilityControl({
   const chosen = availability.allSpaces ? spaces.map((space) => space.id) : availability.spaceIds;
   const summary = availability.allSpaces ? (
     <Trans>All spaces</Trans>
+  ) : chosen.length === 0 ? (
+    <Trans>No spaces</Trans>
   ) : chosen.length === 1 ? (
     (spaces.find((space) => space.id === chosen[0])?.name ?? <Trans>1 space</Trans>)
   ) : (
@@ -94,8 +100,8 @@ export function AvailabilityControl({
     const next = chosen.includes(spaceId)
       ? chosen.filter((other) => other !== spaceId)
       : [...chosen, spaceId];
-    // At least one space keeps it; none would be removing it, which has its own action.
-    if (!next.length) return;
+    // Only a server can be kept out of every space; other items have a removal action.
+    if (!next.length && kind !== "mcpServer") return;
     void save({ allSpaces: false, spaceIds: next });
   };
 

@@ -2153,6 +2153,10 @@ msgstr "변경하지 못했습니다"
 msgid "Could not change password"
 msgstr "비밀번호를 변경할 수 없습니다"
 
+#: src/pages/McpServersOverlay.tsx
+msgid "Could not change the server"
+msgstr ""
+
 #: src/components/integrations/space-availability.tsx
 msgid "Could not change where this is available"
 msgstr "사용 가능한 곳을 변경하지 못했습니다"
@@ -3071,10 +3075,16 @@ msgstr "<0>{emailSuggestion}</0>을(를) 입력하려고 하셨나요?"
 msgid "Didn't catch that."
 msgstr "잘 듣지 못했습니다."
 
+#. placeholder {0}: server.name
+#: src/pages/McpServersOverlay.tsx
+msgid "Disable {0}"
+msgstr ""
+
 #: src/pages/shell/bot-settings-sections.tsx
 msgid "Disable a tool"
 msgstr "도구 비활성화"
 
+#: src/components/McpServerHealthLine.tsx
 #: src/pages/plugins/parts.tsx
 msgid "Disabled"
 msgstr "비활성화됨"
@@ -3264,6 +3274,8 @@ msgid "Email verification required"
 msgstr "이메일 인증이 필요합니다"
 
 #. placeholder {0}: humanizeTool(toolName)
+#. placeholder {0}: server.name
+#: src/pages/McpServersOverlay.tsx
 #: src/pages/shell/bot-settings-sections.tsx
 msgid "Enable {0}"
 msgstr "{0} 활성화"
@@ -4876,6 +4888,10 @@ msgstr "아직 실행 기록이 없습니다"
 #: src/pages/KnowledgeSection.tsx
 msgid "No skills yet"
 msgstr "아직 스킬이 없습니다"
+
+#: src/components/integrations/space-availability.tsx
+msgid "No spaces"
+msgstr ""
 
 #: src/pages/PluginSubmissionsPanel.tsx
 msgid "No submissions"

@@ -2153,6 +2153,10 @@ msgstr "変更できませんでした"
 msgid "Could not change password"
 msgstr "パスワードを変更できませんでした"
 
+#: src/pages/McpServersOverlay.tsx
+msgid "Could not change the server"
+msgstr ""
+
 #: src/components/integrations/space-availability.tsx
 msgid "Could not change where this is available"
 msgstr "利用可能な場所を変更できませんでした"
@@ -3071,10 +3075,16 @@ msgstr "<0>{emailSuggestion}</0> のことですか？"
 msgid "Didn't catch that."
 msgstr "聞き取れませんでした。"
 
+#. placeholder {0}: server.name
+#: src/pages/McpServersOverlay.tsx
+msgid "Disable {0}"
+msgstr ""
+
 #: src/pages/shell/bot-settings-sections.tsx
 msgid "Disable a tool"
 msgstr "ツールを無効にする"
 
+#: src/components/McpServerHealthLine.tsx
 #: src/pages/plugins/parts.tsx
 msgid "Disabled"
 msgstr "無効"
@@ -3264,6 +3274,8 @@ msgid "Email verification required"
 msgstr "メールアドレスの確認が必要です"
 
 #. placeholder {0}: humanizeTool(toolName)
+#. placeholder {0}: server.name
+#: src/pages/McpServersOverlay.tsx
 #: src/pages/shell/bot-settings-sections.tsx
 msgid "Enable {0}"
 msgstr "{0}を有効にする"
@@ -4876,6 +4888,10 @@ msgstr "実行はまだありません"
 #: src/pages/KnowledgeSection.tsx
 msgid "No skills yet"
 msgstr "スキルはまだありません"
+
+#: src/components/integrations/space-availability.tsx
+msgid "No spaces"
+msgstr ""
 
 #: src/pages/PluginSubmissionsPanel.tsx
 msgid "No submissions"

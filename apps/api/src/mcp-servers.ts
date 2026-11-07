@@ -39,6 +39,7 @@ export function mcpServerDto(
     secretId: string | null;
     installId?: string | null;
     allSpaces?: boolean;
+    availableNowhere?: boolean;
     availableIn?: Array<{ spaceId: string }>;
     allBots?: boolean;
     enabled: boolean;
@@ -353,7 +354,7 @@ export function createMcpServers(
           ? Object.fromEntries(Object.keys(input.headers).map((key) => [key, true]))
           : {}) as Prisma.InputJsonValue,
         secretId: stored?.id,
-        enabled: input.enabled,
+        enabled: input.enabled ?? true,
         verbatimResults: input.verbatimResults,
       },
     });
