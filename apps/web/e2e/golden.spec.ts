@@ -262,7 +262,7 @@ test("takeover, routine, plugins, and export are reachable", async ({ page }, te
     "Aiven",
     "Hugging Face",
     "Mobbin",
-    "Infobip",
+    "Infobip docs",
     "Browse MCP servers",
     "Search by domain",
     "Manage MCP servers",
