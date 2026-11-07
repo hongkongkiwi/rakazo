@@ -10,6 +10,10 @@ const HEALTH_MESSAGE_MAX = 2000;
 export const MCP_DYNAMIC_REGISTRATION_UNSUPPORTED =
   "Incompatible auth server: does not support dynamic client registration";
 
+/** A registration refusal that names this app's redirect URI, such as one the
+ * server only accepts for loopback clients. The same out-of-band client is the way in. */
+export const MCP_OAUTH_REDIRECT_REFUSED = "The provider refused this app's sign-in redirect";
+
 /** Whether connecting failed because the server needs a pre-registered OAuth client. */
 export function needsMcpOAuthClient(error: unknown, depth = 0): boolean {
   if (depth > 5 || !(error instanceof Error)) return false;
@@ -70,7 +74,9 @@ export function mcpServerHealthDto(row: {
     status: status ?? "unknown",
     message: row.healthMessage ?? null,
     code:
-      status === "error" && row.healthMessage?.includes(MCP_DYNAMIC_REGISTRATION_UNSUPPORTED)
+      status === "error" &&
+      (row.healthMessage?.includes(MCP_DYNAMIC_REGISTRATION_UNSUPPORTED) ||
+        row.healthMessage?.includes(MCP_OAUTH_REDIRECT_REFUSED))
         ? MCP_OAUTH_CLIENT_REQUIRED
         : null,
     toolCount: row.healthToolCount ?? null,

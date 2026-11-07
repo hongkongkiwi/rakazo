@@ -4,6 +4,7 @@ import { createLogger, createTestSink, installLogger } from "@rakazo/logging";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   MCP_DYNAMIC_REGISTRATION_UNSUPPORTED,
+  MCP_OAUTH_REDIRECT_REFUSED,
   mcpServerHealthDto,
   recordMcpServerHealth,
 } from "./mcp-server-health.js";
@@ -137,6 +138,12 @@ describe("mcpServerHealthDto", () => {
       healthCheckedAt: null,
     };
     expect(mcpServerHealthDto(row).code).toBe(MCP_OAUTH_CLIENT_REQUIRED);
+    expect(
+      mcpServerHealthDto({
+        ...row,
+        healthMessage: `${MCP_OAUTH_REDIRECT_REFUSED}. Register http://localhost:5173/mcp/oauth/callback with the provider.`,
+      }).code,
+    ).toBe(MCP_OAUTH_CLIENT_REQUIRED);
     expect(mcpServerHealthDto({ ...row, healthMessage: "fetch failed" }).code).toBeNull();
   });
 });

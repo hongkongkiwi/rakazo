@@ -32,7 +32,11 @@ import { availableInSpace, itemSecretIn, runAsSystem } from "@rakazo/db";
 import { getLogger } from "@rakazo/logging";
 import { advisoryLock } from "./advisory-lock.js";
 import { sanitizeConnectorError } from "./connector-safety.js";
-import { MCP_DYNAMIC_REGISTRATION_UNSUPPORTED, needsMcpOAuthClient } from "./mcp-server-health.js";
+import {
+  MCP_DYNAMIC_REGISTRATION_UNSUPPORTED,
+  MCP_OAUTH_REDIRECT_REFUSED,
+  needsMcpOAuthClient,
+} from "./mcp-server-health.js";
 import {
   MAX_AUTHORIZATION_URL_LENGTH,
   secureFetch,
@@ -402,12 +406,15 @@ export class McpOAuthServerMismatchError extends Error {
   }
 }
 
-/** The authorization server cannot register a client, so the user must enter one. */
+/** The authorization server will not accept a dynamically registered client, so the user must enter one. */
 export class McpOAuthClientRequiredError extends Error {
   readonly code = MCP_OAUTH_CLIENT_REQUIRED;
   /** @param revision The server revision the attempt used. */
-  constructor(readonly revision: number) {
-    super(MCP_DYNAMIC_REGISTRATION_UNSUPPORTED);
+  constructor(
+    readonly revision: number,
+    message = MCP_DYNAMIC_REGISTRATION_UNSUPPORTED,
+  ) {
+    super(message);
     this.name = "McpOAuthClientRequiredError";
   }
 }
@@ -799,6 +806,8 @@ function oauthFetch(
   fetch: typeof fetch;
   close: () => Promise<void>;
   headers: Record<string, string>;
+  /** Whether the authorization server refused this app's redirect URI outright. */
+  redirectUriRejected: () => boolean;
   publicError: (error: unknown, message: string) => Error;
 } {
   const url = new URL(endpoint);
@@ -831,12 +840,18 @@ function oauthFetch(
   // error code, and description instead of hiding them behind `message`.
   const networkErrors = new WeakSet<Error>();
   let rejection: OAuthRejection | undefined;
+  // A registration that refuses the redirect URI will refuse it again on retry:
+  // only a client registered with this server out of band can carry it.
+  let redirectUriRejected = false;
   const recordingFetch: typeof fetch = async (input, init) => {
     try {
       const response = await fallbackFetch(input, init);
       if (!response.ok) {
         const next = await readOAuthRejection(response);
-        if (next) rejection = next;
+        if (next) {
+          rejection = next;
+          if (next.code === "invalid_redirect_uri") redirectUriRejected = true;
+        }
       }
       return response;
     } catch (error) {
@@ -848,6 +863,7 @@ function oauthFetch(
     headers,
     fetch: recordingFetch,
     close: () => safeFetch.close(),
+    redirectUriRejected: () => redirectUriRejected,
     publicError: (error, message) => {
       if (error instanceof Error && networkErrors.has(error)) return error;
       const secrets = oauthMaterialSecrets(material);
@@ -1217,7 +1233,14 @@ export class McpOAuthBroker {
       }
     } catch (error) {
       if (error instanceof McpOAuthServerMismatchError) throw error;
+      // Either way the server refused to register this app's callback, leaving the
+      // user's own client (registered there with that redirect URI) as the way in.
       if (needsMcpOAuthClient(error)) throw new McpOAuthClientRequiredError(server.revision);
+      if (networkFetch.redirectUriRejected())
+        throw new McpOAuthClientRequiredError(
+          server.revision,
+          `${MCP_OAUTH_REDIRECT_REFUSED}. Register ${input.redirectUri} with the provider as an allowed redirect URI, then add the OAuth client ID and secret here.`,
+        );
       if (!authorizationUrl) throw networkFetch.publicError(error, "Could not start MCP OAuth");
     } finally {
       await networkFetch.close().catch(() => undefined);

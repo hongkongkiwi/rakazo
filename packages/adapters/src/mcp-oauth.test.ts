@@ -10,7 +10,7 @@ import {
   oauthMaterialSecrets,
   StoredMcpOAuthProvider,
 } from "./mcp-oauth.js";
-import { recordMcpServerHealth } from "./mcp-server-health.js";
+import { MCP_OAUTH_REDIRECT_REFUSED, recordMcpServerHealth } from "./mcp-server-health.js";
 import { MAX_AUTHORIZATION_URL_LENGTH, McpSession } from "./mcp-transport.js";
 
 afterEach(() => {
@@ -2047,6 +2047,38 @@ describe("MCP OAuth", () => {
 
     expect(error).toBeInstanceOf(McpOAuthClientRequiredError);
     expect(error).toMatchObject({ code: MCP_OAUTH_CLIENT_REQUIRED });
+  });
+
+  it("asks for a pre-registered client when the server refuses this app's redirect URI", async () => {
+    const error = await rejectedOAuthBegin(() =>
+      Response.json(
+        {
+          error: "invalid_redirect_uri",
+          error_description:
+            "The provided redirect URI is not allowed: https://rakazo.example.test/mcp/oauth/callback",
+        },
+        { status: 400 },
+      ),
+    );
+
+    expect(error).toBeInstanceOf(McpOAuthClientRequiredError);
+    expect(error).toMatchObject({ code: MCP_OAUTH_CLIENT_REQUIRED });
+    expect(error.message).toContain(MCP_OAUTH_REDIRECT_REFUSED);
+    expect(error.message).toContain("http://127.0.0.1:5173/mcp/oauth/callback");
+  });
+
+  it("still reports a registration refusal that has nothing to do with the redirect URI", async () => {
+    const error = await rejectedOAuthBegin(() =>
+      Response.json(
+        { error: "invalid_client_metadata", error_description: "Invalid data provided." },
+        { status: 400 },
+      ),
+    );
+
+    expect(error).not.toBeInstanceOf(McpOAuthClientRequiredError);
+    expect(error.message).toBe(
+      "Could not start MCP OAuth: HTTP 400 invalid_client_metadata: Invalid data provided.",
+    );
   });
 
   describe("with a pre-registered client", () => {
