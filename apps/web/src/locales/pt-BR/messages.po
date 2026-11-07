@@ -7082,6 +7082,10 @@ msgstr "Isso remove a conexão de todos os espaços."
 msgid "This reset link is invalid or expired"
 msgstr "Este link de redefinição é inválido ou expirou"
 
+#: src/pages/routine-editor/model-settings.tsx
+msgid "This routine uses a model that is not connected. It will fail until you reconnect it."
+msgstr "Esta rotina usa um modelo que não está conectado. Ela falhará até você reconectá-lo."
+
 #: src/pages/shell/message-cards.tsx
 msgid "This server cannot be assigned without a bot."
 msgstr "Este servidor não pode ser atribuído sem um bot."
@@ -7449,6 +7453,10 @@ msgstr "Use a Entrada protegida para senhas."
 #: src/components/ModelCredits.tsx
 msgid "Use Rakazo credits"
 msgstr "Usar créditos do Rakazo"
+
+#: src/pages/routine-editor/model-settings.tsx
+msgid "Use the bot's model"
+msgstr "Usar o modelo do bot"
 
 #: src/pages/memory-providers/HonchoSettingsForm.tsx
 msgid "Use up to 512 letters, digits, _ or -."

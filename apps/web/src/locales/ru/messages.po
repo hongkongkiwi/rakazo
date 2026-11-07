@@ -7082,6 +7082,10 @@ msgstr "Подключение будет удалено из всех прос�
 msgid "This reset link is invalid or expired"
 msgstr "Эта ссылка для сброса недействительна или срок ее действия истек."
 
+#: src/pages/routine-editor/model-settings.tsx
+msgid "This routine uses a model that is not connected. It will fail until you reconnect it."
+msgstr "Эта задача использует модель, которая не подключена. Она будет завершаться ошибкой, пока вы не подключите её снова."
+
 #: src/pages/shell/message-cards.tsx
 msgid "This server cannot be assigned without a bot."
 msgstr "Этот сервер невозможно назначить без бота."
@@ -7449,6 +7453,10 @@ msgstr "Для паролей используйте «Защищённый вв
 #: src/components/ModelCredits.tsx
 msgid "Use Rakazo credits"
 msgstr "Использовать кредиты Rakazo"
+
+#: src/pages/routine-editor/model-settings.tsx
+msgid "Use the bot's model"
+msgstr "Использовать модель бота"
 
 #: src/pages/memory-providers/HonchoSettingsForm.tsx
 msgid "Use up to 512 letters, digits, _ or -."

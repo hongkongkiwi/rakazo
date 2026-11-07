@@ -7082,6 +7082,10 @@ msgstr "Hiermee wordt de verbinding uit elke space verwijderd."
 msgid "This reset link is invalid or expired"
 msgstr "Deze herstellingslink is ongeldig of verlopen"
 
+#: src/pages/routine-editor/model-settings.tsx
+msgid "This routine uses a model that is not connected. It will fail until you reconnect it."
+msgstr "Deze routine gebruikt een model dat niet is verbonden. Deze mislukt tot je het opnieuw verbindt."
+
 #: src/pages/shell/message-cards.tsx
 msgid "This server cannot be assigned without a bot."
 msgstr "Deze server kan niet zonder bot worden toegewezen."
@@ -7449,6 +7453,10 @@ msgstr "Gebruik Beveiligde invoer voor wachtwoorden."
 #: src/components/ModelCredits.tsx
 msgid "Use Rakazo credits"
 msgstr "Rakazo-tegoed gebruiken"
+
+#: src/pages/routine-editor/model-settings.tsx
+msgid "Use the bot's model"
+msgstr "Model van de bot gebruiken"
 
 #: src/pages/memory-providers/HonchoSettingsForm.tsx
 msgid "Use up to 512 letters, digits, _ or -."

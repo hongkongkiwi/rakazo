@@ -7082,6 +7082,10 @@ msgstr "פעולה זו מסירה את החיבור מכל המרחבים."
 msgid "This reset link is invalid or expired"
 msgstr "קישור האיפוס אינו תקין או שפג תוקפו"
 
+#: src/pages/routine-editor/model-settings.tsx
+msgid "This routine uses a model that is not connected. It will fail until you reconnect it."
+msgstr "רוטינה זו משתמשת במודל שאינו מחובר. היא תיכשל עד שתחברו אותו מחדש."
+
 #: src/pages/shell/message-cards.tsx
 msgid "This server cannot be assigned without a bot."
 msgstr "לא ניתן להקצות את השרת הזה בלי בוט."
@@ -7449,6 +7453,10 @@ msgstr "לסיסמאות יש להשתמש בקלט מוגן."
 #: src/components/ModelCredits.tsx
 msgid "Use Rakazo credits"
 msgstr "שימוש בקרדיטים של Rakazo"
+
+#: src/pages/routine-editor/model-settings.tsx
+msgid "Use the bot's model"
+msgstr "להשתמש במודל של הבוט"
 
 #: src/pages/memory-providers/HonchoSettingsForm.tsx
 msgid "Use up to 512 letters, digits, _ or -."
