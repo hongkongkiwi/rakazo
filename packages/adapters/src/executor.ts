@@ -222,12 +222,12 @@ import {
 import { loadAgentTicketContext } from "./ticket-context.js";
 import { appendToolCompletionAudit } from "./tool-completion-audit.js";
 import { toolResultFingerprint } from "./tool-loop.js";
-import { checkpointProviderModel, restoreTurnCheckpoint } from "./turn-checkpoint.js";
+import {
+  checkpointProviderModel,
+  restoreTurnCheckpoint,
+  withModelSwitchInstruction,
+} from "./turn-checkpoint.js";
 import { createWebProvider } from "./web-provider-factory.js";
-
-/** Added to a resumed checkpoint's system prompt when the model changed mid-task. */
-const MODEL_SWITCH_INSTRUCTION =
-  "This run continues after a model change. The transcript is the same task, not new instructions. Before repeating a tool call whose outcome is uncertain, verify the destination first.";
 
 /** Same reach as the MCP connector: usable servers assigned to the bot or shared with every bot. */
 async function verbatimMcpServersForRun(
@@ -1568,19 +1568,7 @@ export function createRunExecutor(executorDeps: ExecutorDeps) {
             ctx.state.modelSwitched = true;
             // The runtime resumes from the checkpoint's own system prompt, not this request's
             // instructions, so the reminder has to travel inside the checkpoint.
-            try {
-              const saved = JSON.parse(turnCheckpoint) as { systemPrompt?: unknown };
-              if (
-                typeof saved.systemPrompt === "string" &&
-                !saved.systemPrompt.includes(MODEL_SWITCH_INSTRUCTION)
-              )
-                turnCheckpoint = JSON.stringify({
-                  ...saved,
-                  systemPrompt: `${saved.systemPrompt}\n\n${MODEL_SWITCH_INSTRUCTION}`,
-                });
-            } catch {
-              // A malformed checkpoint is rejected by the restore below.
-            }
+            turnCheckpoint = withModelSwitchInstruction(turnCheckpoint);
           }
           turnCheckpoint = restoreTurnCheckpointEffects(
             ctx,

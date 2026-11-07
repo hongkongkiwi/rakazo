@@ -6,6 +6,7 @@ import {
   checkpointProviderModel,
   restoreTurnCheckpoint,
   serializeTurnCheckpoint,
+  withModelSwitchInstruction,
 } from "./turn-checkpoint.js";
 
 const assistant = {
@@ -193,5 +194,11 @@ describe("turn checkpoint", () => {
     });
     expect(checkpointProviderModel("not json")).toBeUndefined();
     expect(checkpointProviderModel(JSON.stringify({ provider: "fixture" }))).toBeUndefined();
+  });
+
+  it("adds the model-switch reminder to a resumed prompt exactly once", () => {
+    const once = withModelSwitchInstruction(serializeTurnCheckpoint(checkpoint));
+    expect(JSON.parse(once).systemPrompt).toContain("model change");
+    expect(withModelSwitchInstruction(once)).toBe(once);
   });
 });

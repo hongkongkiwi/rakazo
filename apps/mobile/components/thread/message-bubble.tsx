@@ -143,6 +143,18 @@ function isOwnCardBlock(block: MessageBlock): boolean {
   return isSpecialMessageBlock(block) || block.kind === "page" || block.kind === "app";
 }
 
+/** Shared by every card path so an ask or attachment reply also shows the model change. */
+function ModelSwitchNotice({ show }: { show: boolean }) {
+  const tokens = mobileTokens();
+  const { t } = useI18n();
+  if (!show) return null;
+  return (
+    <Text style={{ color: tokens.mutedForeground, textAlign: "center", ...typeScale.footnote }}>
+      {t("Continued on a different model")}
+    </Text>
+  );
+}
+
 function MessageBubbleBody(props: ComponentProps<typeof MessageBubbleContent>) {
   const { message } = props;
   if (!message.blocks.some(isOwnCardBlock)) return <MessageBubbleContent {...props} />;
@@ -258,6 +270,9 @@ const MessageBubbleContent = memo(function MessageBubbleContent({
   const tokens = withUserBubble(mobileTokens(), userBubble);
   const { t } = useI18n();
   const [peerExpanded, setPeerExpanded] = useState(false);
+  const modelSwitch = message.blocks.some(
+    (block) => block.kind === "meta" && block.code === "model_switch",
+  );
   const outgoing = message.role === "user" && !authorName;
   const artifactTarget: MobileArtifactTarget = groupId ? { groupId } : { botId };
   const cardBotId = message.botId ?? botId;
@@ -271,7 +286,13 @@ const MessageBubbleContent = memo(function MessageBubbleContent({
       block.kind === "mcp_approval",
   );
   const undoBlock = message.blocks.find(isUndoableChange);
-  if (undoBlock?.kind === "ask") return <ChangeUndo block={undoBlock} />;
+  if (undoBlock?.kind === "ask")
+    return (
+      <View style={{ gap: 8, width: "100%" }}>
+        <ModelSwitchNotice show={modelSwitch} />
+        <ChangeUndo block={undoBlock} />
+      </View>
+    );
   const ask = message.blocks.find(
     (block): block is Extract<MessageBlock, { kind: "ask" }> =>
       block.kind === "ask" && !isApprovalAskBlock(block) && !block.actions?.length,
@@ -279,6 +300,7 @@ const MessageBubbleContent = memo(function MessageBubbleContent({
   if (ask) {
     return (
       <View style={{ gap: 8, width: "100%" }}>
+        <ModelSwitchNotice show={modelSwitch} />
         <AskBlock
           ask={ask}
           actionProps={actionProps}
@@ -410,6 +432,7 @@ const MessageBubbleContent = memo(function MessageBubbleContent({
   if (askBlock?.kind === "ask" && askBlock.actions?.length) {
     return (
       <View style={{ gap: 8, width: "100%" }}>
+        <ModelSwitchNotice show={modelSwitch} />
         <View
           style={{
             // No percentage width: the iOS menu host has no definite width to resolve it against.
@@ -517,10 +540,6 @@ const MessageBubbleContent = memo(function MessageBubbleContent({
   const attachments = message.blocks.filter(
     (block) => block.kind === "image" || block.kind === "file",
   );
-  // The caption path below skips meta blocks, so the notice is drawn here instead.
-  const modelSwitch = message.blocks.some(
-    (block) => block.kind === "meta" && block.code === "model_switch",
-  );
   const caption = message.blocks
     .flatMap((block) => {
       if (block.kind === "channel_message" && block.text) {
@@ -547,13 +566,7 @@ const MessageBubbleContent = memo(function MessageBubbleContent({
     } as const;
     return (
       <View style={hasInlineImages ? { maxWidth: "100%", gap: 8 } : bubbleStyle}>
-        {modelSwitch ? (
-          <Text
-            style={{ color: tokens.mutedForeground, textAlign: "center", ...typeScale.footnote }}
-          >
-            {t("Continued on a different model")}
-          </Text>
-        ) : null}
+        <ModelSwitchNotice show={modelSwitch} />
         {((showBotSenderName || authorName) && speaker) || caption ? (
           <View style={hasInlineImages ? bubbleStyle : undefined}>
             {(showBotSenderName || authorName) && speaker ? (
