@@ -50,6 +50,14 @@ const REPORTED_BUILTIN_TOOLS = new Set([
   "skill_create",
   "skill_update",
   "skill_delete",
+  "claim_email_address",
+  "respond_agent_connection",
+  "set_child_bot_model",
+  "set_child_instructions",
+  "update_bot",
+  "update_group",
+  "update_preferences",
+  "forget_secret",
 ]);
 
 const BUILTIN_NAMES = new Set(builtinAgentTools.map((tool) => tool.name));
@@ -57,6 +65,8 @@ const EFFECT_STATUSES = ["completed", "uncertain", "executing", "intended"] as c
 const TARGET_TEXT_KEYS = ["subject", "title", "name", "to", "recipient", "channel", "space", "bot"];
 const MAX_ENTRIES = 20;
 const MAX_DETAIL = 80;
+/** The contract's label bound; artifact names can be this long. */
+const MAX_LABEL = 255;
 
 /** One line of page text, with control characters flattened. */
 function oneLine(value: string): string {
@@ -142,13 +152,14 @@ function groupKey(entry: OutcomeEntry): string {
 }
 
 function addEntry(entries: OutcomeEntry[], entry: OutcomeEntry) {
-  const key = groupKey(entry);
+  const bounded = { ...entry, label: entry.label.slice(0, MAX_LABEL) };
+  const key = groupKey(bounded);
   const existing = entries.find((candidate) => groupKey(candidate) === key);
   if (existing) {
     existing.count = (existing.count ?? 1) + 1;
     return;
   }
-  entries.push({ ...entry });
+  entries.push(bounded);
 }
 
 async function failedPages(prisma: PrismaClient, scope: OutcomeScope): Promise<OutcomeEntry[]> {
@@ -220,7 +231,8 @@ async function missingFiles(
         "artifact.id": artifact.id,
         "error.message": error instanceof Error ? error.message : String(error),
       });
-      present = false;
+      // The store could not answer; that is not the same as a missing file.
+      present = null;
     }
     if (present === false)
       failures.push({

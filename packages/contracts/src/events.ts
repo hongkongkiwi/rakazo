@@ -267,7 +267,8 @@ export const MessageBlock = z.discriminatedUnion("kind", [
       .array(
         z.object({
           kind: z.enum(["action", "file", "page"]),
-          label: z.string().trim().min(1).max(200),
+          /** Matches the artifact-name bound; longer labels are truncated by the builder. */
+          label: z.string().trim().min(1).max(255),
           detail: z.string().trim().max(300).optional(),
           status: z.enum(["reported", "unchecked", "failed"]),
           /** Repeat occurrences of the same action in one turn. */

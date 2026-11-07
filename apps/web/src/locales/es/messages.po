@@ -5811,7 +5811,7 @@ msgstr "Respondiendo a {0}"
 
 #: src/components/OutcomeCard.tsx
 msgid "Reported"
-msgstr "Informado"
+msgstr "Reportado"
 
 #: src/lib/user-error.ts
 msgid "Request a new code"

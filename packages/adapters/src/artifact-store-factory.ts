@@ -100,6 +100,9 @@ export class DeploymentArtifactStore implements ArtifactStore {
     return this.forId(id).remove(id, context);
   }
   async has(id: string, context: AdapterContext) {
+    // Without object storage this deployment cannot answer for an object artifact,
+    // and that is different from the artifact being missing.
+    if (id.startsWith("object:") && !this.object) return null;
     const store = this.forId(id);
     return store.has ? store.has(id, context) : null;
   }
