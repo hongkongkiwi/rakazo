@@ -15,8 +15,6 @@ describe("MCP source preset schema", () => {
   });
 
   it("rejects an unknown auth value", () => {
-    expect(() =>
-      McpSourcePresetSchema.parse({ id: "x", name: "X", auth: "api-key" }),
-    ).toThrow();
+    expect(() => McpSourcePresetSchema.parse({ id: "x", name: "X", auth: "api-key" })).toThrow();
   });
 });

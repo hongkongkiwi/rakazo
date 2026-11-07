@@ -50,7 +50,10 @@ describe("MCP source preset catalog", () => {
   it("carries only preset fields, never credential values", () => {
     const allowed = new Set(["id", "name", "url", "urlPlaceholder", "auth"]);
     for (const entry of MCP_SOURCE_PRESETS) {
-      expect(Object.keys(entry).every((key) => allowed.has(key)), entry.id).toBe(true);
+      expect(
+        Object.keys(entry).every((key) => allowed.has(key)),
+        entry.id,
+      ).toBe(true);
     }
   });
 });
@@ -76,9 +79,7 @@ describe("applyMcpSourcePreset", () => {
   });
 
   it("stores an unknown preset id as custom, untouched", () => {
-    expect(
-      applyMcpSourcePreset("https://mine.example/mcp", { preset: "not-offered" }),
-    ).toEqual({
+    expect(applyMcpSourcePreset("https://mine.example/mcp", { preset: "not-offered" })).toEqual({
       source: "https://mine.example/mcp",
       config: { preset: "custom" },
     });
