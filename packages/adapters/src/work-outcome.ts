@@ -154,10 +154,13 @@ function groupKey(entry: OutcomeEntry): string {
 }
 
 function addEntry(entries: OutcomeEntry[], entry: OutcomeEntry, secrets: readonly string[]) {
+  // A tool argument or saved name can repeat a value the run must not show.
+  const label = redactSecrets(entry.label, secrets).trim().slice(0, MAX_LABEL);
+  // The contract needs a non-empty label; an entry with nothing to name is not useful.
+  if (!label) return;
   const bounded: OutcomeEntry = {
     ...entry,
-    // A tool argument or saved name can repeat a value the run must not show.
-    label: redactSecrets(entry.label, secrets).slice(0, MAX_LABEL),
+    label,
     ...(entry.detail ? { detail: redactSecrets(entry.detail, secrets).slice(0, 300) } : {}),
     ...(entry.url ? { url: redactSecrets(entry.url, secrets).slice(0, 2048) } : {}),
   };

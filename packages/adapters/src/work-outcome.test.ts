@@ -189,6 +189,14 @@ describe("buildOutcomeBlock", () => {
     expect(JSON.stringify(block)).toContain("[redacted]");
   });
 
+  it("omits an entry with no usable label", async () => {
+    const { deps } = fixture({
+      artifacts: [{ id: "a1", name: "   ", storageKey: "key-1" }],
+      has: () => false,
+    });
+    await expect(buildOutcomeBlock(deps, scope)).resolves.toBeNull();
+  });
+
   it("truncates an artifact name to the contract's label bound", async () => {
     const name = "x".repeat(300);
     const { deps } = fixture({
