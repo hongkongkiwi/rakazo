@@ -26,15 +26,21 @@ function fixture(
   });
   const prisma = {
     message: {
-      findFirst: vi.fn(async (args: { where: { id: string } }) =>
-        args.where.id === "message-1"
-          ? {
-              id: "message-1",
-              blocks: [{ kind: "text", text: "I sent the report." }],
-              runId: "run-1",
-              seq: 10,
-            }
-          : null,
+      findFirst: vi.fn(
+        async (args: { where: { id: string; threadId: string; botId: string; role: string } }) => {
+          const { id, threadId, botId, role } = args.where;
+          return id === "message-1" &&
+            threadId === "thread-1" &&
+            botId === "bot-1" &&
+            role === "bot"
+            ? {
+                id: "message-1",
+                blocks: [{ kind: "text", text: "I sent the report." }],
+                runId: "run-1",
+                seq: 10,
+              }
+            : null;
+        },
       ),
     },
     run: {
@@ -123,6 +129,6 @@ describe("result review", () => {
 
   it("refuses a message outside the bot thread", async () => {
     const { reviewer } = fixture();
-    await expect(reviewer(actor, { ...input, messageId: "other-message" })).rejects.toThrow();
+    await expect(reviewer(actor, { ...input, threadId: "other-thread" })).rejects.toThrow();
   });
 });

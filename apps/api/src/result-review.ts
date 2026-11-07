@@ -151,7 +151,7 @@ export function createResultReviewer(deps: {
       // Every recorded outcome matters, including a failure or a denied action.
       // The latest bounded set is more useful than the first; say when older ones are missing.
       const recent = await deps.prisma.externalEffect.findMany({
-        where: { runId: message.runId },
+        where: { runId: message.runId, spaceId: actor.spaceId },
         orderBy: { createdAt: "desc" },
         take: EFFECTS_MAX + 1,
         select: { kind: true, status: true },

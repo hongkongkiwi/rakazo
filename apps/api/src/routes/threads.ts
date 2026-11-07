@@ -320,6 +320,14 @@ export function threadsRoutes(ctx: RouterContext) {
         const threadId = bot.thread.id;
         if (!deps.resultReview)
           throw new ORPCError("NOT_IMPLEMENTED", { message: "Result review is unavailable." });
+        const clientNonce = input.clientNonce ? `result-review:${input.clientNonce}` : undefined;
+        if (clientNonce) {
+          const existing = await deps.prisma.message.findFirst({
+            where: { threadId, clientNonce },
+            select: { id: true },
+          });
+          if (existing) return { messageId: existing.id };
+        }
         let review: Awaited<ReturnType<NonNullable<typeof deps.resultReview>>>;
         try {
           review = await deps.resultReview(context.actor, {
@@ -333,24 +341,38 @@ export function threadsRoutes(ctx: RouterContext) {
           throw error;
         }
         const blocks = [{ kind: "review" as const, ...review }];
-        const committed = await deps.prisma.$transaction(async (tx) => {
-          const message = await createThreadMessageInTransaction(tx, {
-            threadId,
-            role: "bot",
-            botId: bot.id,
-            blocks,
-            // The user asked for this review, so it does not mark the chat unread.
-            markUnread: false,
+        let committed: { messageId: string; seq: number };
+        try {
+          committed = await deps.prisma.$transaction(async (tx) => {
+            const message = await createThreadMessageInTransaction(tx, {
+              threadId,
+              role: "bot",
+              botId: bot.id,
+              blocks,
+              ...(clientNonce ? { clientNonce } : {}),
+              // The user asked for this review, so it does not mark the chat unread.
+              markUnread: false,
+            });
+            const event = await appendEventInTransaction(tx, {
+              spaceId: context.actor.spaceId,
+              threadId,
+              botId: bot.id,
+              type: "thread.message.created",
+              payload: { messageId: message.id, role: "bot", blocks },
+            });
+            return { messageId: message.id, seq: event.seq };
           });
-          const event = await appendEventInTransaction(tx, {
-            spaceId: context.actor.spaceId,
-            threadId,
-            botId: bot.id,
-            type: "thread.message.created",
-            payload: { messageId: message.id, role: "bot", blocks },
-          });
-          return { messageId: message.id, seq: event.seq };
-        });
+        } catch (error) {
+          // Two taps can pass the check together; the unique nonce picks one.
+          if (clientNonce && isUniqueViolation(error)) {
+            const raced = await deps.prisma.message.findFirst({
+              where: { threadId, clientNonce },
+              select: { id: true },
+            });
+            if (raced) return { messageId: raced.id };
+          }
+          throw error;
+        }
         await deps.events.notify(threadId, committed.seq).catch((error) => {
           getLogger().error("result review notification", error);
         });

@@ -143,7 +143,11 @@ export function MessageHoverActions({
                   setMoreOpen(false);
                   setReviewing(true);
                   void rpc.threads
-                    .reviewResult({ botId: reviewBotId, messageId: message.id })
+                    .reviewResult({
+                      botId: reviewBotId,
+                      messageId: message.id,
+                      clientNonce: `${message.id}:${Date.now()}:${Math.random().toString(36).slice(2)}`,
+                    })
                     .catch((error) =>
                       toast.error(errorText(error, t`Could not review this result`)),
                     )

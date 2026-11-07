@@ -704,7 +704,14 @@ export const appContract = {
       .output(z.object({ ok: z.literal(true) })),
     /** An advisory review of one finished bot message, posted as its own message. */
     reviewResult: oc
-      .input(z.object({ botId: Id, messageId: Id.optional() }))
+      .input(
+        z.object({
+          botId: Id,
+          messageId: Id.optional(),
+          /** A double tap reuses the review it already started. */
+          clientNonce: z.string().min(1).max(200).optional(),
+        }),
+      )
       .output(z.object({ messageId: Id })),
     followUp: oc
       .input(

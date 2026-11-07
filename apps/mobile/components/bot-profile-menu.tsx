@@ -1,6 +1,8 @@
 import { MenuView } from "@expo/ui/community/menu";
+import { newClientId } from "@rakazo/core";
 import type { NativeStackNavigationOptions } from "expo-router";
 import { useRouter } from "expo-router";
+import { useRef } from "react";
 import { Alert, View } from "react-native";
 import { rpc } from "../lib/api";
 import { notifyArchivedChatsChanged } from "../lib/archived-chats";
@@ -22,6 +24,8 @@ export type BotProfileAction = {
 export function useBotProfileActions(botId: string, name: string): BotProfileAction[] {
   const { t } = useI18n();
   const router = useRouter();
+  // A second tap before the first review lands would start another model call.
+  const reviewing = useRef(false);
   function leave() {
     router.dismissAll();
     router.replace("/");
@@ -30,13 +34,19 @@ export function useBotProfileActions(botId: string, name: string): BotProfileAct
     {
       id: "review",
       text: t("Review last result"),
-      onPress: () =>
-        void rpc("threads/reviewResult", { botId })
+      onPress: () => {
+        if (reviewing.current) return;
+        reviewing.current = true;
+        void rpc("threads/reviewResult", { botId, clientNonce: newClientId() })
           // The review card lands in the chat, so go there rather than staying on the profile.
           .then(() => router.back())
           .catch((error) =>
             Alert.alert(t("Could not review the last result"), errorText(error, t("Try again."))),
-          ),
+          )
+          .finally(() => {
+            reviewing.current = false;
+          });
+      },
     },
     {
       id: "clear",
