@@ -499,6 +499,81 @@ it("never shows stored stdio arguments and sends none back when they were not ed
   }
 });
 
+it("gives a stdio server environment variables instead of an access token", async () => {
+  const stdio = {
+    id: "srv_vision",
+    slug: "vision",
+    name: "vision",
+    description: "",
+    transport: "stdio",
+    endpoint: null,
+    command: "npx",
+    hasArgs: false,
+    envKeys: ["Z_AI_API_KEY"],
+    fileKeys: [],
+    headerKeys: [],
+    oauthStatus: "none",
+    oauthClientId: null,
+    hasSecret: false,
+    health: { status: "unknown" },
+    enabled: true,
+  } as unknown as McpServer;
+  mocks.list.mockReset().mockResolvedValue([stdio]);
+  const host = document.createElement("div");
+  const root = createRoot(host);
+  try {
+    await act(async () => root.render(overlay("srv_vision")));
+    await vi.waitFor(() =>
+      expect(host.querySelector<HTMLInputElement>("#mcp-command")?.value).toBe("npx"),
+    );
+    expect(host.textContent).toContain("Environment variables");
+    expect(
+      Array.from(host.querySelectorAll("input")).some((input) => input.value === "Z_AI_API_KEY"),
+    ).toBe(true);
+    expect(host.textContent).not.toContain("Access token (optional)");
+    expect(host.querySelector('input[placeholder="Optional header value"]')).toBeNull();
+  } finally {
+    await act(async () => root.unmount());
+  }
+});
+
+it("keeps the access token and header fields for a remote server", async () => {
+  const remote = {
+    id: "srv_remote",
+    slug: "remote",
+    name: "remote",
+    description: "",
+    transport: "streamable_http",
+    endpoint: "https://mcp.example.test/mcp",
+    command: null,
+    hasArgs: false,
+    envKeys: [],
+    fileKeys: [],
+    headerKeys: ["Authorization"],
+    oauthStatus: "none",
+    oauthClientId: null,
+    hasSecret: false,
+    health: { status: "unknown" },
+    enabled: true,
+  } as unknown as McpServer;
+  mocks.list.mockReset().mockResolvedValue([remote]);
+  const host = document.createElement("div");
+  const root = createRoot(host);
+  try {
+    await act(async () => root.render(overlay("srv_remote")));
+    await vi.waitFor(() =>
+      expect(host.querySelector<HTMLInputElement>("#mcp-endpoint")?.value).toBe(
+        "https://mcp.example.test/mcp",
+      ),
+    );
+    expect(host.textContent).toContain("Access token (optional)");
+    expect(host.querySelector('input[placeholder="Optional header value"]')).not.toBeNull();
+    expect(host.textContent).not.toContain("Environment variables");
+  } finally {
+    await act(async () => root.unmount());
+  }
+});
+
 it("reopens with cached servers and refreshes them in the background", async () => {
   mocks.list.mockReset().mockResolvedValue([server("cached")]);
   const host = document.createElement("div");

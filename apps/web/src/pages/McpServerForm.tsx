@@ -292,6 +292,106 @@ export function McpServerForm({
                 placeholder={editing?.hasArgs ? t`Stored encrypted` : "--stdio"}
               />
             </Field>
+            <Field>
+              <FieldTitle>
+                <Trans>Environment variables</Trans>
+              </FieldTitle>
+              {draft.envRows.map((row) => (
+                <Field
+                  key={row.id}
+                  orientation="horizontal"
+                  data-invalid={duplicateNames.has(row.name) || undefined}
+                  className="grid grid-cols-[.7fr_1fr_auto_auto] items-start gap-2"
+                >
+                  <Input
+                    aria-label={t`Name`}
+                    aria-invalid={duplicateNames.has(row.name) || undefined}
+                    aria-describedby={
+                      duplicateNames.has(row.name) ? `mcp-env-error-${row.id}` : undefined
+                    }
+                    autoComplete="off"
+                    className={row.file ? "col-span-2" : undefined}
+                    value={row.name}
+                    onChange={(e) =>
+                      updateEnvRow(row.id, {
+                        name: envName(e.target.value),
+                      })
+                    }
+                    placeholder="API_KEY"
+                  />
+                  {row.file ? null : (
+                    <Input
+                      aria-label={t`Value`}
+                      type={row.value.includes("{{oauth.") ? "text" : "password"}
+                      autoComplete={row.value.includes("{{oauth.") ? "off" : "new-password"}
+                      value={row.value}
+                      onChange={(e) =>
+                        updateEnvRow(row.id, {
+                          value: e.target.value,
+                        })
+                      }
+                      placeholder={t`Stored encrypted`}
+                    />
+                  )}
+                  <Toggle
+                    variant="outline"
+                    size="sm"
+                    pressed={row.file}
+                    onPressedChange={(file) => updateEnvRow(row.id, { file })}
+                  >
+                    <Trans>File</Trans>
+                  </Toggle>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label={t`Remove`}
+                    onClick={() =>
+                      setEnvRows((rows) =>
+                        rows.length > 1
+                          ? rows.filter((item) => item.id !== row.id)
+                          : [emptyEnvRow()],
+                      )
+                    }
+                  >
+                    <X />
+                  </Button>
+                  {row.file ? (
+                    <Textarea
+                      aria-label={t`Value`}
+                      autoComplete="off"
+                      spellCheck={false}
+                      className="col-span-full min-h-24 font-mono text-label"
+                      value={row.value}
+                      onChange={(e) =>
+                        updateEnvRow(row.id, {
+                          value: e.target.value,
+                        })
+                      }
+                    />
+                  ) : null}
+                  {duplicateNames.has(row.name) ? (
+                    <FieldError id={`mcp-env-error-${row.id}`} className="col-span-full">
+                      <Trans>Each name can be used once.</Trans>
+                    </FieldError>
+                  ) : null}
+                </Field>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                size="xs"
+                className="self-start"
+                onClick={() => setEnvRows((rows) => [...rows, emptyEnvRow()])}
+              >
+                <Trans>Add</Trans>
+              </Button>
+              {draft.oauthClientId.trim() ? (
+                <p className="text-label text-muted-foreground">
+                  <Trans>Use {oauthEnvReference} for the access token.</Trans>
+                </p>
+              ) : null}
+            </Field>
           </>
         ) : (
           <Field>
@@ -316,136 +416,37 @@ export function McpServerForm({
           summaryClassName="w-full flex items-center justify-between px-3 py-2.5 text-body text-foreground"
         >
           <div className="space-y-4 border-t border-border p-3">
-            <Field>
-              <FieldLabel htmlFor="mcp-secret">
-                <Trans>Access token (optional)</Trans>
-              </FieldLabel>
-              <Input
-                id="mcp-secret"
-                type="password"
-                autoComplete="new-password"
-                value={draft.secret}
-                onChange={(e) => update({ secret: e.target.value })}
-                placeholder={t`Stored encrypted`}
-              />
-            </Field>
-            {draft.transport === "stdio" ? (
-              <Field>
-                <FieldTitle>
-                  <Trans>Environment variables</Trans>
-                </FieldTitle>
-                {draft.envRows.map((row) => (
-                  <Field
-                    key={row.id}
-                    orientation="horizontal"
-                    data-invalid={duplicateNames.has(row.name) || undefined}
-                    className="grid grid-cols-[.7fr_1fr_auto_auto] items-start gap-2"
-                  >
-                    <Input
-                      aria-label={t`Name`}
-                      aria-invalid={duplicateNames.has(row.name) || undefined}
-                      aria-describedby={
-                        duplicateNames.has(row.name) ? `mcp-env-error-${row.id}` : undefined
-                      }
-                      autoComplete="off"
-                      className={row.file ? "col-span-2" : undefined}
-                      value={row.name}
-                      onChange={(e) =>
-                        updateEnvRow(row.id, {
-                          name: envName(e.target.value),
-                        })
-                      }
-                      placeholder="API_KEY"
-                    />
-                    {row.file ? null : (
-                      <Input
-                        aria-label={t`Value`}
-                        type={row.value.includes("{{oauth.") ? "text" : "password"}
-                        autoComplete={row.value.includes("{{oauth.") ? "off" : "new-password"}
-                        value={row.value}
-                        onChange={(e) =>
-                          updateEnvRow(row.id, {
-                            value: e.target.value,
-                          })
-                        }
-                        placeholder={t`Stored encrypted`}
-                      />
-                    )}
-                    <Toggle
-                      variant="outline"
-                      size="sm"
-                      pressed={row.file}
-                      onPressedChange={(file) => updateEnvRow(row.id, { file })}
-                    >
-                      <Trans>File</Trans>
-                    </Toggle>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label={t`Remove`}
-                      onClick={() =>
-                        setEnvRows((rows) =>
-                          rows.length > 1
-                            ? rows.filter((item) => item.id !== row.id)
-                            : [emptyEnvRow()],
-                        )
-                      }
-                    >
-                      <X />
-                    </Button>
-                    {row.file ? (
-                      <Textarea
-                        aria-label={t`Value`}
-                        autoComplete="off"
-                        spellCheck={false}
-                        className="col-span-full min-h-24 font-mono text-label"
-                        value={row.value}
-                        onChange={(e) =>
-                          updateEnvRow(row.id, {
-                            value: e.target.value,
-                          })
-                        }
-                      />
-                    ) : null}
-                    {duplicateNames.has(row.name) ? (
-                      <FieldError id={`mcp-env-error-${row.id}`} className="col-span-full">
-                        <Trans>Each name can be used once.</Trans>
-                      </FieldError>
-                    ) : null}
-                  </Field>
-                ))}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="xs"
-                  className="self-start"
-                  onClick={() => setEnvRows((rows) => [...rows, emptyEnvRow()])}
-                >
-                  <Trans>Add</Trans>
-                </Button>
-                {draft.oauthClientId.trim() ? (
-                  <p className="text-label text-muted-foreground">
-                    <Trans>Use {oauthEnvReference} for the access token.</Trans>
-                  </p>
-                ) : null}
-              </Field>
-            ) : (
-              <div className="grid grid-cols-[.7fr_1fr] gap-2">
-                <Input
-                  aria-label={t`Header name`}
-                  value={draft.headerName}
-                  onChange={(e) => update({ headerName: e.target.value })}
-                />
-                <Input
-                  aria-label={t`Header value`}
-                  type="password"
-                  autoComplete="new-password"
-                  value={draft.headerValue}
-                  onChange={(e) => update({ headerValue: e.target.value })}
-                  placeholder={t`Optional header value`}
-                />
-              </div>
+            {draft.transport === "stdio" ? null : (
+              <>
+                <Field>
+                  <FieldLabel htmlFor="mcp-secret">
+                    <Trans>Access token (optional)</Trans>
+                  </FieldLabel>
+                  <Input
+                    id="mcp-secret"
+                    type="password"
+                    autoComplete="new-password"
+                    value={draft.secret}
+                    onChange={(e) => update({ secret: e.target.value })}
+                    placeholder={t`Stored encrypted`}
+                  />
+                </Field>
+                <div className="grid grid-cols-[.7fr_1fr] gap-2">
+                  <Input
+                    aria-label={t`Header name`}
+                    value={draft.headerName}
+                    onChange={(e) => update({ headerName: e.target.value })}
+                  />
+                  <Input
+                    aria-label={t`Header value`}
+                    type="password"
+                    autoComplete="new-password"
+                    value={draft.headerValue}
+                    onChange={(e) => update({ headerValue: e.target.value })}
+                    placeholder={t`Optional header value`}
+                  />
+                </div>
+              </>
             )}
             <Field>
               <FieldLabel htmlFor="mcp-oauth-client-id">
