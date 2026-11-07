@@ -167,13 +167,15 @@ export function parseMcpOAuthAuthorizationParams(value: string): Record<string, 
   return params;
 }
 
-/** A remote MCP service that connects with a bearer token. */
+/** A remote MCP service offered as a one-step source and how it authenticates. */
 export const McpSourcePresetSchema = z.object({
   id: z.string(),
   name: z.string(),
   /** Fixed endpoint; omitted when the person enters their own. */
   url: z.string().url().optional(),
   urlPlaceholder: z.string().optional(),
+  /** Bearer is the legacy default: presets saved before this field carry a pasted token. */
+  auth: z.enum(["none", "bearer", "oauth"]).default("bearer"),
 });
 export type McpSourcePreset = z.infer<typeof McpSourcePresetSchema>;
 
