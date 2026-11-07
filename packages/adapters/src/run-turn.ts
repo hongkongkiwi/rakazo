@@ -108,6 +108,7 @@ import {
   STEERING_RESETS_MAX_PER_RUN,
   USER_PROGRESS_MESSAGE_MAX_LENGTH,
 } from "./user-progress.js";
+import { buildOutcomeBlock } from "./work-outcome.js";
 
 type RuntimeEvent<T extends AgentRuntimeEvent["type"]> = Extract<AgentRuntimeEvent, { type: T }>;
 
@@ -850,6 +851,21 @@ export async function completeRun(ctx: RunContext) {
         redactBlocks(completionBlocks, ctx.secrets),
         reply.publishedMidTurnUserMessage || runAllowsSilentEmpty(run.trigger),
       );
+  // What the turn changed outside the chat, plus any saved file or page that could not be
+  // found afterwards. A turn with no reply at all stays silent.
+  const outcomeBlock =
+    !ctx.state.handedOff && blocks.length > 0 && run.trigger !== BACKGROUND_HELPER_TRIGGER
+      ? await buildOutcomeBlock(deps, {
+          runId,
+          spaceId: run.spaceId,
+          botId: bot.id,
+          userId: run.userId,
+        }).catch((error) => {
+          getLogger().error("work outcome receipt", error);
+          return null;
+        })
+      : null;
+  const replyBlocks = outcomeBlock ? [...blocks, outcomeBlock] : blocks;
   const text = ctx.state.handedOff
     ? ""
     : redactSecrets(completionNotificationBody(silentReply.assembled, blocks), ctx.secrets);
@@ -882,7 +898,7 @@ export async function completeRun(ctx: RunContext) {
     leaseOwner: ctx.workerId,
     leaseFence: ctx.fence,
     outcome: "completed",
-    blocks,
+    blocks: replyBlocks,
     markUnread:
       !groupSilentEnd &&
       completionMarksUnread(run.trigger, text, ctx.source.peerMessage?.repliesToRequest === true),

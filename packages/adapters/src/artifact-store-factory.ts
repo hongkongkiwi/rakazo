@@ -99,6 +99,10 @@ export class DeploymentArtifactStore implements ArtifactStore {
   async remove(id: string, context: AdapterContext) {
     return this.forId(id).remove(id, context);
   }
+  async has(id: string, context: AdapterContext) {
+    const store = this.forId(id);
+    return store.has ? store.has(id, context) : null;
+  }
 }
 
 export function createArtifactStore(

@@ -2687,6 +2687,10 @@ msgstr "Impossible de mettre à jour la portée de mémoire par défaut"
 msgid "Could not verify computer setup ({failureMessage}). Fix the connection, then check again."
 msgstr "Impossible de vérifier la configuration des ordinateurs ({failureMessage}). Rétablissez la connexion, puis vérifiez à nouveau."
 
+#: src/components/OutcomeCard.tsx
+msgid "Couldn't confirm"
+msgstr "Impossible de confirmer"
+
 #: src/components/pages/SharePopover.tsx
 msgid "Couldn't copy. Select the link and copy it."
 msgstr "Copie impossible. Sélectionnez le lien et copiez-le."
@@ -4896,6 +4900,10 @@ msgstr "Compétence non valide"
 msgid "Not added: {0}"
 msgstr "Non ajoutés : {0}"
 
+#: src/components/OutcomeCard.tsx
+msgid "Not checked"
+msgstr "Non vérifié"
+
 #: src/components/McpServerHealthLine.tsx
 msgid "Not checked yet"
 msgstr "Pas encore vérifié"
@@ -5800,6 +5808,10 @@ msgstr "Réponse annulée"
 #: src/pages/shell/composer.tsx
 msgid "Replying to {0}"
 msgstr "En réponse à {0}"
+
+#: src/components/OutcomeCard.tsx
+msgid "Reported"
+msgstr "Signalé"
 
 #: src/lib/user-error.ts
 msgid "Request a new code"
@@ -7605,6 +7617,10 @@ msgstr "Qu'en est-il de ses mémoires ?"
 #: src/pages/shell/dialogs.tsx
 msgid "What can this space use?"
 msgstr "Que peut utiliser cet espace ?"
+
+#: src/components/OutcomeCard.tsx
+msgid "What changed"
+msgstr "Ce qui a changé"
 
 #: src/components/SignupSurvey.tsx
 msgid "What do you most want Rakazo to help with?"

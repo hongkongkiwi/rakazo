@@ -2687,6 +2687,10 @@ msgstr "Nie udało się zaktualizować domyślnego zakresu pamięci"
 msgid "Could not verify computer setup ({failureMessage}). Fix the connection, then check again."
 msgstr "Nie udało się sprawdzić konfiguracji komputera ({failureMessage}). Napraw połączenie i sprawdź ponownie."
 
+#: src/components/OutcomeCard.tsx
+msgid "Couldn't confirm"
+msgstr "Nie udało się potwierdzić"
+
 #: src/components/pages/SharePopover.tsx
 msgid "Couldn't copy. Select the link and copy it."
 msgstr "Nie udało się skopiować. Zaznacz link i go skopiuj."
@@ -4896,6 +4900,10 @@ msgstr "Nieprawidłowa umiejętność"
 msgid "Not added: {0}"
 msgstr "Nie dodano: {0}"
 
+#: src/components/OutcomeCard.tsx
+msgid "Not checked"
+msgstr "Nie sprawdzono"
+
 #: src/components/McpServerHealthLine.tsx
 msgid "Not checked yet"
 msgstr "Jeszcze nie sprawdzono"
@@ -5800,6 +5808,10 @@ msgstr "Anulowano odpowiedź"
 #: src/pages/shell/composer.tsx
 msgid "Replying to {0}"
 msgstr "Odpowiedź do {0}"
+
+#: src/components/OutcomeCard.tsx
+msgid "Reported"
+msgstr "Zgłoszono"
 
 #: src/lib/user-error.ts
 msgid "Request a new code"
@@ -7605,6 +7617,10 @@ msgstr "Co zrobić ze wspomnieniami?"
 #: src/pages/shell/dialogs.tsx
 msgid "What can this space use?"
 msgstr "Z czego może korzystać ta przestrzeń?"
+
+#: src/components/OutcomeCard.tsx
+msgid "What changed"
+msgstr "Co się zmieniło"
 
 #: src/components/SignupSurvey.tsx
 msgid "What do you most want Rakazo to help with?"

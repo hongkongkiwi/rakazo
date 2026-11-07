@@ -2687,6 +2687,10 @@ msgstr "Не удалось обновить область памяти по у
 msgid "Could not verify computer setup ({failureMessage}). Fix the connection, then check again."
 msgstr "Не удалось проверить настройку компьютеров ({failureMessage}). Восстановите подключение и проверьте снова."
 
+#: src/components/OutcomeCard.tsx
+msgid "Couldn't confirm"
+msgstr "Не удалось подтвердить"
+
 #: src/components/pages/SharePopover.tsx
 msgid "Couldn't copy. Select the link and copy it."
 msgstr "Не удалось скопировать. Выделите ссылку и скопируйте её."
@@ -4896,6 +4900,10 @@ msgstr "Недопустимый навык"
 msgid "Not added: {0}"
 msgstr "Не добавлено: {0}"
 
+#: src/components/OutcomeCard.tsx
+msgid "Not checked"
+msgstr "Не проверено"
+
 #: src/components/McpServerHealthLine.tsx
 msgid "Not checked yet"
 msgstr "Ещё не проверено"
@@ -5800,6 +5808,10 @@ msgstr "Ответ отменён"
 #: src/pages/shell/composer.tsx
 msgid "Replying to {0}"
 msgstr "Ответ: {0}"
+
+#: src/components/OutcomeCard.tsx
+msgid "Reported"
+msgstr "Сообщено"
 
 #: src/lib/user-error.ts
 msgid "Request a new code"
@@ -7605,6 +7617,10 @@ msgstr "Что делать с его памятью?"
 #: src/pages/shell/dialogs.tsx
 msgid "What can this space use?"
 msgstr "Что может использовать это пространство?"
+
+#: src/components/OutcomeCard.tsx
+msgid "What changed"
+msgstr "Что изменилось"
 
 #: src/components/SignupSurvey.tsx
 msgid "What do you most want Rakazo to help with?"

@@ -449,6 +449,8 @@ export interface ArtifactStore {
   put(artifact: ArtifactPut, context: AdapterContext): Promise<{ id: string; hash: string }>;
   get(id: string, context: AdapterContext): Promise<Uint8Array>;
   remove(id: string, context: AdapterContext): Promise<void>;
+  /** Whether the stored bytes exist; null when this store cannot tell without reading them. */
+  has?(id: string, context: AdapterContext): Promise<boolean | null>;
 }
 
 export interface SecretStore {

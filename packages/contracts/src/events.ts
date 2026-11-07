@@ -256,6 +256,32 @@ export const MessageBlock = z.discriminatedUnion("kind", [
     durationMs: z.number().int().nonnegative().optional(),
   }),
   z.object({
+    /**
+     * What a finished turn changed outside the chat. `reported` means the tool said
+     * it succeeded; `unchecked` means the result could not be established; `failed`
+     * means a saved file or page could not be found afterwards. Files and pages the
+     * turn drew as their own cards appear only when that check failed.
+     */
+    kind: z.literal("outcome"),
+    entries: z
+      .array(
+        z.object({
+          kind: z.enum(["action", "file", "page"]),
+          label: z.string().trim().min(1).max(200),
+          detail: z.string().trim().max(300).optional(),
+          status: z.enum(["reported", "unchecked", "failed"]),
+          /** Repeat occurrences of the same action in one turn. */
+          count: z.number().int().positive().optional(),
+          artifactId: Id.optional(),
+          pageId: Id.optional(),
+          version: z.number().int().positive().optional(),
+          url: z.string().max(2048).optional(),
+        }),
+      )
+      .min(1)
+      .max(20),
+  }),
+  z.object({
     kind: z.literal("subagent"),
     agentId: z.string(),
     name: z.string(),

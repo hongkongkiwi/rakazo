@@ -2688,6 +2688,10 @@ msgstr "無法更新預設記憶範圍"
 msgid "Could not verify computer setup ({failureMessage}). Fix the connection, then check again."
 msgstr "無法驗證電腦設定（{failureMessage}）。請修復連線後再次檢查。"
 
+#: src/components/OutcomeCard.tsx
+msgid "Couldn't confirm"
+msgstr "無法確認"
+
 #: src/components/pages/SharePopover.tsx
 msgid "Couldn't copy. Select the link and copy it."
 msgstr "無法複製。請選取連結後複製。"
@@ -4897,6 +4901,10 @@ msgstr "不是有效的技能"
 msgid "Not added: {0}"
 msgstr "未新增：{0}"
 
+#: src/components/OutcomeCard.tsx
+msgid "Not checked"
+msgstr "未檢查"
+
 #: src/components/McpServerHealthLine.tsx
 msgid "Not checked yet"
 msgstr "尚未檢查"
@@ -5801,6 +5809,10 @@ msgstr "已取消回覆"
 #: src/pages/shell/composer.tsx
 msgid "Replying to {0}"
 msgstr "正在回覆 {0}"
+
+#: src/components/OutcomeCard.tsx
+msgid "Reported"
+msgstr "已回報"
 
 #: src/lib/user-error.ts
 msgid "Request a new code"
@@ -7606,6 +7618,10 @@ msgstr "它的記憶怎麼處理？"
 #: src/pages/shell/dialogs.tsx
 msgid "What can this space use?"
 msgstr "此空間可以使用什麼？"
+
+#: src/components/OutcomeCard.tsx
+msgid "What changed"
+msgstr "變更內容"
 
 #: src/components/SignupSurvey.tsx
 msgid "What do you most want Rakazo to help with?"

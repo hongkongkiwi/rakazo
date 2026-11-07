@@ -2687,6 +2687,10 @@ msgstr "无法更新默认记忆范围"
 msgid "Could not verify computer setup ({failureMessage}). Fix the connection, then check again."
 msgstr "无法确认电脑是否就绪（{failureMessage}）。请修复连接后再检查一次。"
 
+#: src/components/OutcomeCard.tsx
+msgid "Couldn't confirm"
+msgstr "无法确认"
+
 #: src/components/pages/SharePopover.tsx
 msgid "Couldn't copy. Select the link and copy it."
 msgstr "无法复制。请选中链接后复制。"
@@ -4896,6 +4900,10 @@ msgstr "不是有效的技能"
 msgid "Not added: {0}"
 msgstr "未添加：{0}"
 
+#: src/components/OutcomeCard.tsx
+msgid "Not checked"
+msgstr "未检查"
+
 #: src/components/McpServerHealthLine.tsx
 msgid "Not checked yet"
 msgstr "尚未检查"
@@ -5800,6 +5808,10 @@ msgstr "已取消回复"
 #: src/pages/shell/composer.tsx
 msgid "Replying to {0}"
 msgstr "正在回复 {0}"
+
+#: src/components/OutcomeCard.tsx
+msgid "Reported"
+msgstr "已报告"
 
 #: src/lib/user-error.ts
 msgid "Request a new code"
@@ -7605,6 +7617,10 @@ msgstr "它的记忆怎么处理？"
 #: src/pages/shell/dialogs.tsx
 msgid "What can this space use?"
 msgstr "这个工作区可以使用什么？"
+
+#: src/components/OutcomeCard.tsx
+msgid "What changed"
+msgstr "变更内容"
 
 #: src/components/SignupSurvey.tsx
 msgid "What do you most want Rakazo to help with?"

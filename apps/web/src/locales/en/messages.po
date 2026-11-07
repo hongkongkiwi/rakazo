@@ -2687,6 +2687,10 @@ msgstr "Could not update the default memory scope"
 msgid "Could not verify computer setup ({failureMessage}). Fix the connection, then check again."
 msgstr "Could not verify computer setup ({failureMessage}). Fix the connection, then check again."
 
+#: src/components/OutcomeCard.tsx
+msgid "Couldn't confirm"
+msgstr "Couldn't confirm"
+
 #: src/components/pages/SharePopover.tsx
 msgid "Couldn't copy. Select the link and copy it."
 msgstr "Couldn't copy. Select the link and copy it."
@@ -4896,6 +4900,10 @@ msgstr "Not a valid skill"
 msgid "Not added: {0}"
 msgstr "Not added: {0}"
 
+#: src/components/OutcomeCard.tsx
+msgid "Not checked"
+msgstr "Not checked"
+
 #: src/components/McpServerHealthLine.tsx
 msgid "Not checked yet"
 msgstr "Not checked yet"
@@ -5800,6 +5808,10 @@ msgstr "Reply cancelled"
 #: src/pages/shell/composer.tsx
 msgid "Replying to {0}"
 msgstr "Replying to {0}"
+
+#: src/components/OutcomeCard.tsx
+msgid "Reported"
+msgstr "Reported"
 
 #: src/lib/user-error.ts
 msgid "Request a new code"
@@ -7605,6 +7617,10 @@ msgstr "What about its memories?"
 #: src/pages/shell/dialogs.tsx
 msgid "What can this space use?"
 msgstr "What can this space use?"
+
+#: src/components/OutcomeCard.tsx
+msgid "What changed"
+msgstr "What changed"
 
 #: src/components/SignupSurvey.tsx
 msgid "What do you most want Rakazo to help with?"

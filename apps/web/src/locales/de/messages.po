@@ -2687,6 +2687,10 @@ msgstr "Standardbereich für Erinnerungen konnte nicht aktualisiert werden"
 msgid "Could not verify computer setup ({failureMessage}). Fix the connection, then check again."
 msgstr "Computer-Einrichtung konnte nicht geprüft werden ({failureMessage}). Behebe die Verbindung und prüfe dann erneut."
 
+#: src/components/OutcomeCard.tsx
+msgid "Couldn't confirm"
+msgstr "Nicht bestätigt"
+
 #: src/components/pages/SharePopover.tsx
 msgid "Couldn't copy. Select the link and copy it."
 msgstr "Kopieren nicht möglich. Markiere den Link und kopiere ihn."
@@ -4896,6 +4900,10 @@ msgstr "Kein gültiger Skill"
 msgid "Not added: {0}"
 msgstr "Nicht hinzugefügt: {0}"
 
+#: src/components/OutcomeCard.tsx
+msgid "Not checked"
+msgstr "Nicht geprüft"
+
 #: src/components/McpServerHealthLine.tsx
 msgid "Not checked yet"
 msgstr "Noch nicht geprüft"
@@ -5800,6 +5808,10 @@ msgstr "Antwort abgebrochen"
 #: src/pages/shell/composer.tsx
 msgid "Replying to {0}"
 msgstr "Antwort an {0}"
+
+#: src/components/OutcomeCard.tsx
+msgid "Reported"
+msgstr "Gemeldet"
 
 #: src/lib/user-error.ts
 msgid "Request a new code"
@@ -7605,6 +7617,10 @@ msgstr "Was soll mit seinen Erinnerungen geschehen?"
 #: src/pages/shell/dialogs.tsx
 msgid "What can this space use?"
 msgstr "Was darf dieser Space nutzen?"
+
+#: src/components/OutcomeCard.tsx
+msgid "What changed"
+msgstr "Was sich geändert hat"
 
 #: src/components/SignupSurvey.tsx
 msgid "What do you most want Rakazo to help with?"

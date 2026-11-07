@@ -124,6 +124,16 @@ export class LocalArtifactStore implements ArtifactStore {
     await rm(this.file(context.spaceId, id), { force: true });
   }
 
+  async has(id: string, context: AdapterContext) {
+    try {
+      await stat(this.file(context.spaceId, id));
+      return true;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") return false;
+      throw error;
+    }
+  }
+
   /** False when the artifact directory is missing, for example when the volume is not mounted. */
   hasDirectory(): Promise<boolean> {
     return stat(path.join(this.root, "artifacts")).then(

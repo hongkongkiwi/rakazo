@@ -2687,6 +2687,10 @@ msgstr "デフォルトのメモリ範囲を更新できませんでした"
 msgid "Could not verify computer setup ({failureMessage}). Fix the connection, then check again."
 msgstr "コンピューターのセットアップを確認できませんでした（{failureMessage}）。接続を修正してから、もう一度確認してください。"
 
+#: src/components/OutcomeCard.tsx
+msgid "Couldn't confirm"
+msgstr "確認できませんでした"
+
 #: src/components/pages/SharePopover.tsx
 msgid "Couldn't copy. Select the link and copy it."
 msgstr "コピーできませんでした。リンクを選択してコピーしてください。"
@@ -4896,6 +4900,10 @@ msgstr "有効なスキルではありません"
 msgid "Not added: {0}"
 msgstr "追加されませんでした: {0}"
 
+#: src/components/OutcomeCard.tsx
+msgid "Not checked"
+msgstr "未確認"
+
 #: src/components/McpServerHealthLine.tsx
 msgid "Not checked yet"
 msgstr "未確認"
@@ -5800,6 +5808,10 @@ msgstr "返信をキャンセルしました"
 #: src/pages/shell/composer.tsx
 msgid "Replying to {0}"
 msgstr "{0}に返信中"
+
+#: src/components/OutcomeCard.tsx
+msgid "Reported"
+msgstr "報告済み"
 
 #: src/lib/user-error.ts
 msgid "Request a new code"
@@ -7605,6 +7617,10 @@ msgstr "メモリはどうしますか？"
 #: src/pages/shell/dialogs.tsx
 msgid "What can this space use?"
 msgstr "このスペースで何を使えますか？"
+
+#: src/components/OutcomeCard.tsx
+msgid "What changed"
+msgstr "変更内容"
 
 #: src/components/SignupSurvey.tsx
 msgid "What do you most want Rakazo to help with?"

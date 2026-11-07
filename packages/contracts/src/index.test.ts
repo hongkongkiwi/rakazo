@@ -224,6 +224,27 @@ describe("contracts", () => {
     expect(MessageBlock.parse({ kind: "steps", steps })).toEqual({ kind: "steps", steps });
   });
 
+  it("accepts a non-empty outcome block and rejects an empty label", () => {
+    const entries = [
+      {
+        kind: "action" as const,
+        label: "Send email",
+        detail: "anna@example.com",
+        status: "reported" as const,
+        count: 2,
+      },
+      { kind: "file" as const, label: "report.csv", status: "failed" as const, artifactId: "a1" },
+    ];
+    expect(MessageBlock.parse({ kind: "outcome", entries })).toEqual({ kind: "outcome", entries });
+    expect(MessageBlock.safeParse({ kind: "outcome", entries: [] }).success).toBe(false);
+    expect(
+      MessageBlock.safeParse({
+        kind: "outcome",
+        entries: [{ kind: "action", label: " ", status: "reported" }],
+      }).success,
+    ).toBe(false);
+  });
+
   it("limits reactions to persisted non-channel messages", () => {
     expect(
       canReactToThreadMessage({ id: "message-1", blocks: [{ kind: "text", text: "hi" }] }),
