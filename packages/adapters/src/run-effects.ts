@@ -152,6 +152,18 @@ function stableRequest(value: unknown): string | undefined {
   }
 }
 
+/**
+ * Approval envelopes keep the approved arguments in their own shape, and a catalog
+ * approval can resume as a bound direct call. That path normalizes the replay itself,
+ * so comparing the envelopes here would reject a supported resume.
+ */
+function isApprovalRequest(value: unknown): boolean {
+  return Boolean(
+    catalogApprovalDetails(value, CATALOG_APPROVAL_TOOL) ??
+      boundDirectApprovalDetails(value, CATALOG_APPROVAL_TOOL),
+  );
+}
+
 export async function recordEffect(
   deps: ExecutorDeps,
   run: { id: string; spaceId: string; threadId: string; botId: string },
@@ -174,7 +186,11 @@ export async function recordEffect(
   if (existing) {
     // A modern key embeds a hash of the arguments. Reusing it for a different request
     // would silently answer with the earlier result, so treat that as a programming error.
-    if (isToolEffectIdempotencyKey(idempotencyKey, run.id, kind)) {
+    if (
+      isToolEffectIdempotencyKey(idempotencyKey, run.id, kind) &&
+      !isApprovalRequest(existing.request) &&
+      !isApprovalRequest(request)
+    ) {
       const stored = stableRequest(existing.request);
       const intended = stableRequest(request);
       if (stored !== undefined && intended !== undefined && stored !== intended)

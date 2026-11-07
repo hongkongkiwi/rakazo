@@ -1,7 +1,13 @@
 import { toolEffectIdempotencyKey } from "@rakazo/core/node/approval-effect-key";
 import { RunHistoryWriteError } from "@rakazo/db";
 import { describe, expect, it, vi } from "vitest";
-import { legacyPiToolCallId, recordEffect, runScopedToolExecutionId } from "./run-effects.js";
+import { boundDirectApprovalRequest, catalogApprovalRequest } from "./approval-effect.js";
+import {
+  CATALOG_APPROVAL_TOOL,
+  legacyPiToolCallId,
+  recordEffect,
+  runScopedToolExecutionId,
+} from "./run-effects.js";
 
 type Effect = {
   id: string;
@@ -251,6 +257,34 @@ describe("executor tool effect ownership", () => {
     const duplicate = await recordEffect(f.deps, run("run-1"), "write_fixture", key, {
       path: "b.txt",
     });
+    expect(duplicate.duplicate).toBe(true);
+  });
+
+  it("leaves an approved catalog resume to the approval normalizer", async () => {
+    const args = { to: "a@example.com" };
+    const key = toolEffectIdempotencyKey("run-1", "gmail_send", args);
+    const f = fixture([
+      {
+        id: "effect-1",
+        runId: "run-1",
+        spaceId: "space-a",
+        idempotencyKey: key,
+        kind: "gmail_send",
+        request: catalogApprovalRequest("gmail_send_execute_tool", args, CATALOG_APPROVAL_TOOL),
+        status: "approved",
+      },
+    ]);
+    const duplicate = await recordEffect(
+      f.deps,
+      run("run-1"),
+      "gmail_send",
+      key,
+      boundDirectApprovalRequest(
+        { connectorId: "c", resourceId: "r", toolName: "gmail_send" },
+        args,
+        CATALOG_APPROVAL_TOOL,
+      ),
+    );
     expect(duplicate.duplicate).toBe(true);
   });
 
