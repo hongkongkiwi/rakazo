@@ -65,16 +65,19 @@ function DialogContent({
   children,
   showCloseButton = true,
   overlayClassName,
+  overlayProps,
   size,
   ...props
 }: DialogPrimitive.Popup.Props &
   VariantProps<typeof dialogContentVariants> & {
     showCloseButton?: boolean;
     overlayClassName?: string;
+    /** Events on the backdrop itself, such as keeping a dropped file out of the page behind. */
+    overlayProps?: DialogPrimitive.Backdrop.Props;
   }) {
   return (
     <DialogPortal>
-      <DialogOverlay className={overlayClassName} />
+      <DialogOverlay className={overlayClassName} {...overlayProps} />
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(dialogContentVariants({ size }), className)}

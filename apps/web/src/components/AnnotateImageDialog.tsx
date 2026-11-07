@@ -117,16 +117,18 @@ export function AnnotateImageDialog({
     }
   };
 
+  // A file dropped on the dialog or its backdrop belongs here, not to the composer behind it.
+  const stopDrop = (event: React.DragEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
   return (
     <Dialog open onOpenChange={(open) => (!open && !saving ? onClose() : undefined)}>
       <DialogContent
         className="max-h-[90vh] w-[min(90vw,56rem)] overflow-y-auto"
-        // A file dropped on the dialog belongs to the dialog, not the composer behind it.
-        onDragOver={(event) => event.preventDefault()}
-        onDrop={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-        }}
+        onDragOver={stopDrop}
+        onDrop={stopDrop}
+        overlayProps={{ onDragOver: stopDrop, onDrop: stopDrop }}
       >
         <DialogTitle>
           <Trans>Annotate image</Trans>
