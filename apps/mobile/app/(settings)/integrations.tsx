@@ -825,7 +825,7 @@ export default function Integrations() {
     setCredential("");
     // Replies from before the auth field carry none; those presets behaved as bearer sources.
     setSourceAuth(preset ? (preset.auth ?? "bearer") : "none");
-    setAuthHeader("x-api-key");
+    setAuthHeader(preset?.authHeader ?? "x-api-key");
   }
 
   async function authorizeMcp(serverId: string) {
@@ -984,14 +984,12 @@ export default function Integrations() {
     { id: "mcp", label: t("MCP server"), kind: "mcp" },
     { id: "api", label: "OpenAPI", kind: "api" },
     { id: "graphql", label: "GraphQL", kind: "graphql" },
-    ...sourcePresets
-      .filter((preset) => preset.auth !== "oauth")
-      .map((preset) => ({
-        id: `preset:${preset.id}`,
-        label: preset.name,
-        kind: "mcp" as const,
-        preset,
-      })),
+    ...sourcePresets.map((preset) => ({
+      id: `preset:${preset.id}`,
+      label: preset.name,
+      kind: "mcp" as const,
+      preset,
+    })),
   ];
 
   function startAdding(option: AddCustomOption | undefined) {

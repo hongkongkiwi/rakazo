@@ -179,6 +179,7 @@ export function AddCustomForm({
             <TextInput
               value={authHeader}
               onChangeText={setAuthHeader}
+              editable={!sourcePreset}
               autoCapitalize="none"
               autoCorrect={false}
               accessibilityLabel={t("API key header name")}

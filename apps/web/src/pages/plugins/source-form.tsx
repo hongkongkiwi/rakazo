@@ -41,8 +41,8 @@ export function useSourceForm() {
     setSourceName(preset?.name ?? "");
     setSourceUrl(preset?.url ?? "");
     setCredential("");
-    setAuthType(preset ? (preset.auth === "none" ? "none" : "bearer") : "none");
-    setAuthName("x-api-key");
+    setAuthType(preset ? (preset.auth ?? "bearer") : "none");
+    setAuthName(preset?.authHeader ?? "x-api-key");
   }
 
   /** A domain search result prefills the form with what it found. */
@@ -226,10 +226,24 @@ export function SourceFormView({
             />
           </Field>
         ) : null}
+        {!custom && sourcePreset?.auth === "header" && sourcePreset.authHeader ? (
+          <Field>
+            <FieldLabel htmlFor="source-header">
+              <Trans>Header name</Trans>
+            </FieldLabel>
+            <Input id="source-header" value={sourcePreset.authHeader} readOnly />
+          </Field>
+        ) : null}
         {needsCredential && !oauth ? (
           <Field>
             <FieldLabel htmlFor="source-credential">
-              {sourcePreset ? <Trans>Bearer token</Trans> : <Trans>Credential</Trans>}
+              {sourcePreset?.auth === "header" ? (
+                <Trans>API key</Trans>
+              ) : sourcePreset ? (
+                <Trans>Bearer token</Trans>
+              ) : (
+                <Trans>Credential</Trans>
+              )}
             </FieldLabel>
             <Input
               id="source-credential"
