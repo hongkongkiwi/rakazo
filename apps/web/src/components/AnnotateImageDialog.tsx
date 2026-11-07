@@ -47,7 +47,14 @@ export function AnnotateImageDialog({
   const [error, setError] = useState("");
   const [previewUrl] = useState(() => URL.createObjectURL(file));
   // A reopened editor must not reuse the previous save's idempotency key.
-  const [sessionId] = useState(() => crypto.randomUUID());
+  // randomUUID needs a secure context; a LAN deployment over HTTP gets a plain id.
+  const [sessionId] = useState(() => {
+    try {
+      return crypto.randomUUID();
+    } catch {
+      return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    }
+  });
   useEffect(() => () => URL.revokeObjectURL(previewUrl), [previewUrl]);
 
   const changeMarks = (next: ImageAnnotationMark[]) => {
