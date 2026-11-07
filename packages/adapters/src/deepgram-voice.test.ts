@@ -85,7 +85,7 @@ describe("DeepgramVoiceProvider", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const clip = await new DeepgramVoiceProvider().synthesize(
-      { text: "Hello there.", voiceId: "aura-2-angus-en", apiKey: "dg-key" },
+      { text: "Hello there.", voiceId: "aura-2-thalia-en", apiKey: "dg-key" },
       context,
     );
 
@@ -99,7 +99,8 @@ describe("DeepgramVoiceProvider", () => {
     const body = JSON.parse(String(init.body)) as Record<string, unknown>;
     expect(body.text).toBe("Hello there.");
     // Deepgram names a voice by its model; the picker's voice id reaches it as `model`.
-    expect(body.model ?? parsed.searchParams.get("model")).toBe("aura-2-angus-en");
+    expect(body.model).toBeUndefined();
+    expect(parsed.searchParams.get("model")).toBe("aura-2-thalia-en");
   });
 
   it("transcribes raw audio through /v1/listen with nova-3", async () => {
@@ -176,7 +177,7 @@ describe("DeepgramVoiceProvider", () => {
       const provider = new DeepgramVoiceProvider();
       const attempt: Promise<unknown> =
         operation === "synthesize"
-          ? provider.synthesize({ text: "Hi", voiceId: "aura-2-angus-en", apiKey }, context)
+          ? provider.synthesize({ text: "Hi", voiceId: "aura-2-thalia-en", apiKey }, context)
           : provider.transcribe!(
               { audio: new Uint8Array([1]), mimeType: "audio/webm", apiKey },
               context,
