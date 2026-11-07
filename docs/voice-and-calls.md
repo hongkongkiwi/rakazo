@@ -6,7 +6,7 @@ Talk to your bots instead of typing, have them read replies aloud, or call them.
 
 Open **Settings → Voice**, pick a **Provider** and add its **API key**:
 
-- **ElevenLabs**, **OpenAI** and **Fish Audio** can speak and transcribe.
+- **ElevenLabs**, **Deepgram**, **OpenAI** and **Fish Audio** can speak and transcribe.
 - **Cartesia** speaks only.
 - **Self-hosted** uses your own OpenAI-compatible speech server, such as Kokoro or Whisper. Enter its
   **Server URL**.

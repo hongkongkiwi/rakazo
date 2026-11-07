@@ -1,6 +1,7 @@
 import type { VoiceProvider } from "@rakazo/adapter-kit";
 import type { VoiceCatalogEntry } from "@rakazo/contracts";
 import { CartesiaVoiceProvider } from "./cartesia-voice.js";
+import { DeepgramVoiceProvider } from "./deepgram-voice.js";
 import { ElevenLabsVoiceProvider } from "./elevenlabs-voice.js";
 import { FishAudioVoiceProvider } from "./fish-audio-voice.js";
 import {
@@ -24,6 +25,12 @@ export const VOICE_CATALOG = [
     description: "Highest quality and cloning. Flash v2.5 for conversational calls.",
     transcribe: true,
     speechModel: true,
+  },
+  {
+    id: "deepgram",
+    name: "Deepgram",
+    description: "Aura voices and Nova transcription from one key.",
+    transcribe: true,
   },
   {
     id: "openai",
@@ -97,6 +104,8 @@ export function createVoiceProvider(
   switch (kind) {
     case "elevenlabs":
       return new ElevenLabsVoiceProvider();
+    case "deepgram":
+      return new DeepgramVoiceProvider();
     case "openai":
       return new OpenAIVoiceProvider();
     case "cartesia":
@@ -117,7 +126,7 @@ export function createVoiceProvider(
       break;
   }
   throw new Error(
-    `Unknown voice provider "${kind}". Use elevenlabs | openai | cartesia | fish-audio | openai-compatible.`,
+    `Unknown voice provider "${kind}". Use elevenlabs | deepgram | openai | cartesia | fish-audio | openai-compatible.`,
   );
 }
 

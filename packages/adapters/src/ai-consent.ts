@@ -13,6 +13,7 @@ const PRIVACY_URLS: Record<string, string> = {
   google: "https://policies.google.com/privacy",
   "vercel-ai-gateway": "https://vercel.com/legal/privacy-policy",
   elevenlabs: "https://elevenlabs.io/privacy-policy",
+  deepgram: "https://deepgram.com/privacy",
   cartesia: "https://cartesia.ai/legal/privacy",
   "fish-audio": "https://fish.audio/privacy/",
   supermemory: "https://supermemory.ai/privacy",

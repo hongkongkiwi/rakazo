@@ -123,6 +123,10 @@ const HUB_SECTIONS: readonly ArticleSection[] = [
           cells: ["Flash v2.5", "Scribe v2", "Yes", "ElevenLabs"],
         },
         {
+          topic: "Deepgram",
+          cells: ["Aura-2", "Nova-3", "No", "Deepgram"],
+        },
+        {
           topic: "[OpenAI](/voice-providers/openai/)",
           cells: [
             "`gpt-4o-mini-tts`, until January 6, 2027",
@@ -161,7 +165,6 @@ const HUB_SECTIONS: readonly ArticleSection[] = [
       "Plenty of good voice APIs have no built-in connection in Rakazo. Here is how they compare, so you can judge what you'd be missing.",
     ],
     bullets: [
-      `Deepgram is best known for transcription: Nova-3 costs ${usd(RATES.deepgramBatchHour)} an hour in batch and ${usd(RATES.deepgramStreamHour)} streaming, with a ${usd(RATES.deepgramCredit)} starting credit, and many voice agents use it to listen. Its Aura-2 voices cost ${usd(RATES.deepgram)} per million characters and sound plainer than ElevenLabs. It uses its own API, not OpenAI's.`,
       `Google Cloud's Chirp 3 HD voices cost ${usd(RATES.googleChirp)} per million characters with the first ${millions(RATES.googleFreeChars)} free each month, and its Speech-to-Text costs about ${usd(RATES.googleSttHour)} an hour. Gemini's speech models are billed per token.`,
       `Azure AI Speech has neural voices at ${usd(RATES.azureNeural)} per million characters, HD voices at ${usd(RATES.azureHd)}, and transcription from ${usd(RATES.azureBatchHour)} an hour in batch, with a monthly free tier of ${millions(RATES.azureFreeChars)} characters and ${RATES.azureFreeHours} hours.`,
       `Amazon Polly's neural voices cost ${usd(RATES.pollyNeural)} and generative voices ${usd(RATES.pollyGenerative)} per million characters. Amazon Transcribe costs about ${usd(RATES.transcribeBatchHour)} an hour in batch.`,
@@ -240,7 +243,7 @@ export const VOICE_PROVIDERS_HUB = {
     {
       question: "Is there an API that can convert audio to text?",
       answer:
-        `Yes, many: ${listed(Object.keys(TRANSCRIPTION_HOURLY))} all do. Across the models and modes on this page, prices run from about ${usd(TRANSCRIPTION_RANGE.low.price)} an hour (${TRANSCRIPTION_RANGE.low.name}) to ${usd(TRANSCRIPTION_RANGE.high.price)} (${TRANSCRIPTION_RANGE.high.name}). In Rakazo, ElevenLabs, OpenAI, Fish Audio and self-hosted servers transcribe what you say.`,
+        `Yes, many: ${listed(Object.keys(TRANSCRIPTION_HOURLY))} all do. Across the models and modes on this page, prices run from about ${usd(TRANSCRIPTION_RANGE.low.price)} an hour (${TRANSCRIPTION_RANGE.low.name}) to ${usd(TRANSCRIPTION_RANGE.high.price)} (${TRANSCRIPTION_RANGE.high.name}). In Rakazo, ElevenLabs, Deepgram, OpenAI, Fish Audio and self-hosted servers transcribe what you say.`,
     },
     {
       question: "Is the Whisper API free?",
@@ -250,7 +253,7 @@ export const VOICE_PROVIDERS_HUB = {
     {
       question: "Is Deepgram text to speech?",
       answer:
-        "Both. Deepgram is known for speech to text (Nova-3) and also sells Aura-2 voices. Rakazo doesn't connect to Deepgram.",
+        "Both. Deepgram is known for speech to text (Nova-3) and also sells Aura-2 voices. In Rakazo one Deepgram key does both: Aura-2 for speech and Nova-3 for transcription.",
     },
     {
       question: "Can I talk to my AI agent by voice?",
@@ -260,7 +263,7 @@ export const VOICE_PROVIDERS_HUB = {
     {
       question: "Which voice providers can transcribe?",
       answer:
-        "ElevenLabs, OpenAI, Fish Audio, and self-hosted servers that support transcription. Cartesia and **Server (Mac)** only speak, so your browser, the desktop app or your phone listens instead.",
+        "ElevenLabs, Deepgram, OpenAI, Fish Audio, and self-hosted servers that support transcription. Cartesia and **Server (Mac)** only speak, so your browser, the desktop app or your phone listens instead.",
     },
     {
       question: "Can AI agents use voice without a hosted vendor?",
