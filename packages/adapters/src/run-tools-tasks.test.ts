@@ -25,19 +25,33 @@ function groupRun() {
   const findMany = vi.fn(async ({ where }: { where: Record<string, unknown> }) =>
     matches(where).map((row) => ({ ...row, prompt: "p", crons: ["0 9 * * *"], active: true })),
   );
-  const findFirst = vi.fn(
-    async ({ where }: { where: Record<string, unknown> }) => matches(where)[0] ?? null,
-  );
+  const findFirst = vi.fn(async ({ where }: { where: Record<string, unknown> }) => {
+    const row = matches(where)[0];
+    return row
+      ? { ...row, prompt: "p", modelProvider: null, modelId: null, thinkingLevel: null }
+      : null;
+  });
   const deleteMany = vi.fn(async () => ({ count: 1 }));
+  const taskCreate = vi.fn(async (args: { data: Record<string, unknown> }) => ({
+    id: "task-1",
+    ...args.data,
+  }));
+  const runCreate = vi.fn(async (args: { data: Record<string, unknown> }) => ({
+    id: "run-1",
+    ...args.data,
+  }));
+  const tx = { task: { create: taskCreate }, run: { create: runCreate } };
   const ctx = {
     deps: {
       prisma: {
         routine: { findMany, findFirst, deleteMany, updateMany: vi.fn() },
+        run: { findMany: vi.fn(async () => []), count: vi.fn(async () => 0) },
         scratchpadItem: { findMany: vi.fn(async () => []) },
         taughtSkill: { findMany: vi.fn(async () => []) },
         agentSkill: { findMany: vi.fn(async () => []) },
+        $transaction: async (run: (client: unknown) => Promise<unknown>) => run(tx),
       },
-      jobs: { cancel: vi.fn(async () => undefined) },
+      jobs: { cancel: vi.fn(async () => undefined), enqueue: vi.fn(async () => undefined) },
     },
     run: { id: "run-1", spaceId: "s", userId: "u", threadId: "group-thread" },
     bot: { id: "b", name: "Bot" },
@@ -99,5 +113,33 @@ describe("routine tools in a group run", () => {
       ).resolves.toEqual({ error: "Schedule not found." });
     }
     expect(deleteMany).not.toHaveBeenCalled();
+  });
+
+  it("starts this chat's routine now but not another chat's", async () => {
+    const { ctx, call } = groupRun();
+    const run = (args: Record<string, unknown>) =>
+      taskTools.schedule_run!(ctx, call("schedule_run", args));
+
+    await expect(run({ routineId: "routine-group" })).resolves.toMatchObject({
+      ok: true,
+      routineId: "routine-group",
+      runId: "run-1",
+    });
+    await expect(run({ routineId: "made-up" })).resolves.toEqual({
+      error: "Schedule not found.",
+    });
+    await expect(run({ name: "Daily check" })).resolves.toEqual({
+      error: "That routine is not this group chat's. Run it from the bot's own chat.",
+    });
+  });
+
+  it("shows a routine's run history", async () => {
+    const { ctx, call } = groupRun();
+    await expect(
+      taskTools.schedule_history!(ctx, call("schedule_history", { routineId: "routine-group" })),
+    ).resolves.toMatchObject({ routineId: "routine-group", runCount: 0, runs: [] });
+    await expect(
+      taskTools.schedule_history!(ctx, call("schedule_history", { routineId: "made-up" })),
+    ).resolves.toEqual({ error: "Schedule not found." });
   });
 });

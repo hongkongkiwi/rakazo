@@ -993,19 +993,28 @@ describe("toolResultTaintsRun", () => {
   });
 
   it("does not taint on the bot's own writes and saved state", () => {
-    for (const tool of ["ask_user", "remember", "recall_memory", "skill_read", "write_file"]) {
+    for (const tool of [
+      "ask_user",
+      "remember",
+      "recall_memory",
+      "skill_read",
+      "write_file",
+      "schedule_run",
+      "schedule_history",
+    ]) {
       expect(toolResultTaintsRun(tool)).toBe(false);
     }
   });
 });
 
-it("classifies schedule_update like schedule_create", () => {
-  for (const name of ["schedule_create", "schedule_update"]) {
+it("classifies schedule_run like schedule_create", () => {
+  for (const name of ["schedule_create", "schedule_update", "schedule_run"]) {
     expect(toolRequiresApproval(name, false)).toBe(false);
     expect(toolRequiresExplicitApproval(name)).toBe(false);
     expect(toolResultTaintsRun(name)).toBe(false);
     expect(unattendedTriggerToolRequiresApproval("webhook", name, false)).toBe(true);
   }
+  expect(unattendedTriggerToolRequiresApproval("webhook", "schedule_history", false)).toBe(false);
 });
 
 it("requires human confirmation to approve an agent connection", () => {

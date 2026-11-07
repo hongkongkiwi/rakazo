@@ -1,9 +1,10 @@
 import type { ConnectorProvider, JobPublisher } from "@rakazo/adapter-kit";
-import { routineJobKey, routineWakeupJob } from "@rakazo/adapter-kit";
+import { routineJobKey, routineWakeupJob, runContinueJob } from "@rakazo/adapter-kit";
 import type { RoutineWatch } from "@rakazo/contracts";
 import { ROUTINE_WATCH_MIN_MINUTES, RoutineWatchSchema, TimeZoneSchema } from "@rakazo/contracts";
 import {
   cronFromPreset,
+  expandSkillReferencesInPrompt,
   formatCron,
   isOneShotRoutineCron,
   isOneShotRoutineCrons,
@@ -19,20 +20,27 @@ import { Prisma, runAsSystemInTransaction } from "@rakazo/db";
 import { getLogger } from "@rakazo/logging";
 
 import { localDateTime } from "./current-time.js";
+import { routineRunModelPin } from "./model-selection.js";
 import { finishRoutineHandover } from "./routine-handover.js";
 import { validateRoutineWatch } from "./routine-watch.js";
+import { listAgentSkillRecords } from "./skill-tools.js";
 
 export { isOneShotRoutineCron, ONCE_ROUTINE_CRON };
 
 export const SCHEDULE_TOOL_NAMES = new Set([
   "schedule_create",
   "schedule_list",
+  "schedule_run",
+  "schedule_history",
   "schedule_update",
   "schedule_cancel",
 ]);
 
-/** Routine runs may create, list, or cancel routines, but may not update them. */
-const ROUTINE_RUN_HIDDEN_TOOLS = new Set(["schedule_update"]);
+/**
+ * A routine run may create, list or cancel routines, but it may not edit one or start another
+ * run of one: either could rewire or repeat the work it is already doing.
+ */
+const ROUTINE_RUN_HIDDEN_TOOLS = new Set(["schedule_update", "schedule_run"]);
 
 export function filterBuiltinToolsForRun<T extends { name: string }>(
   tools: T[],
@@ -765,6 +773,7 @@ export async function listSchedulesFromTool(
       crons: row.crons,
       active: row.active,
       nextRunAt: row.nextRunAt?.toISOString() ?? null,
+      lastRunAt: row.lastRunAt?.toISOString() ?? null,
       oneShot: isOneShotRoutineCrons(row.crons),
       ...describeRoutineTiming(row),
       ...(row.watch ? { watch: row.watch, lastCheck: row.watchState ?? null } : {}),
@@ -783,11 +792,12 @@ const GROUP_LIST_NOTE =
 async function groupNotFoundError(
   prisma: ScheduleToolDeps["prisma"],
   where: Prisma.RoutineWhereInput,
+  action = "Change",
 ) {
   const elsewhere = await prisma.routine.findFirst({ where, select: { id: true } });
   return {
     error: elsewhere
-      ? "That routine is not this group chat's. Change it from the bot's own chat."
+      ? `That routine is not this group chat's. ${action} it from the bot's own chat.`
       : "Schedule not found.",
   };
 }
@@ -1036,6 +1046,222 @@ export async function cancelScheduleFromTool(
   if (count === 0) return { error: "Schedule not found." };
   await deps.jobs.cancel(routineJobKey(existing.id));
   return { ok: true as const, routineId: existing.id, name: existing.name };
+}
+
+/**
+ * Start a routine's prompt now in the chat that asked for it. The web and mobile "Run now"
+ * action is the same idea for a person; this is the bot-side equivalent, so a bot can test or
+ * repeat an automation it manages.
+ */
+export async function runScheduleFromTool(
+  deps: ScheduleToolDeps,
+  input: {
+    spaceId: string;
+    botId: string;
+    /** The acting user: the run's owner and the skills its prompt resolves against. */
+    userId: string;
+    /** The calling run's thread; the run appears here, not in the routine's own chat. */
+    threadId: string;
+    /** In a group, only that thread's routines. */
+    scopeThreadId?: string;
+    /** Stable key of this tool request, so a replay returns the run it already started. */
+    requestKey?: string;
+    routineId?: string;
+    name?: string;
+  },
+) {
+  const routineId = input.routineId?.trim();
+  const name = input.name?.trim();
+  if (!routineId && !name) {
+    return { error: "Provide routineId or the exact schedule name to run." };
+  }
+
+  const scope = {
+    spaceId: input.spaceId,
+    botId: input.botId,
+    ...(input.scopeThreadId ? { threadId: input.scopeThreadId } : {}),
+  };
+  const routine = await deps.prisma.routine.findFirst({
+    where: { ...scope, ...(routineId ? { id: routineId } : { name: name! }) },
+    select: {
+      id: true,
+      name: true,
+      prompt: true,
+      modelProvider: true,
+      modelId: true,
+      thinkingLevel: true,
+    },
+  });
+  if (!routine) {
+    return input.scopeThreadId
+      ? groupNotFoundError(
+          deps.prisma,
+          {
+            spaceId: input.spaceId,
+            botId: input.botId,
+            ...(routineId ? { id: routineId } : { name: name! }),
+          },
+          "Run",
+        )
+      : { error: "Schedule not found." };
+  }
+
+  const skillRecords = await listAgentSkillRecords(deps.prisma, {
+    spaceId: input.spaceId,
+    userId: input.userId,
+  });
+  const prompt = expandSkillReferencesInPrompt(routine.prompt, skillRecords);
+  const clientNonce = input.requestKey ? `routine-tool:${input.requestKey}` : undefined;
+  const findExisting = async () =>
+    clientNonce
+      ? deps.prisma.run.findUnique({
+          where: { spaceId_clientNonce: { spaceId: input.spaceId, clientNonce } },
+          select: { id: true },
+        })
+      : null;
+  let started: { id: string; created: boolean };
+  try {
+    started = await deps.prisma.$transaction(async (tx) => {
+      if (clientNonce) {
+        const existing = await tx.run.findUnique({
+          where: { spaceId_clientNonce: { spaceId: input.spaceId, clientNonce } },
+          select: { id: true },
+        });
+        if (existing) return { id: existing.id, created: false };
+      }
+      const task = await tx.task.create({
+        data: {
+          spaceId: input.spaceId,
+          botId: input.botId,
+          threadId: input.threadId,
+          userId: input.userId,
+          prompt,
+          status: "queued",
+        },
+      });
+      const run = await tx.run.create({
+        data: {
+          spaceId: input.spaceId,
+          botId: input.botId,
+          threadId: input.threadId,
+          taskId: task.id,
+          userId: input.userId,
+          status: "queued",
+          trigger: "routine",
+          routineId: routine.id,
+          clientNonce,
+          ...routineRunModelPin(routine),
+        },
+        select: { id: true },
+      });
+      return { id: run.id, created: true };
+    });
+  } catch (error) {
+    // A concurrent replay can lose the unique insert; return the run it already started.
+    const existing = await findExisting();
+    if (!existing) throw error;
+    started = { id: existing.id, created: false };
+  }
+  // The queued run is durable even if the wake is lost; the reconciler repairs missed wakes.
+  if (started.created) {
+    await deps.jobs.enqueue(runContinueJob(started.id)).catch((error) => {
+      getLogger().error("schedule_run enqueue", error);
+    });
+  }
+
+  return {
+    ok: true as const,
+    routineId: routine.id,
+    name: routine.name,
+    runId: started.id,
+    note: "Started this routine's run in this chat now.",
+  };
+}
+
+const SCHEDULE_HISTORY_DEFAULT_LIMIT = 10;
+const SCHEDULE_HISTORY_MAX_LIMIT = 20;
+
+/** A bot routine's recent runs, the bot-side view of the app's routine history. */
+export async function scheduleHistoryFromTool(
+  deps: Pick<ScheduleToolDeps, "prisma">,
+  input: {
+    spaceId: string;
+    botId: string;
+    /** In a group, only that thread's routines. */
+    scopeThreadId?: string;
+    routineId?: string;
+    name?: string;
+    limit?: number;
+  },
+) {
+  const routineId = input.routineId?.trim();
+  const name = input.name?.trim();
+  if (!routineId && !name) {
+    return { error: "Provide routineId or the exact schedule name to read its runs." };
+  }
+
+  const scope = {
+    spaceId: input.spaceId,
+    botId: input.botId,
+    ...(input.scopeThreadId ? { threadId: input.scopeThreadId } : {}),
+  };
+  const routine = await deps.prisma.routine.findFirst({
+    where: { ...scope, ...(routineId ? { id: routineId } : { name: name! }) },
+    select: { id: true, name: true },
+  });
+  if (!routine) {
+    return input.scopeThreadId
+      ? groupNotFoundError(
+          deps.prisma,
+          {
+            spaceId: input.spaceId,
+            botId: input.botId,
+            ...(routineId ? { id: routineId } : { name: name! }),
+          },
+          "Check",
+        )
+      : { error: "Schedule not found." };
+  }
+
+  const where = {
+    routineId: routine.id,
+    botId: input.botId,
+    spaceId: input.spaceId,
+    ...(input.scopeThreadId ? { threadId: input.scopeThreadId } : {}),
+  };
+  const limit = Math.min(
+    Math.max(Math.trunc(input.limit ?? SCHEDULE_HISTORY_DEFAULT_LIMIT), 1),
+    SCHEDULE_HISTORY_MAX_LIMIT,
+  );
+  const [runs, runCount] = await Promise.all([
+    deps.prisma.run.findMany({
+      where,
+      select: {
+        id: true,
+        status: true,
+        error: true,
+        createdAt: true,
+        startedAt: true,
+        completedAt: true,
+      },
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      take: limit,
+    }),
+    deps.prisma.run.count({ where }),
+  ]);
+  return {
+    routineId: routine.id,
+    name: routine.name,
+    runCount,
+    runs: runs.map((run) => ({
+      runId: run.id,
+      status: run.status,
+      error: run.error ?? null,
+      createdAt: run.createdAt.toISOString(),
+      startedAt: run.startedAt?.toISOString() ?? null,
+      completedAt: run.completedAt?.toISOString() ?? null,
+    })),
+  };
 }
 
 /** The watch a `schedule_create` call asks for, including JSON tool input. */

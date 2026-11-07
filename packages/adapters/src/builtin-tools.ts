@@ -1355,6 +1355,31 @@ export const builtinAgentTools: ConnectorTool[] = [
     inputSchema: { type: "object", properties: {} },
   },
   {
+    name: "schedule_run",
+    description:
+      "Start one of this bot's schedules (routines) now in this chat. Use routineId or the exact name.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        routineId: { type: "string" },
+        name: { type: "string" },
+      },
+    },
+  },
+  {
+    name: "schedule_history",
+    description:
+      "Show one of this bot's schedules (routines): its total run count and recent runs with each run's status and error.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        routineId: { type: "string" },
+        name: { type: "string" },
+        limit: { type: "number", minimum: 1, maximum: 20 },
+      },
+    },
+  },
+  {
     name: "schedule_update",
     description:
       "Edit one of this bot's schedules by routineId instead of cancelling and recreating it. Send only what changes. Timing fields replace the current timing; startAt alone moves the next run of the current repeat. active false pauses it. It cannot change a watch's interval or timezone; the user can change the interval in the routine's settings on the web.",

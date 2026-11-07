@@ -12,8 +12,10 @@ import {
   createScheduleFromTool,
   isScheduleValueProvided,
   listSchedulesFromTool,
+  runScheduleFromTool,
   scheduleCreateError,
   scheduleCreateFields,
+  scheduleHistoryFromTool,
   scheduleTimingArgs,
   updateScheduleFromTool,
 } from "./schedule-tools.js";
@@ -246,6 +248,36 @@ export const taskTools: ToolHandlers = {
       botId: bot.id,
       ...(thread.groupId ? { groupThreadId: thread.id } : {}),
     });
+  },
+  async schedule_run(ctx, call) {
+    const { deps, run, bot, thread } = ctx;
+    const { args } = call;
+    return call.finish(
+      await runScheduleFromTool(deps, {
+        spaceId: run.spaceId,
+        botId: bot.id,
+        userId: run.userId,
+        threadId: thread.id,
+        ...(thread.groupId ? { scopeThreadId: thread.id } : {}),
+        requestKey: call.applied?.effect.id ?? call.effectKey,
+        routineId: args.routineId ? String(args.routineId) : undefined,
+        name: args.name ? String(args.name) : undefined,
+      }),
+    );
+  },
+  async schedule_history(ctx, call) {
+    const { deps, run, bot, thread } = ctx;
+    const { args } = call;
+    return call.finish(
+      await scheduleHistoryFromTool(deps, {
+        spaceId: run.spaceId,
+        botId: bot.id,
+        ...(thread.groupId ? { scopeThreadId: thread.id } : {}),
+        routineId: args.routineId ? String(args.routineId) : undefined,
+        name: args.name ? String(args.name) : undefined,
+        limit: typeof args.limit === "number" ? args.limit : undefined,
+      }),
+    );
   },
   async schedule_cancel(ctx, call) {
     const { deps, run, bot, thread } = ctx;

@@ -1,4 +1,4 @@
-import { routineWakeupJob } from "@rakazo/adapter-kit";
+import { routineWakeupJob, runContinueJob } from "@rakazo/adapter-kit";
 import { ONCE_ROUTINE_CRON } from "@rakazo/core";
 import { Prisma } from "@rakazo/db";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -14,9 +14,11 @@ import {
   listSchedulesFromTool,
   MAX_ACTIVE_ROUTINES_PER_BOT,
   resolveScheduleTiming,
+  runScheduleFromTool,
   SCHEDULE_TOOL_NAMES,
   scheduleCreateError,
   scheduleCreateFields,
+  scheduleHistoryFromTool,
   updateScheduleFromTool,
 } from "./schedule-tools.js";
 
@@ -262,7 +264,7 @@ describe("filterBuiltinToolsForThread", () => {
     ]);
   });
 
-  it("allows schedule creation in routine runs but hides schedule updates", () => {
+  it("allows schedule creation in routine runs but hides schedule edits and re-runs", () => {
     expect(filterBuiltinToolsForRun(tools, "routine").map((tool) => tool.name)).toEqual([
       "handoff_to_bot",
       "message_bot",
@@ -271,12 +273,18 @@ describe("filterBuiltinToolsForThread", () => {
       "schedule_cancel",
       "remember",
     ]);
-    const withUpdate = [...tools, { name: "schedule_update" }];
-    expect(filterBuiltinToolsForRun(withUpdate, "routine").map((tool) => tool.name)).not.toContain(
-      "schedule_update",
-    );
-    expect(filterBuiltinToolsForRun(withUpdate, "user").map((tool) => tool.name)).toEqual(
-      withUpdate.map((tool) => tool.name),
+    const withEdits = [
+      ...tools,
+      { name: "schedule_update" },
+      { name: "schedule_run" },
+      { name: "schedule_history" },
+    ];
+    const inRoutine = filterBuiltinToolsForRun(withEdits, "routine").map((tool) => tool.name);
+    expect(inRoutine).not.toContain("schedule_update");
+    expect(inRoutine).not.toContain("schedule_run");
+    expect(inRoutine).toContain("schedule_history");
+    expect(filterBuiltinToolsForRun(withEdits, "user").map((tool) => tool.name)).toEqual(
+      withEdits.map((tool) => tool.name),
     );
   });
 
@@ -1000,6 +1008,304 @@ describe("cancelScheduleFromTool", () => {
       error: "Schedule not found.",
     });
     expect(cancel).not.toHaveBeenCalled();
+  });
+});
+
+describe("listSchedulesFromTool", () => {
+  it("reports when each routine last ran", async () => {
+    const deps = {
+      prisma: {
+        routine: {
+          findMany: vi.fn(async () => [
+            {
+              id: "routine-1",
+              name: "Daily",
+              prompt: "Check",
+              crons: ["0 9 * * *"],
+              timezone: "UTC",
+              active: true,
+              nextRunAt: new Date("2026-10-21T09:00:00Z"),
+              lastRunAt: new Date("2026-10-20T09:00:00Z"),
+              watch: null,
+              watchState: null,
+            },
+          ]),
+        },
+      },
+    } as unknown as Parameters<typeof listSchedulesFromTool>[0];
+
+    const listed = await listSchedulesFromTool(deps, { spaceId: "ws-1", botId: "bot-1" });
+
+    expect(listed.routines[0]).toMatchObject({
+      lastRunAt: "2026-10-20T09:00:00.000Z",
+      nextRunAt: "2026-10-21T09:00:00.000Z",
+    });
+  });
+});
+
+describe("runScheduleFromTool", () => {
+  const routine = {
+    id: "routine-1",
+    name: "Daily",
+    prompt: "Summarise the inbox",
+    modelProvider: "anthropic",
+    modelId: "claude-sonnet",
+    thinkingLevel: "low",
+  };
+
+  function makeDeps(row: Record<string, unknown> | null) {
+    const findFirst = vi.fn(async () => row);
+    const existing = new Map<string, { id: string }>();
+    const taskCreate = vi.fn(async (args: { data: Record<string, unknown> }) => ({
+      id: "task-1",
+      ...args.data,
+    }));
+    const runCreate = vi.fn(async (args: { data: Record<string, unknown> }) => {
+      const nonce = args.data.clientNonce;
+      if (typeof nonce === "string") existing.set(nonce, { id: "run-1" });
+      return { id: "run-1", ...args.data };
+    });
+    const runFindUnique = vi.fn(
+      async (args: { where: { spaceId_clientNonce: { clientNonce: string } } }) =>
+        existing.get(args.where.spaceId_clientNonce.clientNonce) ?? null,
+    );
+    const enqueue = vi.fn(async () => undefined);
+    const agentSkillFindMany = vi.fn(async () => []);
+    const tx = {
+      task: { create: taskCreate },
+      run: { create: runCreate, findUnique: runFindUnique },
+    };
+    const deps = {
+      prisma: {
+        routine: { findFirst },
+        run: { findUnique: runFindUnique },
+        agentSkill: { findMany: agentSkillFindMany },
+        $transaction: async (run: (client: unknown) => Promise<unknown>) => run(tx),
+      },
+      events: { append: vi.fn(async () => undefined) },
+      jobs: { enqueue },
+    } as unknown as Parameters<typeof runScheduleFromTool>[0];
+    return { deps, findFirst, runCreate, runFindUnique, enqueue };
+  }
+
+  const input = {
+    spaceId: "ws-1",
+    botId: "bot-1",
+    userId: "user-1",
+    threadId: "dm-thread",
+  };
+
+  it("starts the routine in this chat with its pinned model", async () => {
+    const { deps, findFirst, runCreate, enqueue } = makeDeps(routine);
+
+    const result = await runScheduleFromTool(deps, { ...input, routineId: " routine-1 " });
+
+    expect(findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { spaceId: "ws-1", botId: "bot-1", id: "routine-1" },
+      }),
+    );
+    expect(runCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          threadId: "dm-thread",
+          userId: "user-1",
+          trigger: "routine",
+          routineId: "routine-1",
+          modelProvider: "anthropic",
+          modelId: "claude-sonnet",
+          thinkingLevel: "low",
+          modelPinned: true,
+        }),
+      }),
+    );
+    expect(enqueue).toHaveBeenCalledWith(runContinueJob("run-1"));
+    expect(result).toEqual({
+      ok: true,
+      routineId: "routine-1",
+      name: "Daily",
+      runId: "run-1",
+      note: "Started this routine's run in this chat now.",
+    });
+  });
+
+  it("returns the run a replayed request already started", async () => {
+    const { deps, runCreate, enqueue } = makeDeps(routine);
+    const request = { ...input, routineId: "routine-1", requestKey: "effect-1" };
+
+    const first = await runScheduleFromTool(deps, request);
+    const replay = await runScheduleFromTool(deps, request);
+
+    expect(runCreate).toHaveBeenCalledOnce();
+    expect(runCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ clientNonce: "routine-tool:effect-1" }),
+      }),
+    );
+    expect(enqueue).toHaveBeenCalledOnce();
+    expect(replay).toEqual(first);
+  });
+
+  it("requires a routine id or exact name", async () => {
+    const { deps, findFirst } = makeDeps(routine);
+    await expect(runScheduleFromTool(deps, input)).resolves.toEqual({
+      error: "Provide routineId or the exact schedule name to run.",
+    });
+    expect(findFirst).not.toHaveBeenCalled();
+  });
+
+  it("reports a routine from another chat and one that does not exist", async () => {
+    const { deps, findFirst } = makeDeps(null);
+    findFirst.mockResolvedValueOnce(null).mockResolvedValueOnce({ id: "routine-dm" });
+    const scoped = { ...input, threadId: "group-thread", scopeThreadId: "group-thread" };
+    await expect(
+      runScheduleFromTool(deps, { ...scoped, routineId: "routine-dm" }),
+    ).resolves.toEqual({
+      error: "That routine is not this group chat's. Run it from the bot's own chat.",
+    });
+    expect(findFirst).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        where: {
+          spaceId: "ws-1",
+          botId: "bot-1",
+          threadId: "group-thread",
+          id: "routine-dm",
+        },
+      }),
+    );
+    expect(findFirst).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        where: { spaceId: "ws-1", botId: "bot-1", id: "routine-dm" },
+      }),
+    );
+    await expect(runScheduleFromTool(deps, { ...input, routineId: "made-up" })).resolves.toEqual({
+      error: "Schedule not found.",
+    });
+  });
+});
+
+describe("scheduleHistoryFromTool", () => {
+  const routine = { id: "routine-1", name: "Daily" };
+  const runs = [
+    {
+      id: "run-2",
+      threadId: "group-thread",
+      status: "failed",
+      error: "Provider key refused",
+      createdAt: new Date("2026-11-07T09:00:00Z"),
+      startedAt: new Date("2026-11-07T09:00:01Z"),
+      completedAt: new Date("2026-11-07T09:00:05Z"),
+    },
+    {
+      id: "run-1",
+      threadId: "dm-thread",
+      status: "succeeded",
+      error: null,
+      createdAt: new Date("2026-11-06T09:00:00Z"),
+      startedAt: null,
+      completedAt: new Date("2026-11-06T09:00:05Z"),
+    },
+  ];
+
+  function makeDeps(row: Record<string, unknown> | null) {
+    const findFirst = vi.fn(async () => row);
+    const visible = (where: { threadId?: string }) =>
+      runs.filter((run) => where.threadId === undefined || run.threadId === where.threadId);
+    const findMany = vi.fn(async ({ where }: { where: { threadId?: string } }) => visible(where));
+    const count = vi.fn(
+      async ({ where }: { where: { threadId?: string } }) => visible(where).length,
+    );
+    const deps = {
+      prisma: { routine: { findFirst }, run: { findMany, count } },
+    } as unknown as Parameters<typeof scheduleHistoryFromTool>[0];
+    return { deps, findFirst, findMany, count };
+  }
+
+  const input = { spaceId: "ws-1", botId: "bot-1" };
+
+  it("shows the routine's run count and recent runs", async () => {
+    const { deps, findMany, count } = makeDeps(routine);
+
+    const history = await scheduleHistoryFromTool(deps, {
+      ...input,
+      routineId: "routine-1",
+      limit: 2,
+    });
+
+    const where = { routineId: "routine-1", botId: "bot-1", spaceId: "ws-1" };
+    expect(findMany).toHaveBeenCalledWith(expect.objectContaining({ where, take: 2 }));
+    expect(count).toHaveBeenCalledWith({ where });
+    expect(history).toEqual({
+      routineId: "routine-1",
+      name: "Daily",
+      runCount: 2,
+      runs: [
+        {
+          runId: "run-2",
+          status: "failed",
+          error: "Provider key refused",
+          createdAt: "2026-11-07T09:00:00.000Z",
+          startedAt: "2026-11-07T09:00:01.000Z",
+          completedAt: "2026-11-07T09:00:05.000Z",
+        },
+        {
+          runId: "run-1",
+          status: "succeeded",
+          error: null,
+          createdAt: "2026-11-06T09:00:00.000Z",
+          startedAt: null,
+          completedAt: "2026-11-06T09:00:05.000Z",
+        },
+      ],
+    });
+  });
+
+  it("keeps group history to runs in the group", async () => {
+    const { deps, findMany, count } = makeDeps(routine);
+
+    const history = await scheduleHistoryFromTool(deps, {
+      ...input,
+      scopeThreadId: "group-thread",
+      routineId: "routine-1",
+    });
+
+    const where = {
+      routineId: "routine-1",
+      botId: "bot-1",
+      spaceId: "ws-1",
+      threadId: "group-thread",
+    };
+    expect(findMany).toHaveBeenCalledWith(expect.objectContaining({ where }));
+    expect(count).toHaveBeenCalledWith({ where });
+    expect(history).toMatchObject({ runCount: 1, runs: [{ runId: "run-2" }] });
+  });
+
+  it("caps the page and refuses a routine from another chat", async () => {
+    const { deps, findMany } = makeDeps(routine);
+    await scheduleHistoryFromTool(deps, { ...input, routineId: "routine-1", limit: 500 });
+    expect(findMany).toHaveBeenCalledWith(expect.objectContaining({ take: 20 }));
+
+    const { deps: scoped, findFirst } = makeDeps(null);
+    findFirst.mockResolvedValueOnce(null).mockResolvedValueOnce({ id: "routine-1" });
+    await expect(
+      scheduleHistoryFromTool(scoped, {
+        ...input,
+        scopeThreadId: "group-thread",
+        routineId: "routine-1",
+      }),
+    ).resolves.toEqual({
+      error: "That routine is not this group chat's. Check it from the bot's own chat.",
+    });
+  });
+
+  it("requires a routine id or exact name", async () => {
+    const { deps, findFirst } = makeDeps(routine);
+    await expect(scheduleHistoryFromTool(deps, input)).resolves.toEqual({
+      error: "Provide routineId or the exact schedule name to read its runs.",
+    });
+    expect(findFirst).not.toHaveBeenCalled();
   });
 });
 

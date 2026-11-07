@@ -29,6 +29,7 @@ export const READ_ONLY_AGENT_TOOLS = new Set([
   "task_catalog",
   "recall_memory",
   "schedule_list",
+  "schedule_history",
   "scratchpad_list",
   "board_tickets",
   "ticket_get",
