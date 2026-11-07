@@ -17,7 +17,7 @@ function fixture(
     fail?: boolean;
     noModel?: boolean;
     activeRun?: boolean;
-    effects?: Array<{ kind: string; status: string }>;
+    effects?: Array<{ kind: string; status: string; spaceId?: string }>;
   } = {},
 ) {
   const run = vi.fn(async function* (_request?: unknown, _context?: unknown) {
@@ -52,7 +52,11 @@ function fixture(
       })),
     },
     externalEffect: {
-      findMany: vi.fn(async () => options.effects ?? [{ kind: "send_email", status: "completed" }]),
+      findMany: vi.fn(async (args: { where: { runId: string; spaceId: string } }) =>
+        (options.effects ?? [{ kind: "send_email", status: "completed", spaceId: "space-1" }])
+          .filter((effect) => (effect.spaceId ?? "space-1") === args.where.spaceId)
+          .map(({ kind, status }) => ({ kind, status })),
+      ),
     },
   };
   const reviewer = createResultReviewer({
@@ -107,6 +111,20 @@ describe("result review", () => {
     const review = await reviewer(actor, input);
     expect(review.verdict).toBe("unclear");
     expect(review.summary).toContain("No review model");
+  });
+
+  it("excludes effects recorded in another space", async () => {
+    const { reviewer, run } = fixture({
+      reply: '{"verdict":"pass","summary":"ok","findings":[]}',
+      effects: [
+        { kind: "send_email", status: "completed", spaceId: "space-1" },
+        { kind: "other_space_tool", status: "completed", spaceId: "space-2" },
+      ],
+    });
+    await reviewer(actor, input);
+    const request = run.mock.calls[0]?.[0] as { prompt?: string };
+    expect(request.prompt).toContain("Send email: completed");
+    expect(request.prompt).not.toContain("Other space tool");
   });
 
   it("tells the reviewer when older effects were omitted", async () => {
