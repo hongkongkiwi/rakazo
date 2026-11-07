@@ -149,6 +149,14 @@ describe("parseUvxLaunch", () => {
       spec: "mail-mcp[extra]>=1",
       binArgs: [],
     });
+    expect(parseUvxLaunch("uvx", ["mail-mcp>=1.0,<2.0"])).toEqual({
+      spec: "mail-mcp>=1.0,<2.0",
+      binArgs: [],
+    });
+    expect(parseUvxLaunch("uvx", ["mail-mcp >= 1.0 , != 1.5", "--x"])).toEqual({
+      spec: "mail-mcp >= 1.0 , != 1.5",
+      binArgs: ["--x"],
+    });
     expect(parseUvxLaunch("uvx", ["--from", "mail-mcp", "mcp", "x"])).toEqual({
       spec: "mail-mcp",
       binName: "mcp",

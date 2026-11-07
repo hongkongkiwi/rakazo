@@ -146,8 +146,10 @@ export function parseNpmLaunch(command: string, args: readonly string[]): NpmLau
 }
 
 const PYTHON_NAME = "[A-Za-z0-9](?:[A-Za-z0-9._-]*[A-Za-z0-9])?";
+const PYTHON_VERSION = "[A-Za-z0-9.*+!_-]+";
+const PYTHON_SPECIFIER = `(?:===|==|!=|<=|>=|<|>|~=)[ \\t]*${PYTHON_VERSION}`;
 const REQUIREMENT = new RegExp(
-  `^(${PYTHON_NAME})(?:\\[${PYTHON_NAME}(?:,${PYTHON_NAME})*\\])?(?:(?:===|==|!=|<=|>=|<|>|~=)[A-Za-z0-9.*+!_-]+)?$`,
+  `^(${PYTHON_NAME})(?:\\[${PYTHON_NAME}(?:,${PYTHON_NAME})*\\])?(?:[ \\t]*${PYTHON_SPECIFIER}(?:[ \\t]*,[ \\t]*${PYTHON_SPECIFIER})*)?$`,
 );
 
 function distributionName(spec: string): string | undefined {

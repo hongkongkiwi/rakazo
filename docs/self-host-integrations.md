@@ -101,7 +101,8 @@ the same way: Rakazo creates a venv with `uv venv` and installs the requirement 
 `uv pip install`, then runs the console script the package declares; the `uvx` binary is never
 executed. The install takes wheels only and refuses a package that publishes only a source
 distribution, because building one would run that package's own code. Any PEP 440 specifier
-works in place of `==version`. Set `UV_*` or `PIP_*` variables such as `UV_INDEX_URL` or
+works in place of `==version`, including comma-separated clauses such as `>=1.0,<2.0`;
+environment markers are refused. Set `UV_*` or `PIP_*` variables such as `UV_INDEX_URL` or
 `PIP_INDEX_URL` in the server's environment to use an index mirror. Proxy and certificate
 settings (`HTTPS_PROXY`, `NO_PROXY`, `SSL_CERT_FILE`, `REQUESTS_CA_BUNDLE`) pass through to
 the install. Other `uvx` forms (paths, URLs, extra flags, direct references) are refused.
