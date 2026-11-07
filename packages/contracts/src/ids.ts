@@ -64,6 +64,7 @@ export const SandboxKind = z.enum([
   "createos",
   "boat",
   "boxd",
+  "instabox",
   "railway",
   "kubernetes",
   "incus",
