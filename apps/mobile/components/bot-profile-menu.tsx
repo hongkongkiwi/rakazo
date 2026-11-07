@@ -31,9 +31,12 @@ export function useBotProfileActions(botId: string, name: string): BotProfileAct
       id: "review",
       text: t("Review last result"),
       onPress: () =>
-        void rpc("threads/reviewResult", { botId }).catch((error) =>
-          Alert.alert(t("Could not review the last result"), errorText(error, t("Try again."))),
-        ),
+        void rpc("threads/reviewResult", { botId })
+          // The review card lands in the chat, so go there rather than staying on the profile.
+          .then(() => router.back())
+          .catch((error) =>
+            Alert.alert(t("Could not review the last result"), errorText(error, t("Try again."))),
+          ),
     },
     {
       id: "clear",

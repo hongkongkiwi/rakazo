@@ -11,7 +11,9 @@ const actor: Actor = {
   isDeploymentOwner: false,
 };
 
-function fixture(options: { reply?: string; fail?: boolean; noModel?: boolean } = {}) {
+function fixture(
+  options: { reply?: string; fail?: boolean; noModel?: boolean; activeRun?: boolean } = {},
+) {
   const run = vi.fn(async function* (_request?: unknown, _context?: unknown) {
     if (options.fail) throw new Error("provider down");
     yield { type: "done", text: options.reply ?? "{}" } as AgentRuntimeEvent;
@@ -31,6 +33,7 @@ function fixture(options: { reply?: string; fail?: boolean; noModel?: boolean } 
     },
     run: {
       findFirst: vi.fn(async () => ({
+        status: options.activeRun ? "running" : "completed",
         modelProvider: "test",
         modelId: "worker-model",
         task: { prompt: "Send the weekly report" },
@@ -92,6 +95,11 @@ describe("result review", () => {
     const review = await reviewer(actor, input);
     expect(review.verdict).toBe("unclear");
     expect(review.summary).toContain("No review model");
+  });
+
+  it("does not review a message whose run is still working", async () => {
+    const { reviewer } = fixture({ activeRun: true });
+    await expect(reviewer(actor, input)).rejects.toThrow("still working");
   });
 
   it("refuses a message outside the bot thread", async () => {

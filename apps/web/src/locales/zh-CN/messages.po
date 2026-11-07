@@ -818,6 +818,10 @@ msgstr "高级"
 msgid "Advanced..."
 msgstr "高级..."
 
+#: src/components/ReviewCard.tsx
+msgid "Advisory review"
+msgstr "参考审查"
+
 #: src/components/AccountDataSettings.tsx
 msgid "Agent from another app"
 msgstr "其他应用中的智能体"
@@ -5932,7 +5936,6 @@ msgstr "返回与 {0} 的通话"
 msgid "Return to Rakazo"
 msgstr "返回 Rakazo"
 
-#: src/components/ReviewCard.tsx
 #: src/pages/shell/message-hover-actions.tsx
 msgid "Review"
 msgstr "审查"

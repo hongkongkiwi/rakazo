@@ -32,17 +32,17 @@ export function ReviewCard({ block }: { block: ReviewBlock }) {
   return (
     <BuiCard className="w-fit max-w-full border px-4 py-3" data-testid="review-card">
       <div className="flex items-center gap-2 text-body-sm text-muted-foreground">
-        <Trans>Review</Trans>
+        <Trans>Advisory review</Trans>
         <span aria-hidden>·</span>
         <Verdict verdict={block.verdict} />
       </div>
-      <p className="mt-1 text-body" dir="auto">
+      <p className="mt-1 break-words text-body" dir="auto">
         {block.summary}
       </p>
       {block.findings.length > 0 ? (
         <ul className="mt-2 flex list-disc flex-col gap-1 ps-5 text-body text-muted-foreground">
           {block.findings.map((finding, index) => (
-            <li key={`${index}-${finding}`} dir="auto">
+            <li key={`${index}-${finding}`} className="break-words" dir="auto">
               {finding}
             </li>
           ))}

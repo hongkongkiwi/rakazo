@@ -818,6 +818,10 @@ msgstr "고급 설정"
 msgid "Advanced..."
 msgstr "고급..."
 
+#: src/components/ReviewCard.tsx
+msgid "Advisory review"
+msgstr "참고 검토"
+
 #: src/components/AccountDataSettings.tsx
 msgid "Agent from another app"
 msgstr "다른 앱의 에이전트"
@@ -5932,7 +5936,6 @@ msgstr "{0}과(와)의 통화로 돌아가기"
 msgid "Return to Rakazo"
 msgstr "Rakazo로 돌아가기"
 
-#: src/components/ReviewCard.tsx
 #: src/pages/shell/message-hover-actions.tsx
 msgid "Review"
 msgstr "검토"

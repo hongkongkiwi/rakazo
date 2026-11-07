@@ -1,4 +1,5 @@
 export const ES_MESSAGES: Record<string, string> = {
+  "Advisory review": "Revisión orientativa",
   "Review last result": "Revisar el último resultado",
   "Could not review the last result": "No se pudo revisar el último resultado",
   Review: "Revisar",

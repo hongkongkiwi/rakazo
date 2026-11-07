@@ -668,6 +668,19 @@ describeWithDatabase("API authorization and resource isolation", () => {
     const ownerThread = await db.thread.findUniqueOrThrow({
       where: { botId: ownerBot.id },
     });
+    const ownerMessage = await db.message.create({
+      data: {
+        threadId: ownerThread.id,
+        seq: ownerThread.nextMessageSeq,
+        role: "bot",
+        botId: ownerBot.id,
+        blocks: [{ kind: "text", text: "Owner private result" }],
+      },
+    });
+    await db.thread.update({
+      where: { id: ownerThread.id },
+      data: { nextMessageSeq: ownerThread.nextMessageSeq + 1 },
+    });
     const ownerTask = await asSystem(handles.prisma).task.create({
       data: {
         spaceId: ownerActor.spaceId,
@@ -705,7 +718,7 @@ describeWithDatabase("API authorization and resource isolation", () => {
       ["threads/send", { botId: ownerBot.id, artifactIds: [ownerArtifact.id] }],
       ["threads/stop", { botId: ownerBot.id }],
       ["threads/stopHelper", { botId: ownerBot.id, messageId: "missing-message" }],
-      ["threads/reviewResult", { botId: ownerBot.id, messageId: "missing-message" }],
+      ["threads/reviewResult", { botId: ownerBot.id, messageId: ownerMessage.id }],
       ["threads/clear", { botId: ownerBot.id }],
       ["threads/followUp", { botId: ownerBot.id, text: "intruder follow-up" }],
       [

@@ -43,4 +43,18 @@ describe("ReviewCard", () => {
     expect(html).toContain("The result holds up.");
     expect(html).not.toContain("<ul");
   });
+
+  it("shows an unclear review, the fallback for a failed or malformed pass", () => {
+    const html = render({
+      kind: "review",
+      verdict: "unclear",
+      summary: "The review model returned no usable assessment.",
+      findings: ["Try again later."],
+      model: "test/review-model",
+      rubric: "result-review/v1",
+    });
+    expect(html).toContain("Unclear");
+    expect(html).toContain("The review model returned no usable assessment.");
+    expect(html).toContain("Try again later.");
+  });
 });

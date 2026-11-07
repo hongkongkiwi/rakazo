@@ -818,6 +818,10 @@ msgstr "Gelişmiş"
 msgid "Advanced..."
 msgstr "Gelişmiş..."
 
+#: src/components/ReviewCard.tsx
+msgid "Advisory review"
+msgstr "Danışma amaçlı inceleme"
+
 #: src/components/AccountDataSettings.tsx
 msgid "Agent from another app"
 msgstr "Başka bir uygulamadan agent"
@@ -5932,7 +5936,6 @@ msgstr "{0} aramasına dön"
 msgid "Return to Rakazo"
 msgstr "Rakazo'ya dön"
 
-#: src/components/ReviewCard.tsx
 #: src/pages/shell/message-hover-actions.tsx
 msgid "Review"
 msgstr "İncele"

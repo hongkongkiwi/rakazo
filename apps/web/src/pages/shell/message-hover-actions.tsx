@@ -142,7 +142,9 @@ export function MessageHoverActions({
                   setReviewing(true);
                   void rpc.threads
                     .reviewResult({ botId: reviewBotId, messageId: message.id })
-                    .catch((error) => toast(errorText(error, t`Could not review this result`)))
+                    .catch((error) =>
+                      toast.error(errorText(error, t`Could not review this result`)),
+                    )
                     .finally(() => setReviewing(false));
                 }}
               >

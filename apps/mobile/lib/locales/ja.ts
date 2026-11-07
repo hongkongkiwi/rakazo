@@ -1,4 +1,5 @@
 export const JA_MESSAGES: Record<string, string> = {
+  "Advisory review": "参考レビュー",
   "Review last result": "最後の結果をレビュー",
   "Could not review the last result": "最後の結果をレビューできませんでした",
   Review: "レビュー",

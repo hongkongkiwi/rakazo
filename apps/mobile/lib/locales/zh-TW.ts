@@ -1,4 +1,5 @@
 export const ZH_TW_MESSAGES: Record<string, string> = {
+  "Advisory review": "參考審查",
   "Review last result": "審查上次結果",
   "Could not review the last result": "無法審查上次結果",
   Review: "審查",

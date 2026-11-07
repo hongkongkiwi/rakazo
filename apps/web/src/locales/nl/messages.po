@@ -818,6 +818,10 @@ msgstr "Geavanceerd"
 msgid "Advanced..."
 msgstr "Geavanceerd..."
 
+#: src/components/ReviewCard.tsx
+msgid "Advisory review"
+msgstr "Adviserende beoordeling"
+
 #: src/components/AccountDataSettings.tsx
 msgid "Agent from another app"
 msgstr "Agent uit een andere app"
@@ -5932,7 +5936,6 @@ msgstr "Terug naar het gesprek met {0}"
 msgid "Return to Rakazo"
 msgstr "Terug naar Rakazo"
 
-#: src/components/ReviewCard.tsx
 #: src/pages/shell/message-hover-actions.tsx
 msgid "Review"
 msgstr "Beoordelen"
@@ -7310,7 +7313,7 @@ msgstr "Niet toegewezen"
 
 #: src/components/ReviewCard.tsx
 msgid "Unclear"
-msgstr "Onbekend"
+msgstr "Onduidelijk"
 
 #: src/components/AskCard.tsx
 msgid "Undo"

@@ -34,7 +34,9 @@ export function ReviewCard({ block }: { block: ReviewBlock }) {
       }}
     >
       <View style={{ flexDirection: "row", gap: 6, alignItems: "center" }}>
-        <Text style={{ color: tokens.mutedForeground, ...typeScale.caption }}>{t("Review")}</Text>
+        <Text style={{ color: tokens.mutedForeground, ...typeScale.caption }}>
+          {t("Advisory review")}
+        </Text>
         <Text style={{ color: tokens.mutedForeground, ...typeScale.caption }}>·</Text>
         <Text style={{ color: tone, ...typeScale.caption }}>{verdict}</Text>
       </View>

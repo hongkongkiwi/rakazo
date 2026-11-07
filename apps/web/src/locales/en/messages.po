@@ -818,6 +818,10 @@ msgstr "Advanced"
 msgid "Advanced..."
 msgstr "Advanced..."
 
+#: src/components/ReviewCard.tsx
+msgid "Advisory review"
+msgstr "Advisory review"
+
 #: src/components/AccountDataSettings.tsx
 msgid "Agent from another app"
 msgstr "Agent from another app"
@@ -5932,7 +5936,6 @@ msgstr "Return to call with {0}"
 msgid "Return to Rakazo"
 msgstr "Return to Rakazo"
 
-#: src/components/ReviewCard.tsx
 #: src/pages/shell/message-hover-actions.tsx
 msgid "Review"
 msgstr "Review"

@@ -26,6 +26,7 @@ import {
 } from "@rakazo/db";
 import { getLogger } from "@rakazo/logging";
 import { releaseComputerControl } from "../computer-control.js";
+import { ResultReviewBusyError } from "../result-review.js";
 import type { RouterDeps } from "../router.js";
 import { createRoutineTestRun, routineTestRunNonce, routineTestTarget } from "../routines.js";
 import { assertTeachingSendAllowed } from "../taught-skills.js";
@@ -319,11 +320,18 @@ export function threadsRoutes(ctx: RouterContext) {
         const threadId = bot.thread.id;
         if (!deps.resultReview)
           throw new ORPCError("NOT_IMPLEMENTED", { message: "Result review is unavailable." });
-        const review = await deps.resultReview(context.actor, {
-          botId: bot.id,
-          threadId,
-          messageId: input.messageId,
-        });
+        let review: Awaited<ReturnType<NonNullable<typeof deps.resultReview>>>;
+        try {
+          review = await deps.resultReview(context.actor, {
+            botId: bot.id,
+            threadId,
+            messageId: input.messageId,
+          });
+        } catch (error) {
+          if (error instanceof ResultReviewBusyError)
+            throw new ORPCError("CONFLICT", { message: error.message });
+          throw error;
+        }
         const blocks = [{ kind: "review" as const, ...review }];
         const committed = await deps.prisma.$transaction(async (tx) => {
           const message = await createThreadMessageInTransaction(tx, {

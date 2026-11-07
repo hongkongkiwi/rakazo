@@ -77,6 +77,14 @@ function textFromBlocks(blocks: unknown): string {
     .trim();
 }
 
+/** The message belongs to a run that has not finished, so there is no result to review yet. */
+export class ResultReviewBusyError extends Error {
+  constructor() {
+    super("This run is still working. Review it when it finishes.");
+    this.name = "ResultReviewBusyError";
+  }
+}
+
 export type ResultReviewer = (
   actor: Actor,
   input: { botId: string; threadId: string; messageId?: string; signal?: AbortSignal },
@@ -129,15 +137,19 @@ export function createResultReviewer(deps: {
           spaceId: actor.spaceId,
         },
         select: {
+          status: true,
           modelProvider: true,
           modelId: true,
           task: { select: { prompt: true } },
         },
       });
+      if (run && !["completed", "failed", "cancelled"].includes(run.status))
+        throw new ResultReviewBusyError();
       requestText = run?.task.prompt?.trim() ?? "";
       reviewedModel = run ? `${run.modelProvider}/${run.modelId}` : undefined;
+      // Every recorded outcome matters, including a failure or a denied action.
       effects = await deps.prisma.externalEffect.findMany({
-        where: { runId: message.runId, status: { in: ["completed", "uncertain", "executing"] } },
+        where: { runId: message.runId },
         orderBy: { createdAt: "asc" },
         take: EFFECTS_MAX,
         select: { kind: true, status: true },

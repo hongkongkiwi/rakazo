@@ -1,4 +1,5 @@
 export const RU_MESSAGES: Record<string, string> = {
+  "Advisory review": "Справочная проверка",
   "Review last result": "Проверить последний результат",
   "Could not review the last result": "Не удалось проверить последний результат",
   Review: "Проверить",
