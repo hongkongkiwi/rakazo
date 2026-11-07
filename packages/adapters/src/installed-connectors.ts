@@ -117,7 +117,7 @@ export const MCP_SOURCE_PRESETS: McpSourcePreset[] = [
     auth: "bearer",
   },
   { id: "mobbin", name: "Mobbin", url: "https://api.mobbin.com/mcp", auth: "oauth" },
-  { id: "infobip", name: "Infobip", url: "https://mcp.infobip.com/search", auth: "oauth" },
+  { id: "infobip", name: "Infobip docs", url: "https://mcp.infobip.com/search", auth: "none" },
 ];
 
 /** Applies a preset named in an MCP install: its fixed URL and auth, so clients send only

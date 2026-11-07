@@ -19,19 +19,31 @@ describe("remaining remote service presets", () => {
     });
   });
 
-  it("offers Mobbin and Infobip through their documented OAuth flows", () => {
-    for (const [id, name, url] of [
-      ["mobbin", "Mobbin", "https://api.mobbin.com/mcp"],
-      ["infobip", "Infobip", "https://mcp.infobip.com/search"],
-    ]) {
-      expect(MCP_SOURCE_PRESETS.find((preset) => preset.id === id)).toMatchObject({
-        name,
-        url,
-        auth: "oauth",
-      });
-      expect(() => applyMcpSourcePreset("https://elsewhere.example/mcp", { preset: id })).toThrow(
-        /OAuth/,
-      );
-    }
+  it("offers Mobbin through its documented OAuth flow", () => {
+    expect(MCP_SOURCE_PRESETS.find((preset) => preset.id === "mobbin")).toMatchObject({
+      name: "Mobbin",
+      url: "https://api.mobbin.com/mcp",
+      auth: "oauth",
+    });
+    expect(() =>
+      applyMcpSourcePreset("https://elsewhere.example/mcp", { preset: "mobbin" }),
+    ).toThrow(/OAuth/);
+  });
+
+  it("connects Infobip's public documentation server without credentials", () => {
+    expect(MCP_SOURCE_PRESETS.find((preset) => preset.id === "infobip")).toMatchObject({
+      name: "Infobip docs",
+      url: "https://mcp.infobip.com/search",
+      auth: "none",
+    });
+    expect(
+      applyMcpSourcePreset("https://elsewhere.example/mcp", {
+        preset: "infobip",
+        auth: { type: "bearer" },
+      }),
+    ).toEqual({
+      source: "https://mcp.infobip.com/search",
+      config: { preset: "infobip", auth: { type: "none" } },
+    });
   });
 });
