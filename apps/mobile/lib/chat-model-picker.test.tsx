@@ -44,6 +44,7 @@ const mocks = vi.hoisted(() => ({
   dismissKeyboard: vi.fn(),
   listProps: {} as Record<string, unknown>,
   params: {} as Record<string, string | undefined>,
+  botDetail: {} as Record<string, unknown>,
   update: vi.fn(),
   push: vi.fn(),
   back: vi.fn(),
@@ -177,7 +178,13 @@ vi.mock("./api", () => ({
     }
     if (procedure === "models/setDefault") return result;
     if (procedure === "bots/get")
-      return { id: "bot-fixture", name: "Fixture", title: "", computerMode: "team" };
+      return {
+        id: "bot-fixture",
+        name: "Fixture",
+        title: "",
+        computerMode: "team",
+        ...mocks.botDetail,
+      };
     if (procedure === "me")
       return {
         userId: "user-fixture",
@@ -593,6 +600,7 @@ let root: Root;
 let container: HTMLDivElement;
 beforeEach(() => {
   vi.clearAllMocks();
+  mocks.botDetail = {};
   mocks.reportVisibleRows = true;
   mocks.headerInset = 0;
   mocks.focused = true;
@@ -660,6 +668,85 @@ describe("chat settings model row", () => {
     expect(mocks.update).toHaveBeenCalledWith(
       expect.objectContaining({ modelProvider: "openrouter", modelId: "vendor/model-3" }),
     );
+  });
+});
+
+describe("page decider model row", () => {
+  const openAdvanced = () =>
+    act(() => container.querySelector<HTMLButtonElement>('button[aria-label="Advanced"]')!.click());
+  const pageDeciderRow = () =>
+    container.querySelector<HTMLElement>('[aria-label="Page decider"][aria-valuetext]')!;
+  const saveButton = () =>
+    [...container.querySelectorAll<HTMLButtonElement>("button")].find(
+      (button) => button.textContent === "Save",
+    )!;
+
+  it("sends the searchable list after the page decider and keeps the main model alone", async () => {
+    mocks.params = { botId: "bot-fixture" };
+    await act(async () => root.render(<BotSettingsScreen />));
+    openAdvanced();
+    expect(pageDeciderRow().getAttribute("aria-valuetext")).toBe("Off");
+    act(() => (pageDeciderRow() as HTMLButtonElement).click());
+    expect(mocks.push).toHaveBeenCalledExactlyOnceWith({
+      pathname: "/bot-model",
+      params: { botId: "bot-fixture", value: "", target: "pageDecider" },
+    });
+
+    mocks.params = {
+      botId: "bot-fixture",
+      model: "openrouter::vendor/model-3",
+      target: "pageDecider",
+    };
+    await act(async () => root.render(<BotSettingsScreen />));
+    expect(mocks.setParams).toHaveBeenCalledWith({ model: undefined, target: undefined });
+    expect(pageDeciderRow().getAttribute("aria-valuetext")).toBe("Model 3 (OpenRouter)");
+    expect(
+      container.querySelector('button[aria-label="Model"]')?.getAttribute("aria-valuetext"),
+    ).toBe("Space default (Model 1)");
+
+    await act(async () => saveButton().click());
+    const input = mocks.update.mock.lastCall![0] as Record<string, unknown>;
+    expect(input).toMatchObject({
+      pageDeciderProvider: "openrouter",
+      pageDeciderModelId: "vendor/model-3",
+    });
+    expect(input).not.toHaveProperty("modelProvider");
+    expect(input).not.toHaveProperty("modelId");
+  });
+
+  it("clears a stored page decider back to Off as an explicit null pair", async () => {
+    mocks.connected = false;
+    mocks.botDetail = { pageDeciderProvider: "openai", pageDeciderModelId: "gpt-4.1" };
+    mocks.params = { botId: "bot-fixture" };
+    await act(async () => root.render(<BotSettingsScreen />));
+    openAdvanced();
+    const menu = mocks.menus.get("Page decider")!;
+    expect(menu.actions.map((action) => [action.id, action.title])).toEqual([
+      ["choice:", "Off"],
+      ["choice:openai::gpt-4.1", "gpt-4.1"],
+    ]);
+    expect(pageDeciderRow().getAttribute("aria-valuetext")).toBe("gpt-4.1");
+
+    await act(async () => menu.onPressAction({ nativeEvent: { event: "choice:" } }));
+    expect(pageDeciderRow().getAttribute("aria-valuetext")).toBe("Off");
+
+    await act(async () => saveButton().click());
+    const input = mocks.update.mock.lastCall![0] as Record<string, unknown>;
+    expect(input).toMatchObject({ pageDeciderProvider: null, pageDeciderModelId: null });
+    expect(input).not.toHaveProperty("modelProvider");
+    expect(input).not.toHaveProperty("modelId");
+  });
+
+  it("returns the page decider target with the model picked from the list", async () => {
+    mocks.params = { botId: "bot-fixture", value: "", target: "pageDecider" };
+    await act(async () => root.render(<BotModelScreen />));
+    const rows = [...container.querySelectorAll<HTMLButtonElement>("li button")];
+    expect(rows[1]?.textContent).toBe("Model 1");
+    act(() => rows[1]!.click());
+    expect(mocks.dismissTo).toHaveBeenCalledExactlyOnceWith({
+      pathname: "/bot-settings",
+      params: { botId: "bot-fixture", model: "openrouter::vendor/model-1", target: "pageDecider" },
+    });
   });
 });
 

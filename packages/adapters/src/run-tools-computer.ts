@@ -1,8 +1,15 @@
 import { randomUUID } from "node:crypto";
-import type { SandboxProvider } from "@rakazo/adapter-kit";
+import type { PageDecider, SandboxProvider } from "@rakazo/adapter-kit";
 import type { ComputerCommand } from "@rakazo/contracts";
 import { COMPUTER_COMMAND_OUTPUT_MAX_CHARS } from "@rakazo/contracts";
-import { redactSecrets, sandboxCommandTimeoutMs } from "@rakazo/core";
+import {
+  redactSecrets,
+  resolveActionApproval,
+  resolveActionApprovalDetail,
+  sandboxCommandTimeoutMs,
+  unattendedTriggerToolRequiresApproval,
+} from "@rakazo/core";
+import { urlSite } from "@rakazo/core/egress";
 import { RunHistoryWriteError, releasePayment } from "@rakazo/db";
 import { getLogger } from "@rakazo/logging";
 import { redactShellStreams } from "./agent-environment.js";
@@ -42,6 +49,7 @@ import {
   protectedComputerLifecycleRefusal,
 } from "./desktop-command-guard.js";
 import { nativeShellCommandArgv, usesNativeShell } from "./native-shell.js";
+import { normalizeGoal } from "./page-decision-chain.js";
 import { purchaseApprovalOf } from "./purchase-gate.js";
 import { resolvePurchaseCardFill, resolvePurchasePayTokenFill } from "./purchase-service.js";
 import type { RunContext } from "./run-context.js";
@@ -187,6 +195,15 @@ export async function pageBrowserTool(ctx: RunContext, call: ToolCall) {
   if (name !== "browser_snapshot") ctx.computer.checkpoint.markDirty();
   // Pages can echo a filled login (e.g. a username field), so scrub every page result.
   const redactions = () => [...ctx.secrets];
+  // Site-scoped rules apply to each implicit click, so they are resolved with the click's own page.
+  const allowStep = async (url: string) => {
+    const site = urlSite(url);
+    if (!site) return false;
+    const rules = await ctx.trust.loadApprovalRules();
+    return (
+      resolveActionApprovalDetail({ toolName: "browser_act", rules, site }).decision === "allow"
+    );
+  };
   const desktopTools =
     ctx.computer.graphicalToolsAllowed && builtinOffered(ctx.tools.disabled, "computer_act");
   // A file the page downloads goes to the bot's own Downloads folder. Its name is redacted like any
@@ -203,6 +220,24 @@ export async function pageBrowserTool(ctx: RunContext, call: ToolCall) {
         ? browserSnapshotFromTool
         : null;
   return computerScreenToolResult(async () => {
+    let decider: PageDecider | undefined;
+    if (
+      name !== "browser_snapshot" &&
+      normalizeGoal(args.goal) &&
+      ctx.pageDecider &&
+      builtinOffered(ctx.tools.disabled, "browser_act") &&
+      !unattendedTriggerToolRequiresApproval(run.trigger, "browser_act", false)
+    ) {
+      try {
+        const rules = await ctx.trust.loadApprovalRules();
+        if (resolveActionApproval({ toolName: "browser_act", rules }) === "allow") {
+          decider = await ctx.pageDecider();
+        }
+      } catch {
+        context.signal.throwIfAborted();
+        // Missing policy or provider leaves the original browser call unchanged.
+      }
+    }
     // A call that presses an approved purchase spends it: a card it types leaves no pass for the next one.
     const paying = purchaseApprovalOf(args.purchaseApproval);
     const result = tool
@@ -210,6 +245,9 @@ export async function pageBrowserTool(ctx: RunContext, call: ToolCall) {
           await tool(ctx.providers.browser, await ctx.computer.get("tool", name), context, args, {
             desktopTools,
             downloads,
+            decider,
+            redactions,
+            allowStep,
           }),
           redactions(),
         )
@@ -222,6 +260,8 @@ export async function pageBrowserTool(ctx: RunContext, call: ToolCall) {
             desktopTools,
             downloads,
             redactions,
+            decider,
+            allowStep,
             approvedPurchase: paying,
             countPurchase: () => countPayment(ctx, call),
             releasePurchase: () => releaseUnpressedPayment(ctx, call),

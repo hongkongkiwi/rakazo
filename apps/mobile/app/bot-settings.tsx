@@ -8,6 +8,8 @@ import {
   resolveBotAvatarSet,
 } from "@rakazo/contracts";
 import {
+  chatModelChoices,
+  connectedModelChoices,
   credentialForModel,
   MODEL_SEARCH_THRESHOLD,
   modelOptionKey,
@@ -68,8 +70,9 @@ export default function BotSettingsScreen() {
   const {
     botId,
     model: pickedModel,
+    target: pickedModelTarget,
     focus,
-  } = useLocalSearchParams<{ botId: string; model?: string; focus?: string }>();
+  } = useLocalSearchParams<{ botId: string; model?: string; target?: string; focus?: string }>();
   const scrollRef = useRef<ScrollView>(null);
   const modelY = useRef(0);
   const [bot, setBot] = useState<Bot | null>(null);
@@ -83,6 +86,7 @@ export default function BotSettingsScreen() {
   const [avatarOpen, setAvatarOpen] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(focus === "model" || pickedModel !== undefined);
   const [modelKey, setModelKey] = useState("");
+  const [pageDeciderKey, setPageDeciderKey] = useState("");
   const [thinkingLevel, setThinkingLevel] = useState("");
   const [notifyOnFinish, setNotifyOnFinish] = useState(true);
   const [autoSpeak, setAutoSpeak] = useState(false);
@@ -209,6 +213,11 @@ export default function BotSettingsScreen() {
             ? modelOptionKey(next.modelProvider, next.modelId)
             : "",
         );
+        setPageDeciderKey(
+          next.pageDeciderProvider && next.pageDeciderModelId
+            ? modelOptionKey(next.pageDeciderProvider, next.pageDeciderModelId)
+            : "",
+        );
         setThinkingLevel(next.thinkingLevel ?? "");
         setAutoSpeak(next.autoSpeak);
         setNotifyOnFinish(next.notifyOnFinish ?? true);
@@ -272,6 +281,11 @@ export default function BotSettingsScreen() {
     [catalog, credentials, me, selectedModelKey, t],
   );
 
+  const pageDeciderChoices = useMemo(
+    () => chatModelChoices(connectedModelChoices(credentials, catalog), pageDeciderKey, t("Off")),
+    [catalog, credentials, pageDeciderKey, t],
+  );
+
   const thinkingChoices: MenuPickerChoice[] = useMemo(
     () => [
       { key: "", label: t("Default") },
@@ -293,13 +307,18 @@ export default function BotSettingsScreen() {
     setThinkingLevel("");
   }
 
+  function selectPageDecider(key: string) {
+    if (key !== pageDeciderKey) setPageDeciderKey(key);
+  }
+
   // The searchable model list hands its pick back as a one-shot route param.
   useEffect(() => {
     if (pickedModel === undefined) return;
-    router.setParams({ model: undefined });
+    router.setParams({ model: undefined, target: undefined });
     setAdvancedOpen(true);
-    selectModel(pickedModel);
-  }, [pickedModel]);
+    if (pickedModelTarget === "pageDecider") selectPageDecider(pickedModel);
+    else selectModel(pickedModel);
+  }, [pickedModel, pickedModelTarget]);
 
   function applyVoices(available: Voice[], assigned: string | undefined) {
     setVoices(available);
@@ -408,6 +427,8 @@ export default function BotSettingsScreen() {
         avatarSet?: BotAvatarSet;
         modelProvider?: string | null;
         modelId?: string | null;
+        pageDeciderProvider?: string | null;
+        pageDeciderModelId?: string | null;
         thinkingLevel?: ThinkingLevel | null;
         autoSpeak?: boolean;
       } = { botId };
@@ -424,6 +445,14 @@ export default function BotSettingsScreen() {
         (selected?.provider ?? null) !== (bot.modelProvider ?? null) ||
         (selected?.modelId ?? null) !== (bot.modelId ?? null);
       const thinkingChanged = (thinkingLevel || null) !== (bot.thinkingLevel ?? null);
+      const nextPageDecider = pageDeciderKey ? parseModelOptionKey(pageDeciderKey) : null;
+      const pageDeciderChanged =
+        (nextPageDecider?.provider ?? null) !== (bot.pageDeciderProvider ?? null) ||
+        (nextPageDecider?.modelId ?? null) !== (bot.pageDeciderModelId ?? null);
+      if (pageDeciderChanged) {
+        input.pageDeciderProvider = nextPageDecider?.provider ?? null;
+        input.pageDeciderModelId = nextPageDecider?.modelId ?? null;
+      }
       if (modelChanged) {
         input.modelProvider = selected?.provider ?? null;
         input.modelId = selected?.modelId ?? null;
@@ -466,6 +495,7 @@ export default function BotSettingsScreen() {
     }
   }
 
+  const storedPageDecider = pageDeciderKey ? parseModelOptionKey(pageDeciderKey) : null;
   const dirty =
     bot &&
     (description.trim() !== (bot.description ?? "") ||
@@ -476,6 +506,8 @@ export default function BotSettingsScreen() {
       autoSpeak !== bot.autoSpeak ||
       (selectedModel?.provider ?? null) !== (bot.modelProvider ?? null) ||
       (selectedModel?.modelId ?? null) !== (bot.modelId ?? null) ||
+      (storedPageDecider?.provider ?? null) !== (bot.pageDeciderProvider ?? null) ||
+      (storedPageDecider?.modelId ?? null) !== (bot.pageDeciderModelId ?? null) ||
       (thinkingLevel || null) !== (bot.thinkingLevel ?? null));
 
   const hasVoiceMenu = !voiceError && voices.length > 1;
@@ -636,6 +668,29 @@ export default function BotSettingsScreen() {
                   value={thinkingLevel}
                 />
               ) : null}
+            </SettingsGroup>
+            <SettingsGroup
+              label={t("Page decider")}
+              footer={t(
+                "Page text goes to the model you choose, under your AI data-sharing consent. Needs browser_act enabled; steps that need approval are never taken.",
+              )}
+            >
+              <MenuPicker
+                choices={pageDeciderChoices}
+                label={t("Page decider")}
+                showLabel={false}
+                onChange={selectPageDecider}
+                onPress={
+                  pageDeciderChoices.length > MODEL_SEARCH_THRESHOLD
+                    ? () =>
+                        router.push({
+                          pathname: "/bot-model",
+                          params: { botId, value: pageDeciderKey, target: "pageDecider" },
+                        })
+                    : undefined
+                }
+                value={pageDeciderKey}
+              />
             </SettingsGroup>
             <SettingsGroup label={t("Computer")}>
               <View style={styles.cardContent}>

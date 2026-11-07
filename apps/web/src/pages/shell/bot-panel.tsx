@@ -60,6 +60,9 @@ function advancedValues(bot: Bot) {
     bot.memoryScope,
     bot.autoSpeak,
     bot.voiceId ?? "",
+    bot.pageDeciderProvider && bot.pageDeciderModelId
+      ? modelOptionKey(bot.pageDeciderProvider, bot.pageDeciderModelId)
+      : "",
   ] as const;
 }
 
@@ -106,6 +109,8 @@ export function BotSettings({
     voiceId?: string | null;
     modelProvider?: string | null;
     modelId?: string | null;
+    pageDeciderProvider?: string | null;
+    pageDeciderModelId?: string | null;
     thinkingLevel?: ThinkingLevel | null;
     disabledBuiltinTools?: string[];
   }) => Promise<void>;
@@ -159,6 +164,11 @@ export function BotSettings({
     bot.modelProvider && bot.modelId ? modelOptionKey(bot.modelProvider, bot.modelId) : "",
   );
   const [thinkingLevel, setThinkingLevel] = useState(bot.thinkingLevel ?? "");
+  const [pageDeciderKey, setPageDeciderKey] = useState(
+    bot.pageDeciderProvider && bot.pageDeciderModelId
+      ? modelOptionKey(bot.pageDeciderProvider, bot.pageDeciderModelId)
+      : "",
+  );
   const [disabledBuiltinTools, setDisabledBuiltinTools] = useState<string[]>(
     bot.disabledBuiltinTools ?? [],
   );
@@ -198,6 +208,7 @@ export function BotSettings({
     memoryScope,
     autoSpeak,
     voiceId,
+    pageDeciderKey,
   ]);
   const dirty =
     name.trim() !== savedNameRef.current.trim() ||
@@ -253,6 +264,7 @@ export function BotSettings({
     if (memoryScope === saved[3]) setMemoryScope(next[3]);
     if (autoSpeak === saved[4]) setAutoSpeak(next[4]);
     if (voiceId === saved[5]) setVoiceId(next[5]);
+    if (pageDeciderKey === saved[6]) setPageDeciderKey(next[6]);
     setSavedAdvanced(JSON.stringify(next));
   }, [bot]);
 
@@ -277,6 +289,8 @@ export function BotSettings({
     t`Space default`,
     defaultEntry?.images,
   );
+  // Empty means off; a saved choice that is no longer connected stays visible so it can be fixed.
+  const pageDeciderChoices = chatModelChoices(connectedOptions, pageDeciderKey, t`Off`);
 
   const effectiveProvider = selectedModel?.provider ?? me?.defaultProvider ?? null;
   const effectiveModelId = selectedModel?.modelId ?? me?.defaultModel ?? null;
@@ -342,6 +356,7 @@ export function BotSettings({
         patchOverrides?.notifyOnFinish !== undefined
           ? patchOverrides.notifyOnFinish
           : notifyOnFinish;
+      const nextPageDecider = pageDeciderKey ? parseModelOptionKey(pageDeciderKey) : null;
 
       if (nextName) setName(nextName);
       setDescription(nextDescription);
@@ -362,6 +377,8 @@ export function BotSettings({
         voiceId: voiceId || null,
         modelProvider: selected?.provider ?? null,
         modelId: selected?.modelId ?? null,
+        pageDeciderProvider: nextPageDecider?.provider ?? null,
+        pageDeciderModelId: nextPageDecider?.modelId ?? null,
         ...(modelMetaReady &&
         (thinkingOptions.length > 0 ||
           (selected?.provider ?? null) !== bot.modelProvider ||
@@ -413,7 +430,15 @@ export function BotSettings({
       if (nextName) savedNameRef.current = nextName;
       savedDescriptionRef.current = nextDescription;
       setSavedAdvanced(
-        JSON.stringify([modelKey, thinkingLevel, computerMode, memoryScope, autoSpeak, voiceId]),
+        JSON.stringify([
+          modelKey,
+          thinkingLevel,
+          computerMode,
+          memoryScope,
+          autoSpeak,
+          voiceId,
+          pageDeciderKey,
+        ]),
       );
     } catch (err) {
       if (
@@ -586,6 +611,9 @@ export function BotSettings({
               thinkingLevel={thinkingLevel}
               defaultThinkingLevel={defaultThinkingLevel}
               onThinkingLevelChange={setThinkingLevel}
+              pageDeciderChoices={pageDeciderChoices}
+              pageDeciderValue={pageDeciderKey}
+              onPageDeciderChange={setPageDeciderKey}
             />
             <ComputerGroup
               computerMode={computerMode}

@@ -1306,6 +1306,8 @@ export interface BrowserPurchaseCheckRequest {
 /** `steps`: the indexes of the clicks that would complete the purchase. */
 export interface BrowserPurchaseCheckResult {
   purchase: (BrowserPurchase & { steps: number[] }) | null;
+  /** True only when the page was checked, not when checking is unavailable. */
+  verified?: boolean;
 }
 
 /** A sandbox must route these commands through its owned screen, never generic host execution. */

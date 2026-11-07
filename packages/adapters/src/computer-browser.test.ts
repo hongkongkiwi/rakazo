@@ -479,6 +479,7 @@ describe("page browser safety", () => {
     reply = { ...answer, purchase: null };
     expect(await provider.purchaseCheck(computer, { actions }, baseContext)).toEqual({
       purchase: null,
+      verified: true,
     });
     // A page without a host (about:blank, data:, file:) still asks, naming no site.
     reply = { ...answer, site: "", origin: "null" };

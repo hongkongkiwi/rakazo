@@ -168,6 +168,8 @@ function bot(description = "Billing", overrides: Partial<Bot> = {}): Bot {
     autoSpeak: false,
     modelProvider: null,
     modelId: null,
+    pageDeciderProvider: null,
+    pageDeciderModelId: null,
     thinkingLevel: null,
     teamChatAmbientEnabled: false,
     teamChatRules: "",
@@ -382,6 +384,45 @@ describe("BotSettings model choices", () => {
     expect(values).toContain("deepseek::deepseek-v4-pro");
     expect(values).not.toContain("deepseek::DeepSeek-V4.1-Flash");
     expect(values.some((value) => value.includes("DeepSeek"))).toBe(false);
+  });
+
+  it("keeps the page decider off by default and saves a chosen model with it", async () => {
+    vi.mocked(rpc.models.credentials).mockResolvedValueOnce([
+      {
+        id: "cred-deepseek",
+        provider: "deepseek",
+        label: "DeepSeek",
+        hasKey: true,
+        isDefault: true,
+        modelId: "deepseek-flash",
+      },
+    ]);
+    vi.mocked(rpc.models.list).mockResolvedValueOnce([
+      {
+        provider: "deepseek",
+        providerName: "DeepSeek",
+        id: "deepseek-flash",
+        label: "DeepSeek V4.1 Flash",
+        billing: "",
+      },
+    ]);
+    await render();
+    await act(async () => {
+      await Promise.resolve();
+    });
+    const select = container.querySelector<HTMLSelectElement>('[id$="-page-decider"]');
+    if (!select) throw new Error("Missing page decider select");
+    expect(select.value).toBe("");
+    expect([...select.options].map((option) => option.textContent)).toContain("Off");
+    await act(async () => {
+      select.value = "deepseek::deepseek-flash";
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    await clickSave();
+    expect(onSave.mock.lastCall?.[0]).toMatchObject({
+      pageDeciderProvider: "deepseek",
+      pageDeciderModelId: "deepseek-flash",
+    });
   });
 });
 

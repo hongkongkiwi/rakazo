@@ -90,6 +90,8 @@ function inboxBot(): Bot {
     replyMode: "chat",
     modelProvider: "openai",
     modelId: "gpt-4.1",
+    pageDeciderProvider: null,
+    pageDeciderModelId: null,
     thinkingLevel: null,
     teamChatAmbientEnabled: false,
     teamChatRules: "",
