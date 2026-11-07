@@ -1,6 +1,12 @@
 import type { ImageAnnotationMark } from "@rakazo/contracts";
 import { IMAGE_ANNOTATION_MAX_MARKS } from "@rakazo/contracts";
 import { newClientId } from "@rakazo/core";
+import {
+  cacheDirectory,
+  deleteAsync,
+  EncodingType,
+  writeAsStringAsync,
+} from "expo-file-system/legacy";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Image,
@@ -52,10 +58,38 @@ export function AnnotateImageModal({
   const start = useRef<Point | null>(null);
   const draftRef = useRef<Draft | null>(null);
 
-  // A picked image normally has a preview file; a shared one may only carry bytes.
-  const previewUri =
-    attachment.previewUri ?? `data:${attachment.mimeType};base64,${attachment.contentBase64}`;
+  // A picked image normally has a preview file. A shared one may only carry bytes,
+  // and Image.getSize does not read a data URI on Android, so write them to cache.
+  const [previewUri, setPreviewUri] = useState<string | null>(attachment.previewUri ?? null);
   useEffect(() => {
+    if (attachment.previewUri) {
+      setPreviewUri(attachment.previewUri);
+      return;
+    }
+    const extension =
+      attachment.mimeType === "image/jpeg"
+        ? "jpg"
+        : attachment.mimeType === "image/webp"
+          ? "webp"
+          : "png";
+    const path = `${cacheDirectory}annotation-${sessionId}.${extension}`;
+    let cancelled = false;
+    writeAsStringAsync(path, attachment.contentBase64, {
+      encoding: EncodingType.Base64,
+    })
+      .then(() => {
+        if (!cancelled) setPreviewUri(path);
+      })
+      .catch(() => {
+        if (!cancelled) setError(t("This image could not be read"));
+      });
+    return () => {
+      cancelled = true;
+      void deleteAsync(path, { idempotent: true }).catch(() => undefined);
+    };
+  }, [attachment.previewUri, attachment.contentBase64, attachment.mimeType, sessionId, t]);
+  useEffect(() => {
+    if (!previewUri) return;
     Image.getSize(
       previewUri,
       (width, height) => setSize({ width, height }),
@@ -192,7 +226,7 @@ export function AnnotateImageModal({
           <Text style={{ color: tokens.mutedForeground, fontSize: 15 }}>
             {t("Drag over the image to point at what matters.")}
           </Text>
-          {display ? (
+          {display && previewUri ? (
             <View
               {...responder.panHandlers}
               style={{
