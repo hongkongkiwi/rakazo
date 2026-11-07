@@ -2050,6 +2050,10 @@ msgstr "Doorgaan naar afrekenen"
 msgid "Continue with {0}"
 msgstr "Doorgaan met {0}"
 
+#: src/pages/shell/message-view.tsx
+msgid "Continued on a different model"
+msgstr "Voortgezet op een ander model"
+
 #: src/pages/MessagingSettingsPanel.tsx
 msgid "Conversations"
 msgstr "Gesprekken"

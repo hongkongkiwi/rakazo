@@ -2050,6 +2050,10 @@ msgstr "המשך לתשלום"
 msgid "Continue with {0}"
 msgstr "המשך עם {0}"
 
+#: src/pages/shell/message-view.tsx
+msgid "Continued on a different model"
+msgstr "המשיך במודל אחר"
+
 #: src/pages/MessagingSettingsPanel.tsx
 msgid "Conversations"
 msgstr "שיחות"

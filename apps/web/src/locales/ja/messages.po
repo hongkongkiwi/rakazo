@@ -2050,6 +2050,10 @@ msgstr "購入手続きへ進む"
 msgid "Continue with {0}"
 msgstr "{0}で続行"
 
+#: src/pages/shell/message-view.tsx
+msgid "Continued on a different model"
+msgstr "別のモデルで続行"
+
 #: src/pages/MessagingSettingsPanel.tsx
 msgid "Conversations"
 msgstr "会話"

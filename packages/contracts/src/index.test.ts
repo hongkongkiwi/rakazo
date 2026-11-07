@@ -203,6 +203,13 @@ describe("contracts", () => {
     ).toBe(false);
   });
 
+  it("accepts a known meta code and rejects an unknown one", () => {
+    expect(
+      MessageBlock.parse({ kind: "meta", text: "Continued", code: "model_switch" }),
+    ).toMatchObject({ code: "model_switch" });
+    expect(MessageBlock.safeParse({ kind: "meta", text: "x", code: "other" }).success).toBe(false);
+  });
+
   it("accepts optional persisted duration only on valid steps blocks", () => {
     expect(
       MessageBlock.parse({

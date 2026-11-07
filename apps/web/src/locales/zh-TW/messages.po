@@ -2051,6 +2051,10 @@ msgstr "繼續結帳"
 msgid "Continue with {0}"
 msgstr "透過 {0} 繼續"
 
+#: src/pages/shell/message-view.tsx
+msgid "Continued on a different model"
+msgstr "已在其他模型上繼續"
+
 #: src/pages/MessagingSettingsPanel.tsx
 msgid "Conversations"
 msgstr "對話"

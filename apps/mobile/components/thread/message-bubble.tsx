@@ -784,8 +784,15 @@ function MessageTextCard({
 }) {
   const colorScheme = useResolvedAppearance();
   const tokens = withUserBubble(mobileTokens(), userBubble);
-  const contentText = blockText(message);
   const { t } = useI18n();
+  const contentText = blockText({
+    ...message,
+    blocks: message.blocks.map((block) =>
+      block.kind === "meta" && block.code === "model_switch"
+        ? { ...block, text: t("Continued on a different model") }
+        : block,
+    ),
+  });
   const userMentions = useContext(UserMentionsContext);
   if (!contentText) return null;
   // The surface is one accessibility element, so the bots a message names are offered as its

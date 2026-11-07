@@ -40,6 +40,20 @@ export function serializeTurnCheckpoint(checkpoint: TurnCheckpoint): string {
   return JSON.stringify(checkpoint);
 }
 
+/** The provider and model a saved turn last ran on, when the blob names them. */
+export function checkpointProviderModel(
+  blob: string,
+): { provider: string; model: string } | undefined {
+  try {
+    const checkpoint = JSON.parse(blob) as { provider?: unknown; model?: unknown };
+    return typeof checkpoint.provider === "string" && typeof checkpoint.model === "string"
+      ? { provider: checkpoint.provider, model: checkpoint.model }
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export function restoreTurnCheckpoint(
   blob: string,
   model: Pick<AgentRunModel, "provider" | "id">,

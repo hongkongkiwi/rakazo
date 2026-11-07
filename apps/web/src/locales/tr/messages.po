@@ -2050,6 +2050,10 @@ msgstr "Ödemeye devam et"
 msgid "Continue with {0}"
 msgstr "{0} ile devam et"
 
+#: src/pages/shell/message-view.tsx
+msgid "Continued on a different model"
+msgstr "Başka bir modelde devam edildi"
+
 #: src/pages/MessagingSettingsPanel.tsx
 msgid "Conversations"
 msgstr "Sohbetler"

@@ -235,7 +235,12 @@ export const MessageBlock = z.discriminatedUnion("kind", [
     /** Connected time the user's client measured after answering. */
     durationSeconds: z.number().int().nonnegative().optional(),
   }),
-  z.object({ kind: z.literal("meta"), text: z.string() }),
+  z.object({
+    kind: z.literal("meta"),
+    text: z.string(),
+    /** A known state the client can word itself; `text` is the fallback for older clients. */
+    code: z.literal("model_switch").optional(),
+  }),
   z.object({
     kind: z.literal("progress"),
     text: z.string(),
