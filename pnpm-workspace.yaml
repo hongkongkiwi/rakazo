@@ -54,3 +54,5 @@ allowBuilds:
   cpu-features: false
   protobufjs: false
   ssh2: false
+minimumReleaseAgeExclude:
+  - "@insforge/instabox-sdk@0.7.1"

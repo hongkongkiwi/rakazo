@@ -65,6 +65,7 @@ const SANDBOX_NAMES: Record<Exclude<SandboxKind, "none" | "desktop" | "fake">, s
   incus: "Incus",
   boat: "Boat",
   boxd: "Boxd",
+  instabox: "Instabox",
   createos: "CreateOS",
   daytona: "Daytona",
   e2b: "E2B",
