@@ -1,7 +1,7 @@
 import type { AdapterContext, ArtifactStore } from "@rakazo/adapter-kit";
 import type { MessageBlock } from "@rakazo/contracts";
 import { MessageBlock as MessageBlockSchema } from "@rakazo/contracts";
-import { humanizeToolName } from "@rakazo/core";
+import { humanizeToolName, redactSecrets } from "@rakazo/core";
 import type { PrismaClient } from "@rakazo/db";
 import { getLogger } from "@rakazo/logging";
 import { builtinAgentTools } from "./builtin-tools.js";
@@ -11,6 +11,8 @@ export type OutcomeScope = {
   spaceId: string;
   botId: string;
   userId: string;
+  /** Every value this run must never show, as collected while it ran. */
+  secrets?: readonly string[];
 };
 
 type OutcomeBlock = Extract<MessageBlock, { kind: "outcome" }>;
@@ -151,8 +153,14 @@ function groupKey(entry: OutcomeEntry): string {
   ].join("\u001f");
 }
 
-function addEntry(entries: OutcomeEntry[], entry: OutcomeEntry) {
-  const bounded = { ...entry, label: entry.label.slice(0, MAX_LABEL) };
+function addEntry(entries: OutcomeEntry[], entry: OutcomeEntry, secrets: readonly string[]) {
+  const bounded: OutcomeEntry = {
+    ...entry,
+    // A tool argument or saved name can repeat a value the run must not show.
+    label: redactSecrets(entry.label, secrets).slice(0, MAX_LABEL),
+    ...(entry.detail ? { detail: redactSecrets(entry.detail, secrets).slice(0, 300) } : {}),
+    ...(entry.url ? { url: redactSecrets(entry.url, secrets).slice(0, 2048) } : {}),
+  };
   const key = groupKey(bounded);
   const existing = entries.find((candidate) => groupKey(candidate) === key);
   if (existing) {
@@ -209,7 +217,6 @@ async function missingFiles(
   const stored = await deps.prisma.artifact.findMany({
     where: { runId: scope.runId },
     orderBy: { createdAt: "asc" },
-    take: MAX_ENTRIES,
     select: { id: true, name: true, storageKey: true },
   });
   if (stored.length === 0) return [];
@@ -263,15 +270,21 @@ export async function buildOutcomeBlock(
   });
   for (const effect of effects) {
     if (!shouldReport(effect.kind)) continue;
-    addEntry(entries, {
-      kind: "action",
-      label: actionLabel(effect.kind),
-      status: reportedStatus(effect.status, effect.result),
-      ...targetOf(effect.request),
-    });
+    addEntry(
+      entries,
+      {
+        kind: "action",
+        label: actionLabel(effect.kind),
+        status: reportedStatus(effect.status, effect.result),
+        ...targetOf(effect.request),
+      },
+      scope.secrets ?? [],
+    );
   }
-  for (const failure of await missingFiles(deps, scope)) addEntry(entries, failure);
-  for (const failure of await failedPages(deps.prisma, scope)) addEntry(entries, failure);
+  for (const failure of await missingFiles(deps, scope))
+    addEntry(entries, failure, scope.secrets ?? []);
+  for (const failure of await failedPages(deps.prisma, scope))
+    addEntry(entries, failure, scope.secrets ?? []);
   if (entries.length === 0) return null;
   const order = { failed: 0, unchecked: 1, reported: 2 } as const;
   entries.sort((a, b) => order[a.status] - order[b.status]);

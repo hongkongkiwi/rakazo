@@ -1,4 +1,8 @@
 export const ZH_TW_MESSAGES: Record<string, string> = {
+  "What changed": "變更內容",
+  "Couldn't confirm": "無法確認",
+  "Not checked": "未檢查",
+  "Reported": "已回報",
   "No matches": "沒有相符的結果",
   "Always ask": "一律詢問",
   "Search tools": "搜尋工具",

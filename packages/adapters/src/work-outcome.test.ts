@@ -171,6 +171,21 @@ describe("buildOutcomeBlock", () => {
     await expect(buildOutcomeBlock(deps, scope)).resolves.toBeNull();
   });
 
+  it("redacts a known secret from every entry", async () => {
+    const { deps } = fixture({
+      effects: [
+        {
+          kind: "COMPOSIO_SEND_EMAIL",
+          status: "completed",
+          request: { subject: "token abc123" },
+        },
+      ],
+    });
+    const block = await buildOutcomeBlock(deps, { ...scope, secrets: ["abc123"] });
+    expect(JSON.stringify(block)).not.toContain("abc123");
+    expect(JSON.stringify(block)).toContain("[redacted]");
+  });
+
   it("truncates an artifact name to the contract's label bound", async () => {
     const name = "x".repeat(300);
     const { deps } = fixture({
@@ -185,10 +200,17 @@ describe("buildOutcomeBlock", () => {
     const { deps, prisma } = fixture({
       messages: [pageBlock("page-1", 2, "Launch plan")],
       pages: { "page-1": { id: "page-1" } },
+      // An older version exists, so a check that asks for the wrong one would pass.
+      versions: { "page-1:1": { id: "version-1" } },
     });
     const block = await buildOutcomeBlock(deps, scope);
     expect(prisma.page.findFirst).toHaveBeenCalledWith(
       expect.objectContaining({ where: { id: "page-1", spaceId: "space-1" } }),
+    );
+    expect(prisma.pageVersion.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { pageId_version: { pageId: "page-1", version: 2 } },
+      }),
     );
     expect(block?.entries).toEqual([
       {

@@ -860,6 +860,7 @@ export async function completeRun(ctx: RunContext) {
           spaceId: run.spaceId,
           botId: bot.id,
           userId: run.userId,
+          secrets: ctx.secrets,
         }).catch((error) => {
           getLogger().error("work outcome receipt", error);
           return null;
